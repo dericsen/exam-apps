@@ -1,10 +1,11 @@
 {
   "name": "exam-apps",
-  "version": "1.0.0",
-  "description": "Aplikasi ujian LAN dengan lockdown: TPKS (pilihan ganda) + Competitive Programming (auto-judge). Zero dependency.",
+  "version": "1.1.0",
+  "description": "Aplikasi ujian LAN dengan lockdown: 30 soal TPKS + 2 soal Competitive Programming (auto-judge), satu timer 90 menit sejak enroll. Zero dependency.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "doctor": "node tools/doctor.js",
     "verify": "node tools/verify_cp.js",
     "validate": "node tools/validate_bank.js",
     "test": "node tools/selftest.js",

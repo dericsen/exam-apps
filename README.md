@@ -36,18 +36,27 @@ node server.js
 ## Mulai Cepat
 
 ```bash
-# 1. Periksa Node.js (butuh 18 atau lebih baru)
-node -v
+git clone https://github.com/dericsen/exam-apps.git
+cd exam-apps
 
-# 2. Ganti kunci admin + kode akses di config.json
-#    "admin_key" dan "registration.access_code"
+# 1. Ganti "admin_key" dan "registration.access_code" di config.json
 
-# 3. Pastikan judge sehat di laptop ini
+# 2. Periksa kesiapan laptop ini (Node, Python/g++, port, IP, firewall, bank soal)
+node tools/doctor.js
+
+# 3. Pastikan judge menilai dengan benar di mesin ini
 node tools/verify_cp.js
 
 # 4. Jalankan
 node server.js
 ```
+
+Atau klik dua kali **`start.bat`** (Windows) / jalankan **`./start.sh`**
+(macOS/Linux) — keduanya menjalankan preflight dulu, lalu server.
+
+**Panduan deploy lengkap langkah demi langkah ada di [DEPLOY.md](DEPLOY.md)**,
+termasuk cara memasang Python/g++, membuka firewall, menyiapkan kiosk mode di
+laptop peserta, dan alur hari-H.
 
 Server langsung mencetak alamat yang dibagikan ke peserta:
 
@@ -393,6 +402,10 @@ tersimpan untuk audit, risikonya rendah — tapi kamu sebaiknya tahu posisinya.
 ## Tools
 
 ```bash
+# Preflight: periksa laptop ini siap dipakai ujian
+# (Node, config, Python/g++, bank soal, port, IP, izin tulis, sisa data lama)
+node tools/doctor.js
+
 # Verifikasi bank CP: reference solution harus AC 100%,
 # dan judge harus menolak solusi salah (uji negatif WA/TLE/RTE/CE)
 node tools/verify_cp.js
@@ -473,11 +486,15 @@ exam-apps/
 │     ├─ lockdown.js         # Seluruh logika lockdown
 │     ├─ exam.js             # TPKS + editor kode + judge UI
 │     └─ admin.js            # Dashboard
-└─ tools/
-   ├─ gen_cp.py              # Generator bank CP (expected output dihitung, bukan ditulis)
-   ├─ verify_cp.js           # Verifikasi bank CP + uji negatif judge
-   ├─ validate_bank.js       # Laporan kualitas bank TPKS
-   └─ selftest.js            # 127 pemeriksaan end-to-end
+├─ tools/
+│  ├─ doctor.js              # Preflight check kesiapan laptop ujian
+│  ├─ gen_cp.py              # Generator bank CP (expected output dihitung, bukan ditulis)
+│  ├─ verify_cp.js           # Verifikasi bank CP + uji negatif judge
+│  ├─ validate_bank.js       # Laporan kualitas bank TPKS
+│  └─ selftest.js            # 127 pemeriksaan end-to-end
+├─ start.bat                 # Launcher Windows (preflight + server)
+├─ start.sh                  # Launcher macOS/Linux
+└─ DEPLOY.md                 # Panduan deploy langkah demi langkah
 ```
 
 ### Catatan desain

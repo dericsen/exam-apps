@@ -50,9 +50,24 @@ bank.load();
 store.init();
 judge.detect(config.judge);
 
-const enabledLanguages = (CP_SECTION ? CP_SECTION.languages : []).filter((l) =>
-  judge.isAvailable(l)
-);
+const configuredLanguages = (CP_SECTION && CP_SECTION.languages) || [];
+const enabledLanguages = configuredLanguages.filter((l) => judge.isAvailable(l));
+// Bahasa yang diminta config tapi toolchain-nya tidak ada di laptop ini.
+// Peserta tidak akan melihatnya; panitia harus tahu sebelum ujian dimulai.
+const missingLanguages = configuredLanguages.filter((l) => !judge.isAvailable(l));
+
+/** Info bahasa untuk peserta, termasuk batas waktu efektifnya. */
+function languagesForParticipant() {
+  const info = judge.languageInfo();
+  return enabledLanguages.map((id) => {
+    const l = info.find((x) => x.id === id);
+    return {
+      id,
+      label: l ? l.label : id,
+      time_multiplier: l ? l.time_multiplier : 1,
+    };
+  });
+}
 
 // Seluruh pool soal CP yang mungkin keluar -- dipakai dashboard pengawas.
 const CP_POOL = (() => {
@@ -211,10 +226,7 @@ function publicState(attempt) {
         full_name: CP_SECTION.full_name,
         weight: CP_SECTION.weight,
         problem_count: problems.length,
-        languages: enabledLanguages.map((id) => {
-          const info = judge.languageInfo().find((l) => l.id === id);
-          return { id, label: info ? info.label : id };
-        }),
+        languages: languagesForParticipant(),
         max_submissions_per_problem: CP_SECTION.max_submissions_per_problem,
         problems: open ? problems.map((p, i) => bank.publicProblem(p, i)) : [],
         drafts: attempt.cp.drafts,
@@ -323,7 +335,7 @@ router.on('GET', '/api/meta', (ctx) => {
       },
     ],
     lockdown: config.lockdown,
-    languages: enabledLanguages,
+    languages: languagesForParticipant(),
   });
 });
 
@@ -642,7 +654,10 @@ router.on('GET', '/api/admin/overview', (ctx) => {
     ],
     cp_pool: CP_POOL,
     cp_problem_count: CP_SECTION.problem_count,
-    languages: judge.languageInfo(),
+    languages: languagesForParticipant(),
+    // Bahasa yang diminta config tapi tidak terpasang. Pengawas perlu tahu
+    // supaya bisa menjelaskan ke peserta yang bertanya.
+    missing_languages: missingLanguages,
     max_violations: config.lockdown.max_violations,
     attempts: rows,
     summary: {
@@ -869,9 +884,29 @@ server.listen(config.port, config.host, () => {
   console.log(`Soal     : ${tpksCount} TPKS + ${CP_SECTION.problem_count} CP (acak per peserta)`);
   console.log(`Pool CP  : ${CP_POOL.join(', ')}`);
   console.log(`Bobot    : TPKS ${TPKS_SECTION.weight} / CP ${CP_SECTION.weight}`);
-  console.log(`Bahasa   : ${judge.languageInfo().map((l) => l.label).join(', ')}`);
+
+  const info = judge.languageInfo();
+  const enabledLabels = enabledLanguages.map((id) => {
+    const l = info.find((x) => x.id === id);
+    const mult = l && l.time_multiplier > 1 ? ` x${l.time_multiplier} waktu` : '';
+    return `${l ? l.label : id}${mult}`;
+  });
+  console.log(`Bahasa   : ${enabledLabels.join(', ') || '(tidak ada!)'}`);
+
+  if (missingLanguages.length) {
+    console.log(bar);
+    console.log(
+      `PERINGATAN: bahasa ini diminta config tapi TIDAK terpasang di laptop ini:`
+    );
+    console.log(`            ${missingLanguages.join(', ')}`);
+    console.log(`            Peserta tidak akan melihatnya. Pasang toolchain-nya,`);
+    console.log(`            atau hapus dari "languages" di config.json.`);
+    console.log(`            Jalankan: node tools/doctor.js`);
+  }
   if (!enabledLanguages.length) {
-    console.log('PERINGATAN: tidak ada bahasa pemrograman aktif untuk bagian CP!');
+    console.log(bar);
+    console.log('PERINGATAN KERAS: tidak ada bahasa aktif untuk bagian CP.');
+    console.log('                  Peserta TIDAK AKAN BISA submit kode apa pun.');
   }
   if (config.admin_key.startsWith('GANTI')) {
     console.log(bar);

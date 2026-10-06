@@ -419,12 +419,48 @@ async function main() {
     const sub2 = await POST('/api/cp/submit', { problem_id: p2, language: 'python', code: broken }, sid);
     check('solusi salah tidak AC', sub2.data.submission.verdict !== 'AC', sub2.data.submission.verdict);
 
-    const ce = await POST('/api/cp/submit', { problem_id: p2, language: 'cpp', code: 'int main( {' }, sid);
-    check('compile error terdeteksi', ce.data.submission.verdict === 'CE');
+    const ce = await POST('/api/cp/submit', { problem_id: p2, language: 'c', code: 'int main( {' }, sid);
+    check('compile error terdeteksi', ce.data.submission.verdict === 'CE', ce.data.submission.verdict);
     check('pesan compiler dikirim', (ce.data.submission.compile_output || '').length > 0);
+
+    const ceJava = await POST('/api/cp/submit', {
+      problem_id: p2,
+      language: 'java',
+      code: 'public class Main { oops }',
+    }, sid);
+    check('compile error Java terdeteksi', ceJava.data.submission.verdict === 'CE',
+      ceJava.data.submission.verdict);
+
+    // Integrasi bahasa baru lewat API sungguhan. Memakai input manual supaya
+    // tidak bergantung pada soal mana yang kebetulan didapat peserta.
+    const cRun = await POST('/api/cp/run', {
+      problem_id: p1,
+      language: 'c',
+      code:
+        '#include <stdio.h>\nint main(void){ int n; if(scanf("%d",&n)!=1) return 1; ' +
+        'printf("c:%d\\n", n*2); return 0; }\n',
+      custom_input: '21\n',
+    }, sid);
+    check('C bisa compile & jalan lewat API', (cRun.data.result.stdout || '').trim() === 'c:42',
+      JSON.stringify(cRun.data.result.stdout || cRun.data.result.message));
+
+    const javaRun = await POST('/api/cp/run', {
+      problem_id: p1,
+      language: 'java',
+      code:
+        'import java.util.*;\npublic class Main { public static void main(String[] a) {\n' +
+        '  Scanner sc = new Scanner(System.in);\n' +
+        '  System.out.println("java:" + (sc.nextInt() * 2));\n} }\n',
+      custom_input: '21\n',
+    }, sid);
+    check('Java bisa compile & jalan lewat API',
+      (javaRun.data.result.stdout || '').trim() === 'java:42',
+      JSON.stringify(javaRun.data.result.stdout || javaRun.data.result.message));
 
     check('bahasa tidak terdaftar ditolak',
       (await POST('/api/cp/submit', { problem_id: p1, language: 'brainfuck', code: '+' }, sid)).status === 400);
+    check('bahasa yang tidak diaktifkan config ditolak walau terpasang',
+      (await POST('/api/cp/submit', { problem_id: p1, language: 'cpp', code: 'int main(){}' }, sid)).status === 400);
     check('kode kosong ditolak',
       (await POST('/api/cp/submit', { problem_id: p1, language: 'python', code: '  ' }, sid)).status === 400);
     check('soal di luar paket ditolak',
@@ -626,14 +662,28 @@ async function main() {
     // Server kedua dengan durasi 3 detik (0.05 menit).
     const shortCfg = makeConfig('short', (c) => {
       c.exam.duration_min = 0.05;
+      // Sekaligus menguji penyaringan bahasa: hanya javascript diaktifkan,
+      // padahal python dan java terpasang di mesin ini.
+      c.sections[1].languages = ['javascript'];
     });
     const short = startServer('short', 3978, shortCfg);
     BASE = 'http://127.0.0.1:3978';
     check('server durasi pendek siap', await waitForServer());
 
+    const metaShort = (await GET('/api/meta')).data;
+    check('hanya bahasa yang diaktifkan config yang dikirim',
+      metaShort.languages.length === 1 && metaShort.languages[0].id === 'javascript',
+      JSON.stringify(metaShort.languages.map((l) => l.id)));
+
     const s = await enroll('Kehabisan Waktu', '777', '-');
     const st = await stateOf(s);
     check('ujian terbuka di awal', st.status === 'active' && st.parts.tpks.questions.length === 30);
+    check('bahasa yang tidak diaktifkan ditolak walau terpasang di mesin',
+      (await POST('/api/cp/submit', {
+        problem_id: st.parts.cp.problems[0].id,
+        language: 'python',
+        code: 'print(1)',
+      }, s)).status === 400);
 
     const qid = st.parts.tpks.questions[0].qid;
     check('masih bisa menjawab sebelum waktu habis',

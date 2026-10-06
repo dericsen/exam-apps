@@ -41,7 +41,7 @@ cd exam-apps
 
 # 1. Ganti "admin_key" dan "registration.access_code" di config.json
 
-# 2. Periksa kesiapan laptop ini (Node, Python/g++, port, IP, firewall, bank soal)
+# 2. Periksa kesiapan laptop ini (Node, toolchain bahasa, port, IP, firewall, bank soal)
 node tools/doctor.js
 
 # 3. Pastikan judge menilai dengan benar di mesin ini
@@ -55,7 +55,7 @@ Atau klik dua kali **`start.bat`** (Windows) / jalankan **`./start.sh`**
 (macOS/Linux) — keduanya menjalankan preflight dulu, lalu server.
 
 **Panduan deploy lengkap langkah demi langkah ada di [DEPLOY.md](DEPLOY.md)**,
-termasuk cara memasang Python/g++, membuka firewall, menyiapkan kiosk mode di
+termasuk cara memasang Python/GCC/JDK, membuka firewall, menyiapkan kiosk mode di
 laptop peserta, dan alur hari-H.
 
 Server langsung mencetak alamat yang dibagikan ke peserta:
@@ -73,7 +73,7 @@ Durasi   : 90 menit, mulai saat peserta enroll
 Soal     : 30 TPKS + 2 CP (acak per peserta)
 Pool CP  : E-001, E-002, ... E-015
 Bobot    : TPKS 0.4 / CP 0.6
-Bahasa   : Python 3, C++ 17, JavaScript (Node)
+Bahasa   : Python 3 x1.5 waktu, C (C11), Java x2 waktu
 ------------------------------------------------------------------
 ```
 
@@ -168,9 +168,15 @@ otomatis oleh `tools/selftest.js`.
 
 5. **Uji dari satu perangkat peserta** sebelum ujian resmi.
 
-> **AP isolation:** beberapa router kampus/hotel memblokir komunikasi antar perangkat.
-> Kalau peserta tidak bisa membuka alamat sama sekali padahal firewall sudah dibuka,
-> matikan "AP isolation" di router atau pakai hotspot HP panitia.
+> **Kalau IP-mu `10.x.x.x`** (lazim di WiFi kampus/kantor): alamatnya sah dan
+> terdeteksi otomatis, tapi jaringan terkelola sering mengaktifkan **client
+> isolation** sehingga perangkat di SSID yang sama tidak bisa saling menghubungi —
+> dan membuka firewall tidak menolong. Semuanya terlihat normal dari laptop panitia,
+> jadi **wajib diuji dari perangkat lain**. Panduan lengkap beserta solusinya ada di
+> [DEPLOY.md → Kalau IP-mu 10.x.x.x](DEPLOY.md#kalau-ip-mu-10xxx-wifi-kampuskantor).
+>
+> `node tools/doctor.js` mengenali kondisi ini otomatis, dan juga mengabaikan
+> antarmuka virtual dari Docker/VPN yang sering tertukar saat memilih alamat.
 
 ---
 
@@ -382,7 +388,7 @@ Pengaturan yang sering disesuaikan:
 | `sections[1].problem_count` | Jumlah soal CP per peserta (default 2) |
 | `sections[1].problem_tiers` | Tier soal CP. Hapus untuk acak bebas |
 | `sections[].weight` | Bobot nilai akhir (TPKS 0.4, CP 0.6) |
-| `sections[1].languages` | Bahasa yang boleh dipakai peserta |
+| `sections[1].languages` | Bahasa peserta. Didukung: `python`, `c`, `cpp`, `java`, `javascript` |
 | `sections[1].max_submissions_per_problem` | Batas submit per soal |
 | `lockdown.max_violations` | Jumlah pelanggaran sebelum auto-submit |
 | `lockdown.block_paste_code` | `true` = peserta tidak bisa menempel kode dari luar |
@@ -423,6 +429,17 @@ soal mana yang didapat tiap peserta — penting karena soalnya berbeda-beda.
 **CP** — per soal `test case lulus / 7 × 100` (**partial credit**). Dari beberapa
 submit, yang dipakai adalah **submit terbaik**, bukan yang terakhir, jadi peserta
 tidak dirugikan karena mencoba optimasi di akhir.
+
+**Bahasa yang tersedia** diatur di `config.json` (bawaan: Python, C, Java; judge juga
+mendukung C++ dan JavaScript). Java dan Python mendapat **kelonggaran batas waktu**
+×2 dan ×1,5 dari batas dasar soal, karena JVM butuh waktu untuk hidup dan Python
+lebih lambat secara inheren — tanpa itu peserta bisa kena TLE bukan karena
+algoritmanya salah. Batas yang berlaku ditampilkan ke peserta sesuai bahasa yang ia
+pilih, jadi tidak ada keunggulan tersembunyi.
+
+`node tools/verify_cp.js` menjalankan program nyata di **setiap** bahasa aktif dan
+memeriksa outputnya, jadi kamu tahu compiler dan JDK di laptop ujian benar-benar
+bekerja — bukan hanya terpasang.
 
 **Nilai akhir** — rata-rata berbobot:
 
@@ -467,7 +484,7 @@ tersimpan untuk audit, risikonya rendah — tapi kamu sebaiknya tahu posisinya.
 
 ```bash
 # Preflight: periksa laptop ini siap dipakai ujian
-# (Node, config, Python/g++, bank soal, port, IP, izin tulis, sisa data lama)
+# (Node, config, toolchain bahasa, bank soal, port, IP, izin tulis, sisa data lama)
 node tools/doctor.js
 
 # Verifikasi bank CP: reference solution harus AC 100%,
@@ -489,7 +506,8 @@ python3 tools/gen_cp.py
 ```
 
 Jalankan `verify_cp.js` dan `selftest.js` **di laptop yang akan dipakai ujian**,
-sehari sebelumnya. Itu sekaligus memastikan Python/g++ terpasang benar di mesin itu.
+sehari sebelumnya. `verify_cp.js` menjalankan uji asap untuk SETIAP bahasa yang aktif,
+jadi sekaligus membuktikan compiler dan JDK di mesin itu benar-benar bekerja.
 
 ---
 
@@ -516,7 +534,7 @@ sehari sebelumnya. Itu sekaligus memastikan Python/g++ terpasang benar di mesin 
 | Laptop peserta mati / WiFi putus | Jawaban tersimpan di server. Login ulang dengan **NIM yang sama** → sesi lanjut dengan sisa waktu apa adanya. Tambah waktu lewat dashboard |
 | Timer habis padahal laptopnya rusak | Dashboard → *Lain* → **Buka kembali** |
 | Pelanggaran muncul tanpa peserta curang | Biasanya notifikasi/popup OS memicu `blur`. Hapus catatannya, dan naikkan `max_violations` |
-| CP tidak bisa submit | Python/g++ tidak terpasang di laptop panitia. Cek baris "Bahasa" saat server start |
+| CP tidak bisa submit | Toolchain bahasa belum terpasang di laptop panitia. Cek baris "Bahasa" saat server start, atau jalankan `node tools/doctor.js` |
 | Server perlu di-restart | Aman. Semua state ada di `data/runtime/attempts.json`, peserta cukup reload |
 
 **Setelah ujian**

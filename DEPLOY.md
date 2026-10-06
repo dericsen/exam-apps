@@ -47,35 +47,75 @@ Di Windows, **tutup dan buka ulang** Command Prompt setelah instalasi, kalau tid
 
 ---
 
-## Langkah 3 — Pasang Python dan g++ untuk judge
+## Langkah 3 — Pasang toolchain bahasa pemrograman
 
-> **Ini langkah yang paling sering terlewat.** Tanpa ini, peserta hanya bisa memakai
-> JavaScript. Node sudah termasuk saat kamu memasang Node.js, tapi Python dan C++ tidak.
+Config bawaan mengizinkan **Python, C, dan Java**. Ketiganya harus terpasang di
+laptop panitia, karena judge berjalan di sana — **bukan** di laptop peserta.
+
+> **Ini langkah yang paling sering terlewat.** Node.js saja tidak cukup: ia hanya
+> menyediakan JavaScript. Bahasa yang toolchain-nya tidak ada akan **hilang dari
+> pilihan peserta**, dan server mencetak peringatan saat start.
 
 **Windows**
 
-- Python: unduh dari <https://python.org> → saat instalasi **CENTANG
-  "Add python.exe to PATH"**. Verifikasi: `python --version`
-- C++: pasang MinGW-w64 lewat [MSYS2](https://www.msys2.org), lalu tambahkan folder
-  `bin`-nya ke PATH. Verifikasi: `g++ --version`
+| Bahasa | Cara pasang | Verifikasi |
+|---|---|---|
+| Python | <https://python.org> → saat instalasi **CENTANG "Add python.exe to PATH"** | `python --version` |
+| Java | JDK (**bukan** hanya JRE) dari <https://adoptium.net> | `javac -version` |
+| C | MinGW-w64 lewat [MSYS2](https://www.msys2.org), lalu tambahkan folder `bin`-nya ke PATH | `gcc --version` |
 
-  Kalau tidak ada waktu memasang g++, **hapus `"cpp"`** dari `sections[].languages`
-  di `config.json`. Lebih baik peserta tahu C++ tidak tersedia sejak awal daripada
-  memilihnya lalu gagal submit.
+C adalah yang paling merepotkan di Windows. Dua jalan pintas:
+
+- Pasang **LLVM/clang** dari <https://releases.llvm.org> — installer-nya jauh lebih
+  sederhana dari MSYS2, dan judge menerima `clang` sebagai C.
+- Atau **hapus `"c"`** dari `sections[].languages` di `config.json`. Lebih baik
+  peserta tahu sejak awal bahasa itu tidak tersedia daripada memilihnya lalu gagal.
+
+Judge juga mencoba launcher `py -3` kalau `python` tidak ada di PATH, jadi Python
+biasanya tetap terdeteksi walau centang PATH terlupa.
 
 **macOS**
 
 ```bash
-xcode-select --install       # menyediakan g++ (alias clang++)
+xcode-select --install       # menyediakan clang -> dipakai judge sebagai C
 brew install python3         # kalau python3 belum ada
+brew install openjdk         # ikuti petunjuk symlink yang ditampilkan brew
 ```
 
 **Linux**
 
 ```bash
-sudo dnf install python3 gcc-c++     # Fedora/RHEL
-sudo apt install python3 g++         # Debian/Ubuntu
+sudo dnf install python3 gcc java-latest-openjdk-devel   # Fedora/RHEL
+sudo apt install python3 gcc default-jdk                 # Debian/Ubuntu
 ```
+
+**Memastikan ketiganya benar-benar bekerja**, bukan hanya terpasang:
+
+```bash
+node tools/verify_cp.js
+```
+
+Perintah ini menjalankan program nyata di **setiap** bahasa yang aktif dan
+memeriksa outputnya. Deteksi versi saja tidak cukup — `javac -version` bisa
+berhasil padahal JDK-nya tidak lengkap.
+
+### Menambah atau mengurangi bahasa
+
+Judge mendukung `python`, `c`, `cpp`, `java`, `javascript`. Ubah daftarnya di
+`config.json`:
+
+```json
+"languages": ["python", "c", "java"]
+```
+
+**Java dan Python diberi kelonggaran waktu** (×2 dan ×1,5 dari batas dasar soal),
+karena JVM butuh waktu untuk hidup dan Python lebih lambat secara inheren. Tanpa
+itu, peserta bisa kena TLE bukan karena algoritmanya salah. Batas yang berlaku
+ditampilkan ke peserta sesuai bahasa yang ia pilih.
+
+**Catatan untuk Java:** nama kelas wajib `Main` (file disimpan sebagai `Main.java`).
+Templat kode awal sudah memakai `public class Main` dan peserta diberi peringatan
+di komentarnya.
 
 ---
 
@@ -129,7 +169,7 @@ Daftar lengkap ada di [README → Konfigurasi](README.md#konfigurasi).
 node tools/doctor.js
 ```
 
-Ini memeriksa versi Node, config yang belum diganti, Python/g++ terpasang,
+Ini memeriksa versi Node, config yang belum diganti, toolchain bahasa terpasang,
 kecukupan bank soal, port 3000 bebas, IP jaringan, izin tulis folder data, dan
 sisa data dari sesi sebelumnya.
 
@@ -192,7 +232,7 @@ Kunci admin: kunci-rahasia-panitia-2026
 ------------------------------------------------------------------
 Durasi   : 90 menit, mulai saat peserta enroll
 Soal     : 30 TPKS + 2 CP (acak per peserta)
-Bahasa   : Python 3, C++ 17, JavaScript (Node)
+Bahasa   : Python 3 x1.5 waktu, C (C11), Java x2 waktu
 ------------------------------------------------------------------
 ```
 
@@ -302,7 +342,7 @@ yang benar** — lebih cepat, lebih aman, dan tidak bergantung internet kampus.
 | Bisa dibuka dari laptop panitia, tidak dari yang lain | Hampir pasti firewall |
 | `EADDRINUSE` saat start | Port 3000 dipakai program lain, atau server ujian sudah jalan di jendela lain. Ubah `port` di config.json |
 | Doctor bilang "hanya ada IP link-local" | Laptop belum dapat IP dari router. Sambungkan ulang WiFi |
-| Peserta pilih C++ tapi error | g++ belum terpasang (Langkah 3) |
+| Bahasa yang diharapkan tidak muncul di pilihan peserta | Toolchain-nya belum terpasang. Server mencetak peringatan saat start; jalankan `node tools/doctor.js` |
 | Jawaban peserta tidak tersimpan | Folder read-only. Pindahkan proyek keluar dari Program Files |
 | Peserta tidak sengaja enroll kelewat awal | Dashboard → **+15m** atau **Lain → Buka kembali** |
 | Server perlu di-restart di tengah ujian | Aman. State ada di `data/runtime/attempts.json`. Jalankan lagi, peserta cukup reload |

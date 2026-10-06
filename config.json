@@ -45,7 +45,8 @@
         ["E-001", "E-002", "E-005", "E-006", "E-007", "E-013"],
         ["E-003", "E-004", "E-008", "E-009", "E-010", "E-011", "E-012", "E-014", "E-015"]
       ],
-      "languages": ["python", "cpp", "javascript"],
+      "_languages_note": "Bahasa yang boleh dipakai peserta. Judge mendukung python, c, cpp, java, javascript -- tambahkan/hapus sesuai kebutuhan. Bahasa yang tidak terpasang di laptop panitia otomatis disembunyikan dari peserta; jalankan `node tools/doctor.js` untuk memeriksanya.",
+      "languages": ["python", "c", "java"],
       "max_submissions_per_problem": 25,
       "show_hidden_test_detail": false,
       "weight": 0.6

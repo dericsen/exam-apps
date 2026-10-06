@@ -112,11 +112,15 @@
   function paint(data) {
     lastData = data;
     $('dashTitle').textContent = data.exam_title;
+    const missing = (data.missing_languages || []).length
+      ? ` PERINGATAN: bahasa diminta config tapi tidak terpasang: ${data.missing_languages.join(', ')}.`
+      : '';
     $('dashMeta').textContent =
       `Durasi ${data.duration_min} menit per peserta sejak enroll. ` +
       `${data.cp_problem_count} soal CP diacak dari pool: ${data.cp_pool.join(', ')}. ` +
-      `Judge: ${data.languages.map((l) => l.label).join(', ')}. ` +
-      `Jam server ${jam(data.server_time)}.`;
+      `Bahasa aktif: ${data.languages.map((l) => l.label).join(', ') || '(tidak ada!)'}.` +
+      missing +
+      ` Jam server ${jam(data.server_time)}.`;
 
     const s = data.summary;
     $('summary').innerHTML =

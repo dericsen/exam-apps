@@ -64,12 +64,35 @@ function checkPort(port, host) {
   });
 }
 
+// Antarmuka yang hampir pasti BUKAN jalur ke peserta. Laptop dengan Docker,
+// VirtualBox, atau VPN akan memunculkan IP tambahan yang kelihatan sah; kalau
+// panitia menuliskannya di papan tulis, tidak ada peserta yang bisa terhubung.
+const VIRTUAL_HINTS = [
+  'docker', 'br-', 'veth', 'virbr', 'vboxnet', 'vmnet', 'utun', 'tun', 'tap',
+  'tailscale', 'zt', 'wg', 'hyper-v', 'vethernet', 'loopback',
+];
+
+function classify(name, address) {
+  const lower = name.toLowerCase();
+  const virtual = VIRTUAL_HINTS.some((h) => lower.includes(h));
+  const linkLocal = address.startsWith('169.254.');
+  let scope = 'publik/tidak dikenal';
+  if (address.startsWith('10.')) scope = '10.x (private, lazim di kampus & kantor)';
+  else if (/^172\.(1[6-9]|2\d|3[01])\./.test(address)) scope = '172.16-31.x (private)';
+  else if (address.startsWith('192.168.')) scope = '192.168.x (private, lazim di router rumah)';
+  else if (linkLocal) scope = 'link-local (belum dapat IP dari router)';
+
+  // Nama antarmuka yang biasanya wireless.
+  const wireless = /wl|wi-?fi|airport|en0/i.test(name);
+  return { virtual, linkLocal, scope, wireless };
+}
+
 function lanIps() {
   const out = [];
   for (const [name, list] of Object.entries(os.networkInterfaces())) {
     for (const nic of list || []) {
       if (nic.family === 'IPv4' && !nic.internal) {
-        out.push({ name, address: nic.address, linkLocal: nic.address.startsWith('169.254.') });
+        out.push({ name, address: nic.address, ...classify(name, nic.address) });
       }
     }
   }
@@ -153,70 +176,88 @@ function lanIps() {
 
   // --------------------------------------------------------------- Judge
   head('3. Bahasa pemrograman untuk judge');
+  // Deteksi dipinjam dari judge yang sebenarnya, bukan diulang di sini.
+  // Kalau doctor punya logika deteksi sendiri, laporannya bisa berbeda dari
+  // kenyataan yang dialami peserta -- justru membahayakan.
+  const judge = require('../lib/judge');
+  const detected = judge.detect(config.judge);
   const wanted = (cpSec && cpSec.languages) || [];
-  const available = [];
 
-  let pythonCmd = null;
-  let pythonVer = null;
-  for (const cmd of ['python3', 'python']) {
-    const v = probe(cmd, ['--version']);
-    if (v && /Python 3/.test(v)) {
-      pythonCmd = cmd;
-      pythonVer = v;
-      break;
+  // Cara pasang per bahasa, disesuaikan dengan sistem operasi laptop ini.
+  const HOWTO = {
+    python: IS_WIN
+      ? 'Pasang dari https://python.org dan CENTANG "Add python.exe to PATH". Verifikasi: python --version'
+      : IS_MAC
+      ? 'brew install python3  (atau pasang Xcode Command Line Tools)'
+      : 'sudo dnf install python3   /   sudo apt install python3',
+    c: IS_WIN
+      ? 'Pasang MinGW-w64 lewat MSYS2 (https://www.msys2.org), lalu tambahkan folder bin-nya ke PATH. ' +
+        'Alternatif lebih ringan: pasang LLVM/clang dari https://releases.llvm.org -- judge juga menerima clang.'
+      : IS_MAC
+      ? 'xcode-select --install   (menyediakan clang, dikenali judge sebagai C)'
+      : 'sudo dnf install gcc   /   sudo apt install gcc',
+    cpp: IS_WIN
+      ? 'Pasang MinGW-w64 lewat MSYS2 (https://www.msys2.org) lalu tambahkan folder bin-nya ke PATH.'
+      : IS_MAC
+      ? 'xcode-select --install   (menyediakan clang++)'
+      : 'sudo dnf install gcc-c++   /   sudo apt install g++',
+    java: IS_WIN
+      ? 'Pasang JDK (bukan hanya JRE) dari https://adoptium.net, lalu pastikan javac dan java ada di PATH. ' +
+        'Verifikasi: javac -version'
+      : IS_MAC
+      ? 'brew install openjdk   lalu ikuti petunjuk symlink yang ditampilkan brew'
+      : 'sudo dnf install java-latest-openjdk-devel   /   sudo apt install default-jdk',
+    javascript: 'Sudah tersedia otomatis bersama Node.js.',
+  };
+
+  for (const id of wanted) {
+    const spec = judge.LANG_SPECS[id];
+    if (!spec) {
+      fail(
+        `bahasa "${id}" tidak dikenal judge`,
+        '',
+        'Pilihan yang valid: ' + Object.keys(judge.LANG_SPECS).join(', ')
+      );
+      continue;
     }
-    if (v) pythonVer = v; // mungkin Python 2
-  }
-  if (pythonCmd) {
-    available.push('python');
-    ok('Python 3', `${pythonCmd} -- ${pythonVer}`);
-  } else if (wanted.includes('python')) {
-    fail(
-      'Python 3 tidak ditemukan',
-      pythonVer || 'tidak terpasang',
-      IS_WIN
-        ? 'Pasang dari https://python.org dan CENTANG "Add python.exe to PATH" saat instalasi. ' +
-          'Verifikasi dengan: python --version'
-        : IS_MAC
-        ? 'brew install python3  (atau pasang Xcode Command Line Tools)'
-        : 'sudo dnf install python3   /   sudo apt install python3'
-    );
-  }
-
-  const gpp = probe('g++', ['--version']);
-  if (gpp) {
-    available.push('cpp');
-    ok('C++ (g++)', gpp);
-  } else if (wanted.includes('cpp')) {
-    fail(
-      'g++ tidak ditemukan',
-      'tidak terpasang',
-      IS_WIN
-        ? 'Pasang MinGW-w64 lewat MSYS2 (https://www.msys2.org) lalu tambahkan folder ' +
-          'bin-nya ke PATH. Kalau tidak ada waktu, hapus "cpp" dari sections[].languages ' +
-          'di config.json agar peserta tidak memilih bahasa yang tidak bisa dijalankan.'
-        : IS_MAC
-        ? 'xcode-select --install   (g++ akan tersedia sebagai alias clang++)'
-        : 'sudo dnf install gcc-c++   /   sudo apt install g++'
-    );
+    const got = detected[id];
+    if (got) {
+      const mult = spec.time_multiplier > 1 ? `, batas waktu x${spec.time_multiplier}` : '';
+      ok(spec.label, `${got.cmd} -- ${got.version}${mult}`);
+    } else {
+      fail(
+        `${spec.label} tidak terpasang`,
+        'diminta config tapi tidak ditemukan',
+        (HOWTO[id] || '') +
+          '\n        -> Atau hapus "' +
+          id +
+          '" dari sections[].languages di config.json, supaya peserta tidak ' +
+          'memilih bahasa yang tidak bisa dijalankan.'
+      );
+    }
   }
 
-  available.push('javascript');
-  ok('JavaScript (Node)', 'Node ' + process.version);
-
-  const missing = wanted.filter((l) => !available.includes(l));
-  if (!missing.length && wanted.length) {
-    ok('semua bahasa di config tersedia', wanted.join(', '));
-  } else if (missing.length) {
+  const enabled = wanted.filter((l) => detected[l]);
+  if (!wanted.length) {
+    fail('tidak ada bahasa di config', '', 'Isi sections[].languages di config.json.');
+  } else if (!enabled.length) {
     fail(
-      'bahasa di config tidak tersedia di mesin ini',
-      missing.join(', '),
-      'Pasang yang kurang, ATAU hapus dari sections[].languages. Bahasa yang tidak ' +
-        'terpasang otomatis disembunyikan dari peserta, tapi lebih baik config-nya jujur.'
+      'tidak ada bahasa aktif untuk bagian CP',
+      '',
+      'Peserta TIDAK AKAN BISA submit kode apa pun. Pasang minimal satu toolchain, ' +
+        'atau tambahkan "javascript" ke config -- itu selalu tersedia bersama Node.js.'
     );
+  } else {
+    ok('bahasa aktif untuk peserta', enabled.join(', '));
   }
-  if (!available.some((l) => wanted.includes(l))) {
-    fail('tidak ada bahasa aktif untuk bagian CP', '', 'Peserta tidak akan bisa submit kode apa pun.');
+
+  // Bahasa lain yang terpasang tapi tidak dipakai: informasi berguna kalau
+  // panitia ingin menambah pilihan.
+  const extra = Object.keys(detected).filter((l) => !wanted.includes(l));
+  if (extra.length) {
+    console.log(
+      `  INFO  terpasang tapi tidak diaktifkan di config: ${extra.join(', ')}`
+    );
   }
 
   // ----------------------------------------------------------- Bank soal
@@ -354,7 +395,9 @@ function lanIps() {
   }
 
   const ips = lanIps();
-  const real = ips.filter((i) => !i.linkLocal);
+  const real = ips.filter((i) => !i.linkLocal && !i.virtual);
+  const virtuals = ips.filter((i) => i.virtual);
+
   if (!ips.length) {
     fail(
       'tidak ada alamat IP jaringan',
@@ -364,12 +407,48 @@ function lanIps() {
     );
   } else if (!real.length) {
     fail(
-      'hanya ada IP link-local',
-      ips.map((i) => i.address).join(', '),
-      'Laptop tersambung ke adapter tapi tidak mendapat IP dari router. Periksa WiFi/DHCP.'
+      'tidak ada alamat jaringan yang bisa dipakai',
+      ips.map((i) => `${i.name}=${i.address}`).join(', '),
+      'Laptop tersambung ke adapter tapi belum mendapat IP dari router, atau yang ' +
+        'terdeteksi hanya antarmuka virtual. Periksa koneksi WiFi/DHCP.'
     );
   } else {
-    real.forEach((i) => ok('alamat jaringan', `${i.name} -> ${i.address}`));
+    real.forEach((i) => ok('alamat jaringan', `${i.name} -> ${i.address}  [${i.scope}]`));
+
+    if (real.length > 1) {
+      warn(
+        'ada lebih dari satu alamat jaringan',
+        real.map((i) => i.address).join(', '),
+        'Pakai alamat pada antarmuka yang benar-benar tersambung ke WiFi peserta. ' +
+          'Kalau salah pilih, peserta tidak akan bisa membuka halaman ujian. ' +
+          'Uji dulu dari satu perangkat lain sebelum ujian.'
+      );
+    }
+
+    // Jaringan kampus/kantor sering mengaktifkan client isolation, sehingga
+    // perangkat di SSID yang sama tetap tidak bisa saling menghubungi.
+    // Firewall yang sudah dibuka pun tidak akan menolong.
+    const campus = real.find((i) => i.address.startsWith('10.') || /^172\./.test(i.address));
+    if (campus) {
+      warn(
+        'jaringan tampak jaringan kampus/kantor',
+        campus.address,
+        'Jaringan seperti ini sering mengaktifkan "client isolation" sehingga\n' +
+          '           perangkat di SSID yang sama TIDAK bisa saling menghubungi, dan\n' +
+          '           membuka firewall tidak menolong. WAJIB diuji dari satu laptop\n' +
+          '           peserta sebelum hari-H. Kalau gagal, pakai hotspot HP atau router\n' +
+          '           sendiri -- keduanya memberi 192.168.x tanpa isolasi.'
+      );
+    }
+  }
+
+  if (virtuals.length) {
+    warn(
+      'ada antarmuka virtual yang diabaikan',
+      virtuals.map((i) => `${i.name}=${i.address}`).join(', '),
+      'Ini biasanya dari Docker, VirtualBox, atau VPN. JANGAN tulis alamat ini di ' +
+        'papan tulis -- peserta tidak akan bisa mengaksesnya.'
+    );
   }
 
   warn(
@@ -397,11 +476,26 @@ function lanIps() {
   console.log('='.repeat(70));
 
   if (real.length) {
-    const ip = real[0].address;
+    // Utamakan antarmuka yang tampak wireless: itu yang satu jaringan dengan peserta.
+    const primary = real.find((i) => i.wireless) || real[0];
+    const ip = primary.address;
+
     console.log('\nAlamat yang dibagikan ke peserta (tulis di papan tulis):');
-    real.forEach((i) => console.log(`    http://${i.address}:${port}`));
+    console.log(`    http://${ip}:${port}`);
+    if (real.length > 1) {
+      console.log('  Alternatif kalau yang di atas tidak bisa dibuka peserta:');
+      real
+        .filter((i) => i.address !== ip)
+        .forEach((i) => console.log(`    http://${i.address}:${port}   (${i.name})`));
+    }
+
     console.log('\nHalaman pengawas (jangan dibagikan ke peserta):');
     console.log(`    http://${ip}:${port}/admin.html`);
+
+    console.log('\nUJI DARI PERANGKAT LAIN sebelum ujian -- ini satu-satunya cara');
+    console.log('memastikan firewall dan jaringan benar. Dari HP/laptop peserta:');
+    console.log(`    buka  http://${ip}:${port}`);
+    console.log(`    atau  curl http://${ip}:${port}/api/meta`);
 
     console.log('\nPerintah kiosk mode untuk laptop peserta:');
     if (IS_WIN) {

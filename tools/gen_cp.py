@@ -170,8 +170,8 @@ def _e003(data):
     output_format="Satu baris berisi rata-rata yang sudah dibulatkan ke bawah.",
     constraints="1 <= N <= 100000\n0 <= A[i] <= 100",
     notes=(
-        "Gunakan pembagian bilangan bulat (// di Python, / pada tipe int di C++). "
-        "Jangan cetak angka desimal."
+        "Gunakan pembagian bilangan bulat: // di Python, / pada tipe int di C/C++ "
+        "dan Java. Jangan cetak angka desimal."
     ),
     inputs=[
         "2\n70 85",
@@ -208,8 +208,9 @@ def _e004(data):
     output_format="Satu baris berisi banyaknya huruf vokal pada S.",
     constraints="1 <= panjang(S) <= 100000\nS hanya terdiri dari huruf kecil 'a'-'z' dan spasi.",
     notes=(
-        "Baca seluruh baris termasuk spasi (gunakan getline di C++, input() di "
-        "Python, bukan cin >> yang berhenti di spasi)."
+        "Baca seluruh BARIS termasuk spasinya: input() di Python, fgets di C, "
+        "br.readLine() di Java. Jangan pakai scanf(\"%s\") atau cin >> yang "
+        "berhenti begitu menemukan spasi."
     ),
     inputs=[
         "halo dunia",
@@ -241,7 +242,8 @@ def _e005(data):
     input_format="Satu baris berisi string S tanpa spasi.",
     output_format="Satu baris berisi string S yang sudah dibalik.",
     constraints="1 <= panjang(S) <= 100000\nS hanya terdiri dari huruf kecil 'a'-'z'.",
-    notes="Di Python bisa memakai S[::-1]. Di C++ ada std::reverse.",
+    notes="Di Python bisa memakai S[::-1]. Di C cukup tukar karakter dari dua ujung. "
+        "Di Java ada new StringBuilder(s).reverse().",
     inputs=[
         "kiro",
         "pemrograman",
@@ -274,8 +276,9 @@ def _e006(data):
     output_format="Satu baris berisi nilai N!.",
     constraints="1 <= N <= 20",
     notes=(
-        "20! = 2432902008176640000 yang masih muat pada tipe 64-bit (long long di "
-        "C++, int biasa di Python). Jangan pakai int 32-bit."
+        "20! = 2432902008176640000, masih muat pada tipe 64-bit: long long di "
+        "C/C++, long di Java, int biasa di Python. Memakai int 32-bit akan "
+        "overflow sejak 13!."
     ),
     inputs=["5", "1", "3", "10", "20", "15", "19"],
 )
@@ -410,8 +413,9 @@ def _e010(data):
     output_format="Satu baris berisi N bilangan bulat yang sudah terurut menaik, dipisahkan oleh satu spasi.",
     constraints="1 <= N <= 100000\n-10^9 <= A[i] <= 10^9",
     notes=(
-        "Gunakan fungsi sort bawaan bahasamu (sort() di Python, std::sort di C++). "
-        "Bubble sort akan terlalu lambat untuk N = 100000."
+        "Gunakan fungsi sort bawaan bahasamu: sorted() di Python, qsort di C, "
+        "Arrays.sort di Java, std::sort di C++. Bubble sort akan terlalu lambat "
+        "untuk N = 100000."
     ),
     inputs=[
         "5\n10 50 30 20 40",
@@ -485,9 +489,9 @@ def _e012(data):
     output_format="Satu baris berisi nilai F(N).",
     constraints="1 <= N <= 90",
     notes=(
-        "F(90) = 2880067194370816120, masih muat pada unsigned/signed 64-bit. "
-        "Hindari rekursi tanpa memoisasi karena akan sangat lambat untuk N besar; "
-        "cukup gunakan perulangan dengan dua variabel."
+        "F(90) = 2880067194370816120, masih muat pada 64-bit: long long di C/C++, "
+        "long di Java. Hindari rekursi tanpa memoisasi karena akan sangat lambat "
+        "untuk N besar; cukup gunakan perulangan dengan dua variabel."
     ),
     inputs=["7", "1", "2", "10", "50", "90", "89"],
 )
@@ -519,8 +523,8 @@ def _e013(data):
     output_format="Satu baris berisi nilai (maksimum - minimum).",
     constraints="1 <= N <= 100000\n-10^9 <= A[i] <= 10^9",
     notes=(
-        "Jika N = 1, jawabannya 0. Hasil bisa mencapai 2 x 10^9 sehingga melebihi "
-        "batas int 32-bit di C++ -- gunakan long long."
+        "Jika N = 1, jawabannya 0. Hasil bisa mencapai 2 x 10^9 sehingga MELEBIHI "
+        "batas int 32-bit -- gunakan long long di C/C++ atau long di Java."
     ),
     inputs=[
         "5\n10 2 8 15 3",
@@ -560,7 +564,9 @@ def _e014(data):
     ),
     notes=(
         "Hati-hati dengan spasi ganda dan spasi di awal/akhir kalimat. Di Python, "
-        'S.split() sudah menangani semua kasus itu.'
+        "S.split() sudah menangani semuanya. Di Java, S.trim().split(\"\\\\s+\") "
+        "dengan catatan string kosong harus ditangani terpisah. Di C, hitung "
+        "peralihan dari spasi ke non-spasi."
     ),
     inputs=[
         "saya suka pemrograman",
@@ -638,7 +644,21 @@ REFERENCE_SOLUTIONS = {
 }
 
 STARTER_CODE = {
-    "python": "# Tulis solusimu di sini\n# Baca input dari stdin, cetak jawaban ke stdout\n\n",
+    "python": (
+        "# Baca input dari stdin, cetak jawaban ke stdout.\n"
+        "# Contoh: n = int(input())\n\n"
+        "# Tulis solusimu di sini\n"
+    ),
+    "c": (
+        "#include <stdio.h>\n"
+        "#include <stdlib.h>\n"
+        "#include <string.h>\n\n"
+        "int main(void) {\n"
+        "    // Tulis solusimu di sini\n"
+        "    // Baca dengan scanf, cetak dengan printf\n\n"
+        "    return 0;\n"
+        "}\n"
+    ),
     "cpp": (
         "#include <bits/stdc++.h>\nusing namespace std;\n\n"
         "int main() {\n"
@@ -648,8 +668,23 @@ STARTER_CODE = {
         "    return 0;\n"
         "}\n"
     ),
+    "java": (
+        "import java.io.*;\n"
+        "import java.util.*;\n\n"
+        "// PENTING: nama kelas harus tetap \"Main\", jangan diubah.\n"
+        "public class Main {\n"
+        "    public static void main(String[] args) throws IOException {\n"
+        "        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\n"
+        "        StringBuilder out = new StringBuilder();\n\n"
+        "        // Tulis solusimu di sini.\n"
+        "        // Contoh baca satu baris berisi beberapa angka:\n"
+        "        //   StringTokenizer st = new StringTokenizer(br.readLine());\n"
+        "        //   int n = Integer.parseInt(st.nextToken());\n\n"
+        "        System.out.print(out);\n"
+        "    }\n"
+        "}\n"
+    ),
     "javascript": (
-        "// Seluruh input tersedia pada variabel `input` (string).\n"
         "const data = require('fs').readFileSync(0, 'utf8');\n"
         "const lines = data.split('\\n');\n\n"
         "// Tulis solusimu di sini\n"

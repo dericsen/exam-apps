@@ -479,6 +479,7 @@
         area.value = (cp().starter_code || {})[$('langSelect').value] || '';
         syncGutter();
       }
+      refreshCpMeta(); // batas waktu efektif berubah ikut bahasa
       saveDraft(false);
     };
 
@@ -513,10 +514,7 @@
 
     $('statement').innerHTML = `
       <h2>${esc(p.title)}</h2>
-      <p class="small dim">${esc(p.id)} &middot; ${esc(p.topic)} &middot;
-        batas waktu ${p.time_limit_ms / 1000}s &middot; ${p.total_tests} test case &middot;
-        ${pr.attempts || 0}/${cp().max_submissions_per_problem} submit terpakai
-        ${pr.solved ? '&middot; <b>selesai</b>' : ''}</p>
+      <p class="small dim">${cpMetaHtml(p, pr)}</p>
       <section><div class="body">${fmt(p.statement)}</div></section>
       <section><h4>Format input</h4><div class="body">${fmt(p.input_format)}</div></section>
       <section><h4>Format output</h4><div class="body">${fmt(p.output_format)}</div></section>
@@ -698,13 +696,33 @@
     const p = (cp().problems || []).find((x) => x.id === cpCurrent);
     const pr = prog.get(cpCurrent) || {};
     const meta = $('statement').querySelector('p.small');
-    if (meta && p) {
-      meta.innerHTML =
-        `${esc(p.id)} &middot; ${esc(p.topic)} &middot; batas waktu ${p.time_limit_ms / 1000}s &middot; ` +
-        `${p.total_tests} test case &middot; ${pr.attempts || 0}/${cp().max_submissions_per_problem} submit terpakai` +
-        (pr.solved ? ' &middot; <b>selesai</b>' : '');
-    }
+    if (meta && p) meta.innerHTML = cpMetaHtml(p, pr);
     paintTabLabels();
+  }
+
+  /** Kelonggaran waktu bahasa yang sedang dipilih (Java & Python dapat lebih). */
+  function langMultiplier() {
+    const sel = $('langSelect') ? $('langSelect').value : null;
+    const l = (cp().languages || []).find((x) => x.id === sel);
+    return (l && l.time_multiplier) || 1;
+  }
+
+  function cpMetaHtml(p, pr) {
+    const mult = langMultiplier();
+    const eff = Math.round(p.time_limit_ms * mult) / 1000;
+    // Batas waktu yang ditampilkan harus yang BERLAKU untuk bahasa terpilih,
+    // bukan batas dasar soal -- kalau tidak, peserta Java salah memperkirakan.
+    const limit =
+      mult === 1
+        ? `batas waktu ${p.time_limit_ms / 1000}s`
+        : `batas waktu ${eff}s <span title="bahasa ini diberi kelonggaran waktu">` +
+          `(dasar ${p.time_limit_ms / 1000}s &times;${mult})</span>`;
+    return (
+      `${esc(p.id)} &middot; ${esc(p.topic)} &middot; ${limit} &middot; ` +
+      `${p.total_tests} test case &middot; ` +
+      `${pr.attempts || 0}/${cp().max_submissions_per_problem} submit terpakai` +
+      (pr.solved ? ' &middot; <b>selesai</b>' : '')
+    );
   }
 
   function renderJudge(result, isSubmit) {

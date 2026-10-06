@@ -1,7 +1,11 @@
 # Exam Apps — Ujian LAN dengan Lockdown
 
 Aplikasi ujian yang dijalankan dari satu laptop dan diakses peserta lewat WiFi lokal.
-Dua bagian ujian: **TPKS** (pilihan ganda) dan **Competitive Programming** (auto-judge).
+
+- **30 soal TPKS** (pilihan ganda) + **2 soal Competitive Programming** (dinilai otomatis)
+- **Satu timer 90 menit**, mulai berjalan saat peserta enroll
+- Soal **diacak per peserta** dari bank soal
+- Lockdown: wajib fullscreen, deteksi pindah aplikasi, auto-submit
 
 Tanpa dependency. Tanpa `npm install`. Tanpa internet. Cukup **Node.js 18+**.
 
@@ -14,9 +18,10 @@ node server.js
 ## Daftar Isi
 
 - [Mulai Cepat](#mulai-cepat)
+- [Cara Kerja Waktu dan Soal](#cara-kerja-waktu-dan-soal)
 - [Menyebarkan ke WiFi](#menyebarkan-ke-wifi)
 - [Soal lockdown — baca ini](#soal-lockdown--baca-ini)
-- [Mode Kiosk (lockdown keras)](#mode-kiosk-lockdown-keras)
+- [Mode Kiosk](#mode-kiosk)
 - [Bank Soal](#bank-soal)
 - [Konfigurasi](#konfigurasi)
 - [Dashboard Pengawas](#dashboard-pengawas)
@@ -34,41 +39,100 @@ node server.js
 # 1. Periksa Node.js (butuh 18 atau lebih baru)
 node -v
 
-# 2. Ganti kunci admin + kode akses
-#    Edit config.json -> "admin_key" dan "registration.access_code"
+# 2. Ganti kunci admin + kode akses di config.json
+#    "admin_key" dan "registration.access_code"
 
-# 3. Pastikan bank soal CP sehat (reference solution harus AC semua)
+# 3. Pastikan judge sehat di laptop ini
 node tools/verify_cp.js
 
 # 4. Jalankan
 node server.js
 ```
 
-Output saat server hidup akan langsung memberi tahu alamat yang dibagikan ke peserta:
+Server langsung mencetak alamat yang dibagikan ke peserta:
 
 ```
-==================================================================
-  Seleksi Tim Riset & Proyek Ilmu Komputer 2026
-==================================================================
-  Peserta  : http://192.168.1.10:3000
-  Pengawas : http://192.168.1.10:3000/admin.html
-  Kode akses peserta : CS2026
-  Kunci admin        : ...
-==================================================================
-  Bagian   : TPKS (45 menit) -> Competitive Programming (90 menit)
-  Soal CP  : E-001, E-004, E-008, E-011, E-012
-  Bahasa   : Python 3 [Python 3.11.9], C++ 17 [g++ ...], JavaScript (Node)
-==================================================================
+------------------------------------------------------------------
+Seleksi Tim Riset & Proyek Ilmu Komputer 2026
+------------------------------------------------------------------
+Peserta  : http://192.168.1.10:3000
+Pengawas : http://192.168.1.10:3000/admin.html
+Kode akses : CS2026
+Kunci admin: ...
+------------------------------------------------------------------
+Durasi   : 90 menit, mulai saat peserta enroll
+Soal     : 30 TPKS + 2 CP (acak per peserta)
+Pool CP  : E-001, E-002, ... E-015
+Bobot    : TPKS 0.4 / CP 0.6
+Bahasa   : Python 3, C++ 17, JavaScript (Node)
+------------------------------------------------------------------
 ```
+
+---
+
+## Cara Kerja Waktu dan Soal
+
+### Satu timer, mulai saat enroll
+
+Timer **90 menit** mulai berjalan pada detik peserta menekan tombol *Masuk* di
+halaman login — bukan saat ia mulai membaca soal. Halaman login memberi peringatan
+jelas dan meminta konfirmasi sebelum menekan tombol itu.
+
+Konsekuensinya penting untuk dipahami panitia:
+
+- Peserta yang enroll lalu menunda mengerjakan **kehilangan waktu**. Beri instruksi
+  jelas: "jangan tekan Masuk sebelum saya bilang mulai".
+- Durasi bersifat **per peserta**, bukan jam dinding. Peserta yang datang terlambat
+  tetap mendapat 90 menit penuh.
+- Login ulang **tidak** me-reset timer. Laptop mati atau WiFi putus tidak memberi
+  waktu tambahan — gunakan tombol *+5m* atau *Buka kembali* di dashboard untuk itu.
+- Timer dihitung di **server**. Mengubah jam sistem, reload, atau menutup browser
+  tidak menghentikannya.
+
+### Navigasi bebas antara TPKS dan CP
+
+Karena timernya satu, **kedua bagian dibuka bersamaan** dan peserta bebas berpindah
+lewat tab di pojok kiri atas. Ia sendiri yang mengatur pembagian waktunya.
+
+Ini keputusan desain yang sengaja: dengan satu timer, memaksa urutan (TPKS dulu,
+baru CP) justru berbahaya — peserta yang keburu menekan "kumpulkan TPKS" akan
+kehilangan akses permanen padahal waktunya masih banyak. Satu tombol *Selesai &
+kumpulkan* mengakhiri seluruh ujian.
+
+### Soal diacak per peserta
+
+**TPKS** — 30 soal diambil dari 138 soal unik: 10 A_PATTERN, 10 B_LOGIC, 10 C_ANALYTIC.
+Urutan soal dan urutan pilihan jawaban juga diacak.
+
+**CP** — 2 soal diambil dari pool 15 soal, **satu soal dari setiap tier**:
+
+| Tier | Isi | Karakter |
+|---|---|---|
+| 1 | E-001, E-002, E-005, E-006, E-007, E-013 | I/O dasar + satu operasi |
+| 2 | E-003, E-004, E-008, E-009, E-010, E-011, E-012, E-014, E-015 | perlu array, loop, atau sedikit algoritma |
+
+Kenapa pakai tier, bukan acak bebas? Dengan acak bebas dari 15 soal, ada peserta
+yang kebetulan dapat dua soal termudah (`a+b` dan `cek ganjil/genap`) sementara yang
+lain dapat dua tersulit (sieve prima dan sorting N=100.000). Itu tidak adil untuk
+seleksi. Dengan tier, soalnya tetap berbeda-beda tapi **tingkat kesulitannya setara**
+— ada 54 kombinasi yang mungkin.
+
+Mau acak bebas? Hapus saja `problem_tiers` dari `config.json`.
+
+### Pengacakan bersifat tetap per peserta
+
+Paket soal dibekukan saat enroll dan disimpan di attempt peserta. Reload halaman,
+ganti laptop, atau restart server **tidak** mengubah soal yang ia terima. Diverifikasi
+otomatis oleh `tools/selftest.js`.
 
 ---
 
 ## Menyebarkan ke WiFi
 
-1. **Laptop panitia dan semua peserta harus berada di WiFi/SSID yang sama.**
-   Hotspot HP juga bisa, tapi WiFi router lebih stabil untuk >15 peserta.
+1. **Laptop panitia dan semua peserta harus di WiFi/SSID yang sama.** Hotspot HP bisa,
+   tapi router lebih stabil untuk >15 peserta.
 
-2. **Cari IP laptop panitia** (server mencetaknya otomatis, atau cek manual):
+2. **Cari IP laptop panitia** (dicetak otomatis oleh server, atau cek manual):
 
    | OS | Perintah |
    |---|---|
@@ -79,36 +143,32 @@ Output saat server hidup akan langsung memberi tahu alamat yang dibagikan ke pes
 3. **Izinkan port di firewall.** Ini penyebab #1 "kok nggak bisa dibuka":
 
    ```powershell
-   # Windows (jalankan PowerShell sebagai Administrator)
+   # Windows (PowerShell sebagai Administrator)
    New-NetFirewallRule -DisplayName "Exam App" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow
    ```
 
    ```bash
-   # Linux (firewalld)
-   sudo firewall-cmd --add-port=3000/tcp
-   # Linux (ufw)
-   sudo ufw allow 3000/tcp
+   sudo firewall-cmd --add-port=3000/tcp   # firewalld
+   sudo ufw allow 3000/tcp                 # ufw
    ```
 
    macOS biasanya cukup menekan **Allow** pada dialog yang muncul.
 
 4. **Tulis alamatnya di papan tulis**, misalnya `http://192.168.1.10:3000`.
 
-5. **Uji dari satu HP/laptop peserta dulu** sebelum ujian resmi dimulai.
+5. **Uji dari satu perangkat peserta** sebelum ujian resmi.
 
-> **Isolasi klien / AP Isolation:** beberapa router hotel atau kampus memblokir
-> komunikasi antar perangkat. Kalau peserta tidak bisa membuka alamat sama sekali
-> padahal firewall sudah dibuka, matikan "AP isolation" di router atau pakai
-> hotspot HP panitia.
+> **AP isolation:** beberapa router kampus/hotel memblokir komunikasi antar perangkat.
+> Kalau peserta tidak bisa membuka alamat sama sekali padahal firewall sudah dibuka,
+> matikan "AP isolation" di router atau pakai hotspot HP panitia.
 
 ---
 
 ## Soal lockdown — baca ini
 
 **Sebuah halaman web tidak bisa mengunci sistem operasi.** Browser sengaja tidak
-mengizinkan halaman mana pun memblokir Alt+Tab, menutup aplikasi lain, atau
-mematikan tombol Windows. Siapa pun yang menjanjikan sebaliknya dari web app murni
-sedang keliru.
+mengizinkan halaman mana pun memblokir Alt+Tab, menutup aplikasi lain, atau mematikan
+tombol Windows. Siapa pun yang menjanjikan sebaliknya dari web app murni sedang keliru.
 
 Yang **benar-benar dilakukan** aplikasi ini:
 
@@ -118,36 +178,33 @@ Yang **benar-benar dilakukan** aplikasi ini:
 | Deteksi keluar fullscreen | Tercatat sebagai pelanggaran + layar soal ditutup overlay |
 | Deteksi pindah tab / minimize | `visibilitychange` → pelanggaran |
 | Deteksi pindah aplikasi | `window.blur` → pelanggaran (ini yang menangkap Alt+Tab) |
-| Overlay penghalang | Begitu peserta keluar, soal **langsung tertutup**. Mau nyontek pun soalnya tidak kelihatan |
+| Overlay penghalang | Begitu peserta berpaling, soal **langsung tertutup** |
 | Blokir klik kanan, copy, paste | Soal tidak bisa disalin keluar, kode tidak bisa ditempel masuk |
 | Blokir F12 / Ctrl+Shift+I / Ctrl+U | Devtools dan view-source dihalangi |
-| Timer di sisi server | Reload, tutup browser, atau cabut WiFi **tidak** menghentikan waktu |
-| Auto-submit | Setelah `max_violations` pelanggaran, ujian dikumpulkan paksa dan ditutup |
-| Log audit | Semua pelanggaran tercatat beserta jam, jenis, dan terlihat pengawas real-time |
+| Timer di server | Reload, tutup browser, atau cabut WiFi tidak menghentikan waktu |
+| Auto-submit | Setelah `max_violations` pelanggaran, ujian dikumpulkan paksa |
+| Log audit | Semua pelanggaran tercatat beserta jam dan jenisnya, terlihat pengawas real-time |
 
 Jadi kecurangan tidak dicegah secara fisik, tapi **selalu tertangkap dan tercatat**,
 dan soalnya tertutup saat peserta berpaling. Untuk seleksi internal, kombinasi ini
-plus mode kiosk di bawah sudah sangat memadai.
+plus mode kiosk sudah sangat memadai.
 
 **Yang tidak bisa dideteksi:** HP kedua, teman di sebelah, atau laptop kedua.
 Pengawasan fisik di ruangan tetap diperlukan.
 
 ---
 
-## Mode Kiosk (lockdown keras)
+## Mode Kiosk
 
-Jalankan browser peserta dalam kiosk mode. Tidak ada address bar, tidak ada tab,
-tidak ada tombol close — peserta hanya melihat halaman ujian.
+Jalankan browser peserta dalam kiosk mode: tidak ada address bar, tab, atau tombol close.
 
-**Windows** (buat file `ujian.bat` di desktop tiap PC, ganti IP-nya):
+**Windows** (buat `ujian.bat` di desktop tiap PC, ganti IP-nya):
 
 ```bat
 @echo off
 start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" ^
   --kiosk --app=http://192.168.1.10:3000 ^
-  --disable-features=TranslateUI ^
-  --disable-extensions ^
-  --no-first-run ^
+  --disable-extensions --no-first-run ^
   --user-data-dir="%TEMP%\exam-profile"
 ```
 
@@ -161,19 +218,18 @@ open -na "Google Chrome" --args --kiosk --app=http://192.168.1.10:3000 \
 **Linux:**
 
 ```bash
-google-chrome --kiosk --app=http://192.168.1.10:3000 \
-  --user-data-dir=/tmp/exam-profile
+google-chrome --kiosk --app=http://192.168.1.10:3000 --user-data-dir=/tmp/exam-profile
 ```
 
-`--user-data-dir` yang terpisah penting: peserta tidak membawa cookie, history,
-atau akun Google pribadinya ke sesi ujian.
+`--user-data-dir` terpisah penting: peserta tidak membawa cookie, history, atau akun
+Google pribadinya ke sesi ujian.
 
-**Kalau butuh kunci total** (lab terkontrol, peserta tidak boleh keluar sama sekali):
+**Kalau butuh kunci total:**
 
-- **Windows Assigned Access / Kiosk Mode** — Settings → Accounts → *Other users* →
-  *Set up a kiosk*. Peserta hanya bisa menjalankan satu aplikasi, Alt+Tab mati total.
+- **Windows Assigned Access** — Settings → Accounts → *Other users* → *Set up a kiosk*.
+  Peserta hanya bisa menjalankan satu aplikasi, Alt+Tab mati total.
 - **[Safe Exam Browser](https://safeexambrowser.org/)** — gratis, open source, dibuat
-  khusus untuk ujian. Arahkan ke `http://IP:3000`. Ini yang dipakai universitas.
+  khusus untuk ujian. Arahkan ke `http://IP:3000`.
 
 ---
 
@@ -181,22 +237,22 @@ atau akun Google pribadinya ke sesi ujian.
 
 ### TPKS — `data/tpks.json`
 
-150 entri, 140 unik: 50 A_PATTERN (pola & deret), 50 B_LOGIC (logika), 50 C_ANALYTIC (analitis).
-Setiap peserta menerima **30 soal** (10 per tipe), diacak dan unik per peserta.
+150 entri, 140 unik, 138 siap dipakai: A_PATTERN (pola & deret), B_LOGIC (logika),
+C_ANALYTIC (analitis).
 
 Bank aslinya memuat banyak soal yang isinya identik — soal deret `2, 6, 12, 20, 30`
-saja muncul belasan kali. Server mengelompokkan soal yang teksnya praktis sama dan
-hanya mengambil **satu wakil per kelompok**, sehingga peserta tidak pernah menerima
-soal yang sama dua kali. Kamu tidak perlu menghapus duplikatnya.
+saja muncul belasan kali di tiga tipe berbeda. Server mengelompokkan soal yang teksnya
+praktis sama dan hanya mengambil **satu wakil per kelompok**, sehingga peserta tidak
+pernah menerima soal yang sama dua kali. Duplikatnya tidak perlu dihapus.
 
-Dua soal dikeluarkan dari ujian karena cacat (lihat `exclude_question_ids` di config):
+Dua soal dikeluarkan karena cacat (`exclude_question_ids` di config):
 
 | ID | Masalah |
 |---|---|
-| `A_PATTERN-002` | Pilihan A, B, dan D isinya identik (`TJTUFN`). Peserta yang memilih A dinilai salah padahal teksnya sama dengan kunci |
-| `A_PATTERN-007` | `ALGORITMA` digeser +1 = `BMHPSJUNB`, dan jawaban itu **tidak ada** di pilihan mana pun. Kunci (D) dan pembahasan (A) juga saling bertentangan |
+| `A_PATTERN-002` | Pilihan A, B, dan D identik (`TJTUFN`). Peserta yang memilih A dinilai salah padahal teksnya sama dengan kunci |
+| `A_PATTERN-007` | `ALGORITMA` digeser +1 = `BMHPSJUNB`, dan jawaban itu **tidak ada** di pilihan mana pun. Kunci (D) dan pembahasan (A) juga bertentangan |
 
-Jalankan `node tools/validate_bank.js` untuk laporan lengkap, termasuk 3 soal lain
+Jalankan `node tools/validate_bank.js` untuk laporan lengkap, termasuk soal lain
 yang kuncinya patut diperiksa manual.
 
 ### Competitive Programming — `data/cp-problems.json`
@@ -204,36 +260,29 @@ yang kuncinya patut diperiksa manual.
 15 soal **level mudah**, statement Bahasa Indonesia, 7 test case per soal
 (2 contoh terbuka + 5 tersembunyi) = 105 test case.
 
-| ID | Judul | Topik |
-|---|---|---|
-| E-001 | Penjumlahan Dua Bilangan | Dasar / Input-Output |
-| E-002 | Ganjil atau Genap | Dasar / Percabangan |
-| E-003 | Nilai Tertinggi | Array / Traversal |
-| E-004 | Rata-Rata Kelas | Array / Aritmetika |
-| E-005 | Hitung Huruf Vokal | String |
-| E-006 | Balik Kata | String |
-| E-007 | Faktorial | Dasar / Perulangan |
-| E-008 | Cek Palindrom | String / Two Pointer |
-| E-009 | Tiga dan Lima | Perulangan + Percabangan |
-| E-010 | Frekuensi Angka | Array / Counting |
-| E-011 | Urutkan Nilai | Sorting |
-| E-012 | Menghitung Bilangan Prima | Matematika / Sieve |
-| E-013 | Bilangan Fibonacci | Dasar / Perulangan |
-| E-014 | Selisih Terbesar | Array / Traversal |
-| E-015 | Hitung Kata | String / Parsing |
+| ID | Judul | Topik | Tier |
+|---|---|---|---|
+| E-001 | Penjumlahan Dua Bilangan | Dasar / Input-Output | 1 |
+| E-002 | Ganjil atau Genap | Dasar / Percabangan | 1 |
+| E-003 | Nilai Tertinggi | Array / Traversal | 2 |
+| E-004 | Rata-Rata Kelas | Array / Aritmetika | 2 |
+| E-005 | Hitung Huruf Vokal | String | 1 |
+| E-006 | Balik Kata | String | 1 |
+| E-007 | Faktorial | Dasar / Perulangan | 1 |
+| E-008 | Cek Palindrom | String / Two Pointer | 2 |
+| E-009 | Tiga dan Lima | Perulangan + Percabangan | 2 |
+| E-010 | Frekuensi Angka | Array / Counting | 2 |
+| E-011 | Urutkan Nilai | Sorting | 2 |
+| E-012 | Menghitung Bilangan Prima | Matematika / Sieve | 2 |
+| E-013 | Bilangan Fibonacci | Dasar / Perulangan | 1 |
+| E-014 | Selisih Terbesar | Array / Traversal | 2 |
+| E-015 | Hitung Kata | String / Parsing | 2 |
 
-Setiap soal punya *reference solution* yang disertakan. **Expected output tidak
-pernah ditulis manual** — semuanya dihitung oleh reference solution lewat
-`tools/gen_cp.py`, jadi mustahil ada kunci yang salah.
+Setiap soal menyertakan *reference solution*. **Expected output tidak pernah ditulis
+manual** — semuanya dihitung oleh reference solution lewat `tools/gen_cp.py`, jadi
+mustahil ada kunci yang salah.
 
-Soal yang dipakai saat ujian diatur lewat `problem_ids` di config (default 5 soal).
-Ingin ganti? Cukup ubah daftarnya:
-
-```json
-"problem_ids": ["E-002", "E-005", "E-009", "E-013", "E-014"]
-```
-
-Setiap soal menyertakan *trap* yang relevan untuk seleksi: batasan yang memaksa
+Setiap soal menyimpan *trap* yang relevan untuk seleksi: batasan yang memaksa
 long long (E-007, E-013, E-014), N besar yang menolak bubble sort (E-011), dan
 nilai negatif yang menjatuhkan `max = 0` (E-003).
 
@@ -253,63 +302,64 @@ Pengaturan yang sering disesuaikan:
 | Kunci | Arti |
 |---|---|
 | `port` | Port server (default 3000) |
-| `sections[].duration_min` | Durasi tiap bagian, dihitung per peserta sejak ia menekan "Mulai" |
-| `sections[].composition` | Jumlah soal TPKS per tipe |
-| `sections[].problem_ids` | Soal CP yang dipakai |
+| `exam.duration_min` | Total waktu ujian, mulai saat enroll (default 90) |
+| `exam.warn_minutes` | Timer berubah merah saat sisa waktu di bawah ini |
+| `sections[0].composition` | Jumlah soal TPKS per tipe (default 10/10/10 = 30) |
+| `sections[0].exclude_question_ids` | Soal TPKS yang tidak boleh keluar |
+| `sections[1].problem_count` | Jumlah soal CP per peserta (default 2) |
+| `sections[1].problem_tiers` | Tier soal CP. Hapus untuk acak bebas |
 | `sections[].weight` | Bobot nilai akhir (TPKS 0.4, CP 0.6) |
-| `sections[].languages` | Bahasa yang boleh dipakai peserta |
-| `sections[].max_submissions_per_problem` | Batas submit per soal |
+| `sections[1].languages` | Bahasa yang boleh dipakai peserta |
+| `sections[1].max_submissions_per_problem` | Batas submit per soal |
 | `lockdown.max_violations` | Jumlah pelanggaran sebelum auto-submit |
-| `lockdown.grace_seconds_per_violation` | Jeda paksa sebelum peserta boleh lanjut |
 | `lockdown.block_paste_code` | `true` = peserta tidak bisa menempel kode dari luar |
 | `result.show_score_to_participant` | `false` = peserta tidak melihat nilainya |
-
-Durasi bersifat **per peserta**, bukan jam dinding. Peserta yang datang terlambat
-tetap mendapat waktu penuh.
 
 ---
 
 ## Dashboard Pengawas
 
-`http://IP:3000/admin.html` → masukkan `admin_key`.
+`http://IP:3000/admin.html` → masukkan `admin_key`. Refresh otomatis 5 detik.
 
-Refresh otomatis 5 detik. Yang terlihat per peserta:
-
-- Titik **hijau/abu** = online / tidak terdeteksi >25 detik
-- Sisa waktu tiap bagian dan progres (`18/30` soal, `3/5 solved`)
-- **Jumlah pelanggaran** + jenis pelanggaran terakhir
-- Nilai TPKS, CP, dan nilai akhir yang terus diperbarui
-
-Aksi yang tersedia:
+Per peserta terlihat: status online, **sisa waktu**, progres TPKS (`18/30` + jumlah
+benar), **soal CP mana yang ia dapat** beserta test case yang lulus, jumlah
+pelanggaran, dan nilai akhir yang terus diperbarui.
 
 | Aksi | Kapan dipakai |
 |---|---|
-| **Detail** | Lihat jawaban per soal + kunci, seluruh kode yang disubmit, dan daftar pelanggaran berikut jamnya |
-| **+5m / +15m** | Peserta terlambat atau laptopnya bermasalah |
-| **Maafkan** | Hapus catatan pelanggaran (mis. notifikasi Windows memicu blur) |
-| **Buka kembali** | Laptop peserta mati / WiFi putus lama — buka lagi bagian terakhir + 10 menit |
-| **Hentikan paksa** | Kumpulkan semua jawaban peserta sekarang |
+| **Detail** | Jawaban per soal + kunci, seluruh kode yang disubmit, daftar pelanggaran berikut jamnya |
+| **+5m** / **+15m** | Peserta terlambat atau laptopnya bermasalah |
+| **Hapus catatan pelanggaran** | Pelanggaran palsu, mis. notifikasi Windows memicu blur |
+| **Buka kembali** | Laptop mati / WiFi putus lama — aktifkan lagi dan beri 10 menit dari sekarang |
+| **Hentikan dan kumpulkan paksa** | Kumpulkan jawaban peserta sekarang |
 | **Diskualifikasi** | Peserta kedapatan curang; sesinya tidak bisa dibuka lagi |
-| **Export CSV** | Rekap nilai, langsung bisa dibuka Excel (sudah ber-BOM UTF-8) |
+| **Export CSV** | Rekap nilai, siap dibuka Excel (ber-BOM UTF-8) |
 
-> **Reset Semua** menghapus seluruh data peserta. Pakai hanya **sebelum** ujian
+CSV memuat kolom `cp1_soal`, `cp1_lulus`, `cp1_persen`, `cp2_...` sehingga kamu tahu
+soal mana yang didapat tiap peserta — penting karena soalnya berbeda-beda.
+
+> **Reset semua** menghapus seluruh data peserta. Pakai hanya **sebelum** ujian
 > dimulai, misalnya setelah uji coba.
 
 ---
 
 ## Penilaian
 
-**TPKS** — `benar / total × 100`. Tidak ada nilai minus.
+**TPKS** — `benar / 30 × 100`. Tidak ada nilai minus.
 
-**CP** — per soal: `test case lulus / total test case × 100` (**partial credit**).
-Dari beberapa submit, yang dipakai adalah **submit terbaik**, bukan yang terakhir,
-jadi peserta tidak dirugikan karena mencoba optimasi di akhir.
+**CP** — per soal `test case lulus / 7 × 100` (**partial credit**). Dari beberapa
+submit, yang dipakai adalah **submit terbaik**, bukan yang terakhir, jadi peserta
+tidak dirugikan karena mencoba optimasi di akhir.
 
 **Nilai akhir** — rata-rata berbobot:
 
 ```
-akhir = (0.4 × persen_TPKS + 0.6 × persen_CP) / (0.4 + 0.6)
+akhir = (0.4 x persen_TPKS + 0.6 x persen_CP) / (0.4 + 0.6)
 ```
+
+Dengan 2 soal CP berbobot 0.6, **satu soal CP bernilai 30% dari nilai akhir** —
+jauh lebih besar dari satu soal TPKS (1,33%). Pertimbangkan ini saat menimbang:
+kalau terasa terlalu berat, turunkan bobot CP atau naikkan `problem_count`.
 
 Verdict judge: `AC` Accepted · `WA` Wrong Answer · `TLE` Time Limit Exceeded ·
 `RTE` Runtime Error · `CE` Compile Error · `OLE` Output Limit Exceeded.
@@ -350,7 +400,7 @@ node tools/verify_cp.js
 # Laporan kualitas bank TPKS: duplikat, pilihan kembar, kunci vs pembahasan
 node tools/validate_bank.js
 
-# Uji end-to-end seluruh alur ujian (100 pemeriksaan, pakai port & data terpisah)
+# Uji end-to-end seluruh alur ujian (127 pemeriksaan, port & data terpisah)
 node tools/selftest.js
 
 # Regenerasi bank soal CP setelah mengubah/menambah soal
@@ -370,18 +420,21 @@ sehari sebelumnya. Itu sekaligus memastikan Python/g++ terpasang benar di mesin 
 - [ ] `node tools/verify_cp.js` lulus di laptop ujian
 - [ ] Port 3000 terbuka di firewall, sudah diuji dari perangkat lain
 - [ ] Laptop panitia **tercolok charger** dan sleep dimatikan
-- [ ] Uji coba singkat dengan 2–3 orang, lalu **Reset Semua**
+- [ ] Uji coba singkat dengan 2–3 orang, lalu **Reset semua**
 - [ ] Alamat ujian ditulis di papan tulis
 - [ ] Browser peserta disiapkan dalam kiosk mode
+- [ ] **Peserta diberi tahu: jangan tekan Masuk sebelum diinstruksikan** — timer
+      langsung berjalan
 
 **Kalau ada masalah**
 
 | Gejala | Penyebab & solusi |
 |---|---|
-| Peserta tidak bisa membuka alamat | Firewall belum dibuka, atau beda SSID, atau AP isolation aktif |
-| Laptop peserta mati / WiFi putus | Jawaban tersimpan di server. Login ulang dengan **NIM yang sama** → sesi lanjut. Beri tambahan waktu lewat dashboard |
-| Timer peserta habis padahal laptopnya rusak | Dashboard → ⋯ → **Buka kembali** |
-| Pelanggaran muncul tanpa peserta curang | Biasanya notifikasi/popup OS memicu `blur`. Gunakan **Maafkan**, dan naikkan `max_violations` |
+| Peserta tidak bisa membuka alamat | Firewall belum dibuka, beda SSID, atau AP isolation aktif |
+| Peserta tidak sengaja enroll kelewat awal | Dashboard → *+15m* atau *Buka kembali* untuk mengembalikan waktunya |
+| Laptop peserta mati / WiFi putus | Jawaban tersimpan di server. Login ulang dengan **NIM yang sama** → sesi lanjut dengan sisa waktu apa adanya. Tambah waktu lewat dashboard |
+| Timer habis padahal laptopnya rusak | Dashboard → *Lain* → **Buka kembali** |
+| Pelanggaran muncul tanpa peserta curang | Biasanya notifikasi/popup OS memicu `blur`. Hapus catatannya, dan naikkan `max_violations` |
 | CP tidak bisa submit | Python/g++ tidak terpasang di laptop panitia. Cek baris "Bahasa" saat server start |
 | Server perlu di-restart | Aman. Semua state ada di `data/runtime/attempts.json`, peserta cukup reload |
 
@@ -401,7 +454,7 @@ exam-apps/
 ├─ config.json               # Satu-satunya file yang perlu diedit panitia
 ├─ lib/
 │  ├─ http.js                # Router, body parser, static file (anti path traversal)
-│  ├─ bank.js                # Pemilihan soal: dedup, exclusion, pengacakan
+│  ├─ bank.js                # Pemilihan soal: dedup, exclusion, tier, pengacakan
 │  ├─ store.js               # Persistensi JSON (atomic write) + audit log
 │  ├─ judge.js               # Eksekusi kode peserta + verdict
 │  ├─ scoring.js             # Perhitungan nilai
@@ -424,22 +477,28 @@ exam-apps/
    ├─ gen_cp.py              # Generator bank CP (expected output dihitung, bukan ditulis)
    ├─ verify_cp.js           # Verifikasi bank CP + uji negatif judge
    ├─ validate_bank.js       # Laporan kualitas bank TPKS
-   └─ selftest.js            # 100 pemeriksaan end-to-end
+   └─ selftest.js            # 127 pemeriksaan end-to-end
 ```
 
 ### Catatan desain
 
 **Kenapa tanpa dependency?** Lab komputer sering tidak punya internet, dan
-`npm install` yang gagal lima menit sebelum ujian adalah mimpi buruk. Satu
-`node server.js` dan semua jalan.
+`npm install` yang gagal lima menit sebelum ujian adalah mimpi buruk.
 
 **Kenapa timer di server?** Timer di sisi klien bisa dimanipulasi dengan mengubah
 jam sistem atau devtools. Deadline disimpan di server; klien hanya menampilkannya.
 
-**Kenapa paket soal dibekukan saat registrasi?** Soal dan kunci jawaban peserta
-disimpan utuh di attempt-nya. Reload halaman, ganti laptop, atau restart server
-tidak mengubah soal yang ia terima.
+**Kenapa paket soal dibekukan saat enroll?** Soal dan kunci jawaban peserta disimpan
+utuh di attempt-nya. Reload, ganti laptop, atau restart server tidak mengubah soal
+yang ia terima.
 
 **Kenapa kunci jawaban tidak pernah dikirim ke browser?** Peserta hanya menerima
 `no`, `qid`, `type`, `q`, dan `opts`. Field `ans` dan `exp` tidak ikut — dicek
 otomatis oleh `selftest.js`. Penilaian 100% di server.
+
+**Kenapa nilai dihitung ulang setiap kali dashboard dibuka?** Dengan timer global
+tidak ada lagi event "kumpulkan bagian" yang memicu perhitungan, jadi nilai yang
+di-cache akan basi dan pengawas melihat angka 0 selama ujian berjalan.
+
+**Kenapa UI-nya plain?** Supaya ringan dibuka 30 laptop sekaligus di WiFi lab, dan
+supaya tidak ada animasi atau warna yang mengalihkan perhatian peserta saat ujian.

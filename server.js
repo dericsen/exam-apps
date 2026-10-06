@@ -7,6 +7,11 @@
  * Peserta:   http://<IP-laptop-panitia>:3000
  * Pengawas:  http://<IP-laptop-panitia>:3000/admin.html
  *
+ * Model waktu: SATU timer untuk seluruh ujian, mulai berjalan pada saat
+ * peserta melakukan enroll (menekan Masuk di halaman login). Kedua bagian
+ * dibuka bersamaan dan peserta bebas berpindah-pindah; ia sendiri yang
+ * mengatur pembagian waktunya.
+ *
  * Tanpa dependency eksternal: cukup Node.js 18+.
  */
 
@@ -30,8 +35,11 @@ const CONFIG_PATH = process.env.EXAM_CONFIG || path.join(ROOT, 'config.json');
 
 const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
 if (process.env.PORT) config.port = Number(process.env.PORT);
-const SECTIONS = config.sections;
-const SECTION_BY_ID = new Map(SECTIONS.map((s) => [s.id, s]));
+
+const EXAM = config.exam;
+const TPKS_SECTION = config.sections.find((s) => s.type === 'mcq');
+const CP_SECTION = config.sections.find((s) => s.type === 'code');
+const DURATION_MS = EXAM.duration_min * 60000;
 
 const MAX_CODE_BYTES = 100 * 1024;
 
@@ -40,138 +48,107 @@ const MAX_CODE_BYTES = 100 * 1024;
 // ---------------------------------------------------------------------------
 bank.load();
 store.init();
-const languages = judge.detect(config.judge);
+judge.detect(config.judge);
 
-// Problem CP dimuat sekali -- sama untuk semua peserta agar adil dan agar
-// nilai bisa dibandingkan langsung antar peserta.
-const cpSection = SECTIONS.find((s) => s.type === 'code');
-const CP_PROBLEMS = cpSection ? bank.getCpProblems(cpSection) : [];
-const CP_BY_ID = new Map(CP_PROBLEMS.map((p) => [p.id, p]));
-
-const enabledLanguages = (cpSection ? cpSection.languages : []).filter((l) =>
+const enabledLanguages = (CP_SECTION ? CP_SECTION.languages : []).filter((l) =>
   judge.isAvailable(l)
 );
 
-// ---------------------------------------------------------------------------
-// Util attempt
-// ---------------------------------------------------------------------------
-function emptySectionState(section) {
-  const base = {
-    id: section.id,
-    status: 'ready',
-    started_at: null,
-    ends_at: null,
-    extra_ms: 0,
-    finished_at: null,
-    finish_reason: null,
-  };
-  if (section.type === 'mcq') return { ...base, questions: [], answers: {} };
-  return { ...base, submissions: {}, drafts: {} };
-}
+// Seluruh pool soal CP yang mungkin keluar -- dipakai dashboard pengawas.
+const CP_POOL = (() => {
+  const tiers = CP_SECTION.problem_tiers;
+  if (Array.isArray(tiers) && tiers.length) return tiers.flat();
+  return bank.banks().cpBank.problems.map((p) => p.id);
+})();
 
+// ---------------------------------------------------------------------------
+// Attempt
+// ---------------------------------------------------------------------------
 function createAttempt(participant, identityKey, meta) {
   const sid = randomId(18);
+  const seed = sid + '|' + identityKey;
+
+  const tpks = bank.buildTpksQuestions(TPKS_SECTION, seed);
+  if (tpks.warnings.length) console.warn('[bank] ' + tpks.warnings.join(' '));
+
+  const cp = bank.pickCpProblems(CP_SECTION, seed);
+  if (cp.warnings.length) console.warn('[bank] ' + cp.warnings.join(' '));
+
   const attempt = {
     sid,
     identity_key: identityKey,
     participant,
     created_at: new Date().toISOString(),
+    // Timer mulai di sini: detik peserta menekan Masuk.
+    enrolled_at: nowMs(),
+    extra_ms: 0,
     last_seen: nowMs(),
     ip: meta.ip,
     user_agent: meta.userAgent,
-    status: 'ready',
-    sections: {},
+    status: 'active',
+    finished_at: null,
+    finish_reason: null,
+    tpks: { questions: tpks.questions, answers: {} },
+    cp: { problem_ids: cp.problemIds, submissions: {}, drafts: {} },
     violations: [],
     violation_count: 0,
     scores: null,
     final: null,
   };
 
-  for (const section of SECTIONS) {
-    attempt.sections[section.id] = emptySectionState(section);
-  }
-
-  // Paket soal TPKS dibuat sekali saat registrasi dan disimpan apa adanya,
-  // sehingga reload/ganti perangkat tidak mengubah soal maupun kunci.
-  const mcq = SECTIONS.find((s) => s.type === 'mcq');
-  if (mcq) {
-    const built = bank.buildTpksQuestions(mcq, sid + '|' + identityKey);
-    attempt.sections[mcq.id].questions = built.questions;
-    if (built.warnings.length) {
-      console.warn('[bank] ' + built.warnings.join(' '));
-    }
-  }
-
   store.putAttempt(attempt);
-  store.logEvent('register', { sid, participant, ip: meta.ip });
+  store.logEvent('enroll', {
+    sid,
+    participant,
+    ip: meta.ip,
+    cp_problems: cp.problemIds,
+    ends_at: new Date(deadline(attempt)).toISOString(),
+  });
   return attempt;
 }
 
-function sectionDeadline(sectionState, section) {
-  if (!sectionState.started_at) return null;
-  return sectionState.started_at + section.duration_min * 60000 + (sectionState.extra_ms || 0);
+function deadline(attempt) {
+  return attempt.enrolled_at + DURATION_MS + (attempt.extra_ms || 0);
 }
 
-function remainingMs(sectionState, section) {
-  const deadline = sectionDeadline(sectionState, section);
-  if (!deadline) return section.duration_min * 60000;
-  return Math.max(0, deadline - nowMs());
+function remainingMs(attempt) {
+  if (attempt.status !== 'active') return 0;
+  return Math.max(0, deadline(attempt) - nowMs());
 }
 
-function finishSection(attempt, section, reason) {
-  const st = attempt.sections[section.id];
-  if (st.status === 'finished') return;
-  st.status = 'finished';
-  st.finished_at = nowMs();
-  st.finish_reason = reason;
-  store.logEvent('section_finish', {
-    sid: attempt.sid,
-    section: section.id,
-    reason,
-  });
+function cpProblems(attempt) {
+  return bank.getCpProblems(attempt.cp.problem_ids);
+}
+
+function finishExam(attempt, reason) {
+  if (attempt.status === 'finished' || attempt.status === 'disqualified') return;
+  attempt.status = 'finished';
+  attempt.finished_at = nowMs();
+  attempt.finish_reason = reason;
   recomputeScores(attempt);
-  maybeFinishAttempt(attempt);
+  store.logEvent('finish', { sid: attempt.sid, reason, final: attempt.final });
   store.markDirty();
 }
 
-function maybeFinishAttempt(attempt) {
-  const allDone = SECTIONS.every((s) => attempt.sections[s.id].status === 'finished');
-  if (allDone && attempt.status !== 'finished' && attempt.status !== 'disqualified') {
-    attempt.status = 'finished';
-    attempt.finished_at = nowMs();
-    recomputeScores(attempt);
-    store.logEvent('attempt_finish', { sid: attempt.sid, final: attempt.final });
-  }
-}
-
 function recomputeScores(attempt) {
-  const scores = {};
-  for (const section of SECTIONS) {
-    const st = attempt.sections[section.id];
-    if (section.type === 'mcq') scores[section.id] = scoring.gradeTpks(st);
-    else scores[section.id] = scoring.gradeCp(st, CP_PROBLEMS);
-  }
+  const scores = {
+    tpks: scoring.gradeTpks(attempt.tpks),
+    cp: scoring.gradeCp(attempt.cp, cpProblems(attempt)),
+  };
   attempt.scores = scores;
-  attempt.final = scoring.finalScore(scores, SECTIONS);
+  attempt.final = scoring.finalScore(scores, config.sections);
   store.markDirty();
 }
 
 /** Dipanggil di setiap request: tegakkan batas waktu di sisi server. */
 function tick(attempt) {
-  for (const section of SECTIONS) {
-    const st = attempt.sections[section.id];
-    if (st.status === 'active' && remainingMs(st, section) <= 0) {
-      finishSection(attempt, section, 'waktu habis');
-    }
+  if (attempt.status === 'active' && remainingMs(attempt) <= 0) {
+    finishExam(attempt, 'waktu habis');
   }
-  maybeFinishAttempt(attempt);
 }
 
-function currentSectionId(attempt) {
-  for (const section of SECTIONS) {
-    if (attempt.sections[section.id].status !== 'finished') return section.id;
-  }
-  return null;
+function isOpen(attempt) {
+  return attempt.status === 'active';
 }
 
 // ---------------------------------------------------------------------------
@@ -182,93 +159,77 @@ function publicState(attempt) {
   attempt.last_seen = nowMs();
   store.markDirty();
 
-  const sections = SECTIONS.map((section) => {
-    const st = attempt.sections[section.id];
-    const out = {
-      id: section.id,
-      name: section.name,
-      full_name: section.full_name,
-      type: section.type,
-      duration_min: section.duration_min,
-      status: st.status,
-      remaining_ms: st.status === 'active' ? remainingMs(st, section) : null,
-      started_at: st.started_at,
-      finished_at: st.finished_at,
-      finish_reason: st.finish_reason,
-      weight: section.weight,
-    };
+  const open = isOpen(attempt);
+  const problems = cpProblems(attempt);
 
-    if (section.type === 'mcq') {
-      out.allow_back = section.allow_back !== false;
-      out.question_count = st.questions.length;
-      // Kunci jawaban (ans) dan pembahasan (exp) sengaja TIDAK dikirim.
-      out.questions =
-        st.status === 'active'
-          ? st.questions.map((q) => ({ no: q.no, qid: q.qid, type: q.type, q: q.q, opts: q.opts }))
-          : [];
-      out.answers = st.answers;
-      out.answered_count = Object.keys(st.answers).length;
-    } else {
-      out.languages = enabledLanguages.map((id) => {
-        const info = judge.languageInfo().find((l) => l.id === id);
-        return { id, label: info ? info.label : id, version: info ? info.version : '' };
-      });
-      out.max_submissions_per_problem = section.max_submissions_per_problem;
-      out.problems =
-        st.status === 'active' ? CP_PROBLEMS.map((p, i) => bank.publicProblem(p, i)) : [];
-      out.drafts = st.drafts;
-      out.starter_code = bank.starterCode();
-      out.progress = CP_PROBLEMS.map((p) => {
-        const list = st.submissions[p.id] || [];
-        const best = list.reduce(
-          (acc, s) => (s.passed / (s.total || 1) > acc.ratio ? { ratio: s.passed / (s.total || 1), s } : acc),
-          { ratio: -1, s: null }
-        );
-        return {
-          problem_id: p.id,
-          attempts: list.length,
-          best_passed: best.s ? best.s.passed : 0,
-          total_tests: p.test_cases.length,
-          solved: best.s ? best.s.passed === best.s.total : false,
-          last_verdict: list.length ? list[list.length - 1].verdict : null,
-        };
-      });
-      out.submissions = Object.fromEntries(
-        Object.entries(st.submissions).map(([pid, list]) => [
-          pid,
-          list.map((s) => ({
-            at: s.at,
-            language: s.language,
-            verdict: s.verdict,
-            passed: s.passed,
-            total: s.total,
-            max_time_ms: s.max_time_ms,
-          })),
-        ])
-      );
-    }
-    return out;
+  const progress = problems.map((p) => {
+    const list = attempt.cp.submissions[p.id] || [];
+    let bestPassed = 0;
+    for (const s of list) bestPassed = Math.max(bestPassed, s.passed);
+    return {
+      problem_id: p.id,
+      attempts: list.length,
+      best_passed: bestPassed,
+      total_tests: p.test_cases.length,
+      solved: list.some((s) => s.total > 0 && s.passed === s.total),
+      last_verdict: list.length ? list[list.length - 1].verdict : null,
+    };
   });
 
   return {
     sid: attempt.sid,
     participant: attempt.participant,
     status: attempt.status,
-    current_section: currentSectionId(attempt),
-    sections,
+    finish_reason: attempt.finish_reason,
+    remaining_ms: remainingMs(attempt),
+    duration_min: EXAM.duration_min,
+    warn_minutes: EXAM.warn_minutes || 10,
     violation_count: attempt.violation_count,
     max_violations: config.lockdown.max_violations,
     lockdown: config.lockdown,
-    result:
-      attempt.status === 'finished' || attempt.status === 'disqualified'
-        ? buildResult(attempt)
-        : null,
+    parts: {
+      tpks: {
+        name: TPKS_SECTION.name,
+        full_name: TPKS_SECTION.full_name,
+        weight: TPKS_SECTION.weight,
+        question_count: attempt.tpks.questions.length,
+        // Kunci jawaban (ans) dan pembahasan (exp) sengaja TIDAK dikirim.
+        questions: open
+          ? attempt.tpks.questions.map((q) => ({
+              no: q.no,
+              qid: q.qid,
+              type: q.type,
+              q: q.q,
+              opts: q.opts,
+            }))
+          : [],
+        answers: attempt.tpks.answers,
+        answered_count: Object.keys(attempt.tpks.answers).length,
+      },
+      cp: {
+        name: CP_SECTION.name,
+        full_name: CP_SECTION.full_name,
+        weight: CP_SECTION.weight,
+        problem_count: problems.length,
+        languages: enabledLanguages.map((id) => {
+          const info = judge.languageInfo().find((l) => l.id === id);
+          return { id, label: info ? info.label : id };
+        }),
+        max_submissions_per_problem: CP_SECTION.max_submissions_per_problem,
+        problems: open ? problems.map((p, i) => bank.publicProblem(p, i)) : [],
+        drafts: attempt.cp.drafts,
+        starter_code: bank.starterCode(),
+        progress,
+      },
+    },
+    result: open ? null : buildResult(attempt),
   };
 }
 
 function buildResult(attempt) {
   const out = {
     status: attempt.status,
+    finish_reason: attempt.finish_reason,
     violation_count: attempt.violation_count,
     show_score: !!config.result.show_score_to_participant,
   };
@@ -294,6 +255,22 @@ function auth(ctx) {
     return null;
   }
   return attempt;
+}
+
+/** Pastikan ujian masih terbuka sebelum menerima perubahan apa pun. */
+function requireOpen(ctx, attempt) {
+  tick(attempt);
+  if (!isOpen(attempt)) {
+    sendJson(ctx.res, 409, {
+      error:
+        attempt.status === 'disqualified'
+          ? 'Sesi kamu dihentikan panitia.'
+          : 'Ujian sudah berakhir.',
+      status: attempt.status,
+    });
+    return false;
+  }
+  return true;
 }
 
 function requireAdmin(ctx) {
@@ -322,22 +299,29 @@ router.on('GET', '/api/meta', (ctx) => {
   sendJson(ctx.res, 200, {
     exam_title: config.exam_title,
     exam_subtitle: config.exam_subtitle,
+    duration_min: EXAM.duration_min,
     registration: {
       fields: config.registration.fields,
       require_access_code: !!config.registration.require_access_code,
     },
-    sections: SECTIONS.map((s) => ({
-      id: s.id,
-      name: s.name,
-      full_name: s.full_name,
-      type: s.type,
-      duration_min: s.duration_min,
-      weight: s.weight,
-      question_count:
-        s.type === 'mcq'
-          ? Object.values(s.composition || {}).reduce((a, b) => a + b, 0)
-          : (s.problem_ids || []).length,
-    })),
+    parts: [
+      {
+        id: 'tpks',
+        name: TPKS_SECTION.name,
+        full_name: TPKS_SECTION.full_name,
+        kind: 'Pilihan ganda',
+        count: Object.values(TPKS_SECTION.composition || {}).reduce((a, b) => a + b, 0),
+        weight: TPKS_SECTION.weight,
+      },
+      {
+        id: 'cp',
+        name: CP_SECTION.name,
+        full_name: CP_SECTION.full_name,
+        kind: 'Menulis program',
+        count: CP_SECTION.problem_count,
+        weight: CP_SECTION.weight,
+      },
+    ],
     lockdown: config.lockdown,
     languages: enabledLanguages,
   });
@@ -368,12 +352,13 @@ router.on('POST', '/api/register', (ctx) => {
         error: 'Sesi kamu dihentikan panitia. Hubungi pengawas.',
       });
     }
-    if (!config.registration.allow_relogin && existing.status !== 'ready') {
+    if (!config.registration.allow_relogin) {
       return sendJson(ctx.res, 403, {
-        error: 'NIM ini sudah memulai ujian. Hubungi pengawas.',
+        error: 'NIM ini sudah terdaftar. Hubungi pengawas.',
       });
     }
-    // Login ulang (laptop restart / WiFi putus): lanjutkan attempt yang sama.
+    // Login ulang (laptop restart / WiFi putus): lanjutkan attempt yang sama,
+    // termasuk sisa waktunya. Timer TIDAK di-reset.
     store.logEvent('relogin', { sid: existing.sid, ip: clientIp(ctx.req) });
     return sendJson(ctx.res, 200, { sid: existing.sid, state: publicState(existing) });
   }
@@ -391,67 +376,20 @@ router.on('GET', '/api/state', (ctx) => {
   sendJson(ctx.res, 200, { state: publicState(attempt) });
 });
 
-router.on('POST', '/api/section/start', (ctx) => {
-  const attempt = auth(ctx);
-  if (!attempt) return;
-  tick(attempt);
-
-  if (attempt.status === 'disqualified') {
-    return sendJson(ctx.res, 403, { error: 'Sesi kamu dihentikan panitia.' });
-  }
-
-  const section = SECTION_BY_ID.get(String(ctx.body.section));
-  if (!section) return sendJson(ctx.res, 400, { error: 'Sesi ujian tidak dikenal.' });
-
-  // Bagian harus dikerjakan berurutan.
-  if (currentSectionId(attempt) !== section.id) {
-    return sendJson(ctx.res, 409, {
-      error: 'Belum waktunya membuka bagian ini. Selesaikan bagian sebelumnya dulu.',
-    });
-  }
-
-  const st = attempt.sections[section.id];
-  if (st.status === 'ready') {
-    st.status = 'active';
-    st.started_at = nowMs();
-    st.ends_at = sectionDeadline(st, section);
-    attempt.status = 'active';
-    store.logEvent('section_start', { sid: attempt.sid, section: section.id });
-    store.markDirty();
-  }
-  sendJson(ctx.res, 200, { state: publicState(attempt) });
-});
-
-router.on('POST', '/api/section/finish', (ctx) => {
-  const attempt = auth(ctx);
-  if (!attempt) return;
-  tick(attempt);
-  const section = SECTION_BY_ID.get(String(ctx.body.section));
-  if (!section) return sendJson(ctx.res, 400, { error: 'Sesi ujian tidak dikenal.' });
-  finishSection(attempt, section, 'dikumpulkan peserta');
-  sendJson(ctx.res, 200, { state: publicState(attempt) });
-});
-
 router.on('POST', '/api/answer', (ctx) => {
   const attempt = auth(ctx);
   if (!attempt) return;
-  tick(attempt);
-
-  const section = SECTIONS.find((s) => s.type === 'mcq');
-  const st = attempt.sections[section.id];
-  if (st.status !== 'active') {
-    return sendJson(ctx.res, 409, { error: 'Bagian TPKS sudah ditutup.' });
-  }
+  if (!requireOpen(ctx, attempt)) return;
 
   const qid = sanitizeText(ctx.body.qid, 40);
   const choice = sanitizeText(ctx.body.choice, 2).toUpperCase();
-  const question = st.questions.find((q) => q.qid === qid);
+  const question = attempt.tpks.questions.find((q) => q.qid === qid);
   if (!question) return sendJson(ctx.res, 400, { error: 'Soal tidak ditemukan.' });
 
   if (choice === '') {
-    delete st.answers[qid];
+    delete attempt.tpks.answers[qid];
   } else if (bank.LETTERS.slice(0, question.opts.length).includes(choice)) {
-    st.answers[qid] = choice;
+    attempt.tpks.answers[qid] = choice;
   } else {
     return sendJson(ctx.res, 400, { error: 'Pilihan jawaban tidak valid.' });
   }
@@ -459,43 +397,37 @@ router.on('POST', '/api/answer', (ctx) => {
   store.markDirty();
   sendJson(ctx.res, 200, {
     ok: true,
-    answered_count: Object.keys(st.answers).length,
-    remaining_ms: remainingMs(st, section),
+    answered_count: Object.keys(attempt.tpks.answers).length,
+    remaining_ms: remainingMs(attempt),
   });
 });
 
 router.on('POST', '/api/cp/draft', (ctx) => {
   const attempt = auth(ctx);
   if (!attempt) return;
-  tick(attempt);
-  const st = attempt.sections[cpSection.id];
-  if (st.status !== 'active') {
-    return sendJson(ctx.res, 409, { error: 'Bagian CP sudah ditutup.' });
-  }
+  if (!requireOpen(ctx, attempt)) return;
+
   const pid = sanitizeText(ctx.body.problem_id, 20);
-  if (!CP_BY_ID.has(pid)) return sendJson(ctx.res, 400, { error: 'Soal tidak ditemukan.' });
-  const code = String(ctx.body.code || '').slice(0, MAX_CODE_BYTES);
-  st.drafts[pid] = {
+  if (!attempt.cp.problem_ids.includes(pid)) {
+    return sendJson(ctx.res, 400, { error: 'Soal tidak ada dalam paketmu.' });
+  }
+  attempt.cp.drafts[pid] = {
     language: sanitizeText(ctx.body.language, 20),
-    code,
+    code: String(ctx.body.code || '').slice(0, MAX_CODE_BYTES),
     saved_at: nowMs(),
   };
   store.markDirty();
-  sendJson(ctx.res, 200, { ok: true, saved_at: st.drafts[pid].saved_at });
+  sendJson(ctx.res, 200, { ok: true, saved_at: attempt.cp.drafts[pid].saved_at });
 });
 
 function validateCodeRequest(ctx, attempt) {
-  const st = attempt.sections[cpSection.id];
-  if (st.status !== 'active') {
-    sendJson(ctx.res, 409, { error: 'Bagian CP sudah ditutup.' });
-    return null;
-  }
   const pid = sanitizeText(ctx.body.problem_id, 20);
-  const problem = CP_BY_ID.get(pid);
-  if (!problem) {
-    sendJson(ctx.res, 400, { error: 'Soal tidak ditemukan.' });
+  if (!attempt.cp.problem_ids.includes(pid)) {
+    sendJson(ctx.res, 400, { error: 'Soal tidak ada dalam paketmu.' });
     return null;
   }
+  const problem = cpProblems(attempt).find((p) => p.id === pid);
+
   const language = sanitizeText(ctx.body.language, 20);
   if (!enabledLanguages.includes(language)) {
     sendJson(ctx.res, 400, { error: `Bahasa "${language}" tidak tersedia.` });
@@ -510,14 +442,14 @@ function validateCodeRequest(ctx, attempt) {
     sendJson(ctx.res, 413, { error: 'Kode terlalu panjang (maksimal 100 KB).' });
     return null;
   }
-  return { st, problem, language, code };
+  return { problem, language, code };
 }
 
 /** Uji coba: hanya test case contoh, atau input bebas milik peserta. Tidak dinilai. */
 router.on('POST', '/api/cp/run', async (ctx) => {
   const attempt = auth(ctx);
   if (!attempt) return;
-  tick(attempt);
+  if (!requireOpen(ctx, attempt)) return;
   const v = validateCodeRequest(ctx, attempt);
   if (!v) return;
 
@@ -532,11 +464,10 @@ router.on('POST', '/api/cp/run', async (ctx) => {
     return sendJson(ctx.res, 200, { mode: 'custom', result });
   }
 
-  const samples = v.problem.test_cases.filter((t) => t.is_sample);
   const result = await judge.evaluate({
     language: v.language,
     code: v.code,
-    tests: samples,
+    tests: v.problem.test_cases.filter((t) => t.is_sample),
     timeLimitMs: v.problem.time_limit_ms,
     revealIO: true,
   });
@@ -553,12 +484,13 @@ router.on('POST', '/api/cp/run', async (ctx) => {
 router.on('POST', '/api/cp/submit', async (ctx) => {
   const attempt = auth(ctx);
   if (!attempt) return;
-  tick(attempt);
+  if (!requireOpen(ctx, attempt)) return;
   const v = validateCodeRequest(ctx, attempt);
   if (!v) return;
 
-  const list = (v.st.submissions[v.problem.id] = v.st.submissions[v.problem.id] || []);
-  const limit = cpSection.max_submissions_per_problem || 25;
+  const list = (attempt.cp.submissions[v.problem.id] =
+    attempt.cp.submissions[v.problem.id] || []);
+  const limit = CP_SECTION.max_submissions_per_problem || 25;
   if (list.length >= limit) {
     return sendJson(ctx.res, 429, {
       error: `Batas ${limit} submit untuk soal ini sudah tercapai.`,
@@ -573,7 +505,7 @@ router.on('POST', '/api/cp/submit', async (ctx) => {
     revealIO: false,
   });
 
-  const record = {
+  list.push({
     at: nowMs(),
     language: v.language,
     code: v.code,
@@ -582,8 +514,7 @@ router.on('POST', '/api/cp/submit', async (ctx) => {
     total: result.total,
     max_time_ms: result.max_time_ms || 0,
     compile_output: result.compile_output || '',
-  };
-  list.push(record);
+  });
   recomputeScores(attempt);
   store.logEvent('cp_submit', {
     sid: attempt.sid,
@@ -595,7 +526,7 @@ router.on('POST', '/api/cp/submit', async (ctx) => {
   });
 
   // Peserta melihat ringkasan + detail test case contoh saja.
-  const visible = cpSection.show_hidden_test_detail
+  const visible = CP_SECTION.show_hidden_test_detail
     ? result.results
     : result.results.map((r) =>
         r.is_sample ? r : { no: r.no, verdict: r.verdict, label: r.label, time_ms: r.time_ms }
@@ -615,11 +546,19 @@ router.on('POST', '/api/cp/submit', async (ctx) => {
   });
 });
 
+router.on('POST', '/api/finish', (ctx) => {
+  const attempt = auth(ctx);
+  if (!attempt) return;
+  tick(attempt);
+  finishExam(attempt, 'dikumpulkan peserta');
+  sendJson(ctx.res, 200, { state: publicState(attempt) });
+});
+
 router.on('POST', '/api/violation', (ctx) => {
   const attempt = auth(ctx);
   if (!attempt) return;
   tick(attempt);
-  if (attempt.status === 'finished' || attempt.status === 'disqualified') {
+  if (!isOpen(attempt)) {
     return sendJson(ctx.res, 200, { ok: true, violation_count: attempt.violation_count });
   }
 
@@ -632,20 +571,7 @@ router.on('POST', '/api/violation', (ctx) => {
   const max = config.lockdown.max_violations;
   let forced = false;
   if (config.lockdown.auto_submit_on_max_violations && max > 0 && attempt.violation_count >= max) {
-    for (const section of SECTIONS) {
-      if (attempt.sections[section.id].status === 'active') {
-        finishSection(attempt, section, 'melebihi batas pelanggaran lockdown');
-      }
-    }
-    for (const section of SECTIONS) {
-      const st = attempt.sections[section.id];
-      if (st.status === 'ready') {
-        st.status = 'finished';
-        st.finished_at = nowMs();
-        st.finish_reason = 'dibatalkan: batas pelanggaran terlampaui';
-      }
-    }
-    maybeFinishAttempt(attempt);
+    finishExam(attempt, 'melebihi batas pelanggaran lockdown');
     forced = true;
   }
 
@@ -665,32 +591,40 @@ router.on('POST', '/api/violation', (ctx) => {
 router.on('GET', '/api/admin/overview', (ctx) => {
   if (!requireAdmin(ctx)) return;
   const now = nowMs();
+
   const rows = store.allAttempts().map((a) => {
     tick(a);
-    const sections = {};
-    for (const section of SECTIONS) {
-      const st = a.sections[section.id];
-      sections[section.id] = {
-        status: st.status,
-        remaining_ms: st.status === 'active' ? remainingMs(st, section) : null,
-        finish_reason: st.finish_reason,
-        progress:
-          section.type === 'mcq'
-            ? `${Object.keys(st.answers || {}).length}/${(st.questions || []).length}`
-            : `${(a.scores && a.scores[section.id] ? a.scores[section.id].solved_count : 0)}/${CP_PROBLEMS.length} solved`,
-      };
-    }
+    // Selalu hitung ulang: dengan timer global tidak ada lagi event "kumpulkan
+    // bagian" yang memicu perhitungan, sehingga nilai yang di-cache akan
+    // tertinggal dan pengawas melihat angka basi selama ujian berjalan.
+    recomputeScores(a);
+    const problems = cpProblems(a);
     return {
       sid: a.sid,
       participant: a.participant,
       status: a.status,
+      finish_reason: a.finish_reason,
       ip: a.ip,
       created_at: a.created_at,
+      enrolled_at: a.enrolled_at,
+      ends_at: deadline(a),
+      remaining_ms: remainingMs(a),
       online: now - (a.last_seen || 0) < 25000,
       last_seen_ago_ms: now - (a.last_seen || 0),
       violation_count: a.violation_count,
       last_violation: a.violations.length ? a.violations[a.violations.length - 1] : null,
-      sections,
+      tpks_progress: `${Object.keys(a.tpks.answers).length}/${a.tpks.questions.length}`,
+      cp_problem_ids: a.cp.problem_ids,
+      cp_detail: problems.map((p) => {
+        const best = (a.scores.cp.per_problem || []).find((x) => x.problem_id === p.id) || {};
+        return {
+          id: p.id,
+          passed: best.passed || 0,
+          total: p.test_cases.length,
+          attempts: best.attempts || 0,
+          solved: !!best.solved,
+        };
+      }),
       scores: a.scores,
       final: a.final,
     };
@@ -701,8 +635,13 @@ router.on('GET', '/api/admin/overview', (ctx) => {
   sendJson(ctx.res, 200, {
     exam_title: config.exam_title,
     server_time: now,
-    sections: SECTIONS.map((s) => ({ id: s.id, name: s.name, type: s.type, duration_min: s.duration_min })),
-    problems: CP_PROBLEMS.map((p) => ({ id: p.id, title: p.title, tests: p.test_cases.length })),
+    duration_min: EXAM.duration_min,
+    parts: [
+      { id: 'tpks', name: TPKS_SECTION.name, weight: TPKS_SECTION.weight },
+      { id: 'cp', name: CP_SECTION.name, weight: CP_SECTION.weight },
+    ],
+    cp_pool: CP_POOL,
+    cp_problem_count: CP_SECTION.problem_count,
     languages: judge.languageInfo(),
     max_violations: config.lockdown.max_violations,
     attempts: rows,
@@ -721,35 +660,38 @@ router.on('GET', '/api/admin/attempt', (ctx) => {
   const a = store.getAttempt(String(ctx.query.sid || ''));
   if (!a) return sendJson(ctx.res, 404, { error: 'Attempt tidak ditemukan.' });
   tick(a);
+  recomputeScores(a);
 
-  const mcq = SECTIONS.find((s) => s.type === 'mcq');
-  const detail = {
+  sendJson(ctx.res, 200, {
     sid: a.sid,
     participant: a.participant,
     status: a.status,
+    finish_reason: a.finish_reason,
     ip: a.ip,
     user_agent: a.user_agent,
     created_at: a.created_at,
+    enrolled_at: a.enrolled_at,
+    ends_at: deadline(a),
+    remaining_ms: remainingMs(a),
     violations: a.violations,
     scores: a.scores,
     final: a.final,
-    tpks: mcq
-      ? a.sections[mcq.id].questions.map((q) => ({
-          no: q.no,
-          qid: q.qid,
-          type: q.type,
-          q: q.q,
-          opts: q.opts,
-          correct: q.ans,
-          picked: a.sections[mcq.id].answers[q.qid] || null,
-          is_correct: a.sections[mcq.id].answers[q.qid] === q.ans,
-          exp: q.exp,
-        }))
-      : [],
-    cp: CP_PROBLEMS.map((p) => ({
+    tpks: a.tpks.questions.map((q) => ({
+      no: q.no,
+      qid: q.qid,
+      type: q.type,
+      q: q.q,
+      opts: q.opts,
+      correct: q.ans,
+      picked: a.tpks.answers[q.qid] || null,
+      is_correct: a.tpks.answers[q.qid] === q.ans,
+      exp: q.exp,
+    })),
+    cp: cpProblems(a).map((p) => ({
       problem_id: p.id,
       title: p.title,
-      submissions: (a.sections[cpSection.id].submissions[p.id] || []).map((s) => ({
+      total_tests: p.test_cases.length,
+      submissions: (a.cp.submissions[p.id] || []).map((s) => ({
         at: s.at,
         language: s.language,
         verdict: s.verdict,
@@ -758,10 +700,9 @@ router.on('GET', '/api/admin/attempt', (ctx) => {
         max_time_ms: s.max_time_ms,
         code: s.code,
       })),
-      draft: a.sections[cpSection.id].drafts[p.id] || null,
+      draft: a.cp.drafts[p.id] || null,
     })),
-  };
-  sendJson(ctx.res, 200, detail);
+  });
 });
 
 router.on('POST', '/api/admin/action', (ctx) => {
@@ -780,12 +721,9 @@ router.on('POST', '/api/admin/action', (ctx) => {
 
   switch (action) {
     case 'extend': {
-      const minutes = clampInt(ctx.body.minutes, 1, 180, 5);
-      const target = currentSectionId(a);
-      if (!target) return sendJson(ctx.res, 409, { error: 'Semua bagian sudah selesai.' });
-      a.sections[target].extra_ms = (a.sections[target].extra_ms || 0) + minutes * 60000;
-      a.sections[target].ends_at = sectionDeadline(a.sections[target], SECTION_BY_ID.get(target));
-      store.logEvent('admin_extend', { sid, section: target, minutes });
+      const minutes = clampInt(ctx.body.minutes, 1, 240, 5);
+      a.extra_ms = (a.extra_ms || 0) + minutes * 60000;
+      store.logEvent('admin_extend', { sid, minutes });
       break;
     }
     case 'clear_violations':
@@ -794,34 +732,23 @@ router.on('POST', '/api/admin/action', (ctx) => {
       store.logEvent('admin_clear_violations', { sid });
       break;
     case 'force_finish':
-      for (const section of SECTIONS) {
-        if (a.sections[section.id].status !== 'finished') {
-          finishSection(a, section, 'dihentikan panitia');
-        }
-      }
+      finishExam(a, 'dihentikan panitia');
       break;
     case 'disqualify':
-      for (const section of SECTIONS) {
-        if (a.sections[section.id].status !== 'finished') {
-          finishSection(a, section, 'didiskualifikasi');
-        }
-      }
+      finishExam(a, 'didiskualifikasi');
       a.status = 'disqualified';
       store.logEvent('admin_disqualify', { sid });
       break;
     case 'reopen': {
-      // Buka kembali bagian terakhir (mis. laptop peserta mati karena listrik).
-      const minutes = clampInt(ctx.body.minutes, 1, 180, 10);
-      const section = SECTIONS.slice().reverse().find((s) => a.sections[s.id].status === 'finished');
-      if (!section) return sendJson(ctx.res, 409, { error: 'Tidak ada bagian untuk dibuka.' });
-      const st = a.sections[section.id];
-      st.status = 'active';
-      st.finished_at = null;
-      st.finish_reason = null;
-      st.extra_ms = (st.extra_ms || 0) + minutes * 60000;
-      st.ends_at = sectionDeadline(st, section);
+      // Buka kembali ujian (mis. laptop peserta mati atau WiFi putus lama).
+      const minutes = clampInt(ctx.body.minutes, 1, 240, 10);
       a.status = 'active';
-      store.logEvent('admin_reopen', { sid, section: section.id, minutes });
+      a.finished_at = null;
+      a.finish_reason = null;
+      // Beri sisa waktu persis `minutes` dari sekarang, apa pun kondisi
+      // deadline lamanya.
+      a.extra_ms = nowMs() + minutes * 60000 - a.enrolled_at - DURATION_MS;
+      store.logEvent('admin_reopen', { sid, minutes });
       break;
     }
     default:
@@ -835,50 +762,47 @@ router.on('POST', '/api/admin/action', (ctx) => {
 
 router.on('GET', '/api/admin/export.csv', (ctx) => {
   if (!requireAdmin(ctx)) return;
-  const mcq = SECTIONS.find((s) => s.type === 'mcq');
+  const count = CP_SECTION.problem_count;
 
-  const header = [
-    'nama',
-    'nim',
-    'kelas',
-    'status',
-    'pelanggaran',
-    'tpks_benar',
-    'tpks_total',
-    'tpks_persen',
-    ...CP_PROBLEMS.map((p) => `cp_${p.id}_persen`),
-    'cp_solved',
-    'cp_persen',
-    'nilai_akhir',
-    'ip',
-    'mulai',
-  ];
+  const header = ['nama', 'nim', 'kelas', 'status', 'pelanggaran', 'tpks_benar', 'tpks_total', 'tpks_persen'];
+  for (let i = 1; i <= count; i++) {
+    header.push(`cp${i}_soal`, `cp${i}_lulus`, `cp${i}_persen`);
+  }
+  header.push('cp_solved', 'cp_persen', 'nilai_akhir', 'ip', 'enroll', 'alasan_selesai');
 
   const rows = store.allAttempts().map((a) => {
     tick(a);
     recomputeScores(a);
-    const t = a.scores[mcq.id] || {};
-    const c = a.scores[cpSection.id] || {};
-    const perProblem = new Map((c.per_problem || []).map((p) => [p.problem_id, p.percent]));
-    return [
+    const t = a.scores.tpks;
+    const c = a.scores.cp;
+    const row = [
       a.participant.nama,
       a.participant.nim,
       a.participant.kelas,
       a.status,
       a.violation_count,
-      t.correct ?? '',
-      t.total ?? '',
-      t.percent ?? '',
-      ...CP_PROBLEMS.map((p) => perProblem.get(p.id) ?? 0),
-      c.solved_count ?? 0,
-      c.percent ?? 0,
+      t.correct,
+      t.total,
+      t.percent,
+    ];
+    for (let i = 0; i < count; i++) {
+      const p = (c.per_problem || [])[i];
+      row.push(p ? p.problem_id : '', p ? `${p.passed}/${p.total}` : '', p ? p.percent : '');
+    }
+    row.push(
+      c.solved_count,
+      c.percent,
       a.final ? a.final.total : 0,
       a.ip,
-      a.created_at,
-    ];
+      new Date(a.enrolled_at).toISOString(),
+      a.finish_reason || ''
+    );
+    return row;
   });
 
-  rows.sort((x, y) => Number(y[y.length - 3]) - Number(x[x.length - 3]));
+  // Urutkan dari nilai akhir tertinggi.
+  const finalIdx = header.indexOf('nilai_akhir');
+  rows.sort((x, y) => Number(y[finalIdx]) - Number(x[finalIdx]));
 
   const csv = [header, ...rows]
     .map((r) => r.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
@@ -923,24 +847,35 @@ function localIps() {
 
 server.listen(config.port, config.host, () => {
   const ips = localIps();
-  const line = '='.repeat(66);
-  console.log(line);
-  console.log('  ' + config.exam_title);
-  console.log(line);
-  console.log(`  Peserta  : ${ips.map((ip) => `http://${ip}:${config.port}`).join('  |  ') || `http://localhost:${config.port}`}`);
-  console.log(`  Pengawas : ${(ips[0] ? `http://${ips[0]}` : 'http://localhost')}:${config.port}/admin.html`);
-  console.log(`  Kode akses peserta : ${config.registration.require_access_code ? config.registration.access_code : '(tidak dipakai)'}`);
-  console.log(`  Kunci admin        : ${config.admin_key}`);
-  console.log(line);
-  console.log(`  Bagian   : ${SECTIONS.map((s) => `${s.name} (${s.duration_min} menit)`).join(' -> ')}`);
-  console.log(`  Soal CP  : ${CP_PROBLEMS.map((p) => p.id).join(', ')}`);
-  console.log(`  Bahasa   : ${judge.languageInfo().map((l) => `${l.label} [${l.version}]`).join(', ')}`);
+  const bar = '-'.repeat(66);
+  const tpksCount = Object.values(TPKS_SECTION.composition || {}).reduce((a, b) => a + b, 0);
+
+  console.log(bar);
+  console.log(config.exam_title);
+  console.log(bar);
+  console.log(
+    'Peserta  : ' +
+      (ips.map((ip) => `http://${ip}:${config.port}`).join('  ') ||
+        `http://localhost:${config.port}`)
+  );
+  console.log(`Pengawas : http://${ips[0] || 'localhost'}:${config.port}/admin.html`);
+  console.log(
+    'Kode akses : ' +
+      (config.registration.require_access_code ? config.registration.access_code : '(tidak dipakai)')
+  );
+  console.log('Kunci admin: ' + config.admin_key);
+  console.log(bar);
+  console.log(`Durasi   : ${EXAM.duration_min} menit, mulai saat peserta enroll`);
+  console.log(`Soal     : ${tpksCount} TPKS + ${CP_SECTION.problem_count} CP (acak per peserta)`);
+  console.log(`Pool CP  : ${CP_POOL.join(', ')}`);
+  console.log(`Bobot    : TPKS ${TPKS_SECTION.weight} / CP ${CP_SECTION.weight}`);
+  console.log(`Bahasa   : ${judge.languageInfo().map((l) => l.label).join(', ')}`);
   if (!enabledLanguages.length) {
-    console.log('  PERINGATAN: tidak ada bahasa pemrograman aktif untuk bagian CP!');
+    console.log('PERINGATAN: tidak ada bahasa pemrograman aktif untuk bagian CP!');
   }
-  console.log(line);
   if (config.admin_key.startsWith('GANTI')) {
-    console.log('  !! Ganti "admin_key" di config.json sebelum ujian berlangsung !!');
-    console.log(line);
+    console.log(bar);
+    console.log('PERINGATAN: ganti "admin_key" di config.json sebelum ujian.');
   }
+  console.log(bar);
 });

@@ -8,89 +8,81 @@
 </head>
 <body>
 
-<!-- ================= Gerbang masuk (butuh klik user untuk fullscreen) ======= -->
+<!-- Gerbang masuk: fullscreen butuh gesture user, jadi tidak bisa otomatis. -->
 <div class="overlay" id="gate">
   <div class="overlay-box">
-    <div class="big">&#128274;</div>
-    <h2 id="gateTitle">Siap memulai?</h2>
-    <p class="dim" id="gateMsg">Memuat data ujian…</p>
-    <div id="gateError" class="alert err hidden"></div>
-    <div id="gateSection" class="card tight hidden" style="text-align:left;margin:1rem 0">
-      <div class="row between">
-        <strong id="gateSectionName"></strong>
-        <span class="badge blue" id="gateSectionTime"></span>
-      </div>
-      <p class="faint" id="gateSectionDesc" style="margin:.5rem 0 0"></p>
-    </div>
-    <button id="gateBtn" class="block" disabled>Memuat…</button>
-    <p class="faint" style="margin-top:.75rem">
-      Layar akan masuk mode penuh. Jangan keluar sampai ujian selesai.
+    <h2 id="gateTitle">Masuk ke ujian</h2>
+    <p class="dim" id="gateMsg">Memuat data ujian...</p>
+    <div id="gateError" class="msg err hidden"></div>
+    <dl class="kv" id="gateInfo" style="margin-bottom:1rem"></dl>
+    <button id="gateBtn" class="primary block" disabled>Memuat...</button>
+    <p class="small dim" style="margin:.7rem 0 0">
+      Layar akan masuk mode penuh. Timer sudah berjalan sejak kamu enroll.
     </p>
   </div>
 </div>
 
-<!-- ================= Shell ujian ========================================== -->
 <div id="examRoot" class="hidden">
   <div class="topbar">
     <div class="who">
-      <span id="pName">—</span>
-      <small id="pMeta"></small>
+      <div id="pName">-</div>
+      <span id="pMeta"></span>
     </div>
-    <span class="badge blue" id="sectionBadge">—</span>
+    <div class="parttabs" id="partTabs">
+      <button data-part="tpks" class="active">TPKS</button>
+      <button data-part="cp">CP</button>
+    </div>
     <div class="grow"></div>
-    <span class="badge gray hidden" id="offlineBadge">Koneksi terputus</span>
-    <span class="badge yellow hidden" id="violBadge">Pelanggaran 0</span>
-    <div class="timer" id="timer">--:--</div>
-    <button class="ghost sm" id="finishBtn">Kumpulkan Bagian Ini</button>
+    <span class="tag hidden" id="offlineTag">koneksi terputus</span>
+    <span class="tag warn hidden" id="violTag"></span>
+    <span class="dim small">sisa</span>
+    <span id="timer">--:--</span>
+    <button id="finishBtn">Selesai &amp; kumpulkan</button>
   </div>
-
   <div class="main" id="mainArea"></div>
 </div>
 
-<!-- ================= Templat TPKS ======================================== -->
 <template id="tplTpks">
-  <aside class="qnav">
-    <div class="row between" style="margin-bottom:.6rem">
-      <strong style="font-size:.85rem">Navigasi Soal</strong>
-      <span class="faint" id="answeredInfo"></span>
+  <div class="qnav">
+    <div class="row between small" style="margin-bottom:.4rem">
+      <b>Soal</b><span class="dim" id="answeredInfo"></span>
     </div>
-    <div class="progress-bar" style="margin-bottom:.8rem"><i id="tpksProgress" style="width:0"></i></div>
     <div class="qgrid" id="qgrid"></div>
-    <p class="faint" style="margin-top:1rem">
-      Hijau = sudah dijawab. Kamu boleh berpindah soal bebas selama waktu masih ada.
+    <p class="small dim" style="margin-top:.7rem">
+      Kotak bertanda hijau sudah dijawab. Pintasan: A-D atau 1-4 untuk menjawab,
+      panah kiri/kanan untuk berpindah.
     </p>
-  </aside>
-  <section class="qpane">
+  </div>
+  <div class="qpane">
     <div class="qpane-inner">
-      <div class="row between">
-        <span class="faint" id="qCounter"></span>
-        <span class="badge gray" id="qType"></span>
+      <div class="row between small dim">
+        <span id="qCounter"></span><span id="qType"></span>
       </div>
       <div class="qtext" id="qText"></div>
       <div class="opts" id="qOpts"></div>
-      <div class="row between" style="margin-top:1.75rem">
-        <button class="ghost" id="prevBtn">&larr; Sebelumnya</button>
-        <button class="ghost sm" id="clearBtn">Hapus jawaban soal ini</button>
+      <div class="row" style="margin-top:1.3rem">
+        <button id="prevBtn">&larr; Sebelumnya</button>
         <button id="nextBtn">Berikutnya &rarr;</button>
+        <div class="grow"></div>
+        <button class="sm" id="clearBtn">Hapus jawaban</button>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
-<!-- ================= Templat CP ========================================== -->
 <template id="tplCp">
-  <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+  <div class="cp-col">
     <div class="cp-tabs" id="cpTabs"></div>
     <div class="cp-body">
       <div class="statement" id="statement"></div>
-      <div class="editor-pane">
-        <div class="editor-toolbar">
+      <div class="editor-col">
+        <div class="editor-bar">
           <select id="langSelect" title="Bahasa pemrograman"></select>
-          <span class="faint" id="draftStatus"></span>
+          <span class="tag" id="draftStatus"></span>
           <div class="grow"></div>
-          <button class="ghost sm" id="resetCodeBtn" title="Kembalikan ke kode awal">Reset</button>
-          <button class="ghost sm" id="runBtn">Uji Sample</button>
-          <button class="ok sm" id="submitCodeBtn">Submit &amp; Nilai</button>
+          <button class="sm" id="resetCodeBtn">Reset kode</button>
+          <button class="sm" id="runBtn">Uji contoh</button>
+          <button class="sm primary" id="submitCodeBtn">Submit &amp; nilai</button>
         </div>
         <div class="editor-shell">
           <div class="gutter" id="gutter">1</div>
@@ -101,13 +93,13 @@
           <div class="console-head">
             <span id="consoleTitle">Hasil</span>
             <div class="grow"></div>
-            <label class="faint" style="display:flex;gap:.35rem;align-items:center;margin:0;cursor:pointer">
-              <input type="checkbox" id="customToggle" style="width:auto;margin:0"> input manual
-            </label>
+            <label><input type="checkbox" id="customToggle"> input manual</label>
           </div>
           <div class="console-body" id="consoleBody">
-            <p class="faint">Tekan <strong>Uji Sample</strong> untuk menjalankan kode pada contoh kasus,
-            atau <strong>Submit &amp; Nilai</strong> untuk dinilai dengan seluruh test case.</p>
+            <p class="dim small">
+              <b>Uji contoh</b> menjalankan kodemu pada contoh kasus saja dan tidak dinilai.
+              <b>Submit &amp; nilai</b> menjalankan seluruh test case dan menentukan nilaimu.
+            </p>
           </div>
         </div>
       </div>
@@ -115,18 +107,12 @@
   </div>
 </template>
 
-<!-- ================= Templat selesai ===================================== -->
 <template id="tplDone">
-  <div class="wrap" style="margin:auto">
-    <div class="card center">
-      <div style="font-size:3rem">&#127881;</div>
-      <h1 id="doneTitle">Ujian Selesai</h1>
-      <p class="dim" id="doneMsg"></p>
-      <div id="doneDetail" style="text-align:left;margin-top:1.25rem"></div>
-      <p class="faint" style="margin-top:1.5rem">
-        Kamu boleh menutup jendela ini. Tunggu arahan pengawas.
-      </p>
-    </div>
+  <div class="wrap">
+    <h1 id="doneTitle">Ujian selesai</h1>
+    <p class="dim" id="doneMsg"></p>
+    <div id="doneDetail"></div>
+    <p class="small dim">Kamu boleh menutup jendela ini. Tunggu arahan pengawas.</p>
   </div>
 </template>
 

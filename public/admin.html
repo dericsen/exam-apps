@@ -3,54 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard Pengawas</title>
+<title>Pengawas</title>
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 
 <div class="wrap" id="loginPane">
-  <div class="card">
-    <h1>Dashboard Pengawas</h1>
-    <p class="dim">Masukkan kunci admin dari <code class="mono">config.json</code>.</p>
-    <div id="loginErr" class="alert err hidden"></div>
-    <div class="field">
-      <label for="key">Kunci Admin</label>
-      <input type="password" id="key" autocomplete="off">
-    </div>
-    <button class="block" id="loginBtn">Masuk</button>
+  <h1>Dashboard Pengawas</h1>
+  <p class="dim">Masukkan kunci admin dari config.json.</p>
+  <div id="loginErr" class="msg err hidden"></div>
+  <div class="field">
+    <label for="key">Kunci admin</label>
+    <input type="password" id="key" autocomplete="off">
   </div>
+  <button class="primary block" id="loginBtn">Masuk</button>
 </div>
 
 <div class="admin-wrap hidden" id="dash">
-  <div class="row between" style="margin-bottom:1rem">
+  <div class="row between">
     <div>
-      <h1 id="dashTitle" style="margin:0">Dashboard Pengawas</h1>
-      <span class="faint" id="dashMeta"></span>
+      <h1 id="dashTitle" style="margin:0">Pengawas</h1>
+      <span class="small dim" id="dashMeta"></span>
     </div>
     <div class="row">
-      <label class="faint row" style="margin:0;gap:.35rem;cursor:pointer">
-        <input type="checkbox" id="autoRefresh" checked style="width:auto"> auto refresh 5s
+      <label class="small dim row" style="margin:0;gap:.25rem">
+        <input type="checkbox" id="autoRefresh" checked> auto refresh 5s
       </label>
-      <button class="ghost sm" id="refreshBtn">Refresh</button>
-      <button class="ghost sm" id="exportBtn">Export CSV</button>
-      <button class="danger sm" id="resetAllBtn">Reset Semua</button>
+      <button class="sm" id="refreshBtn">Refresh</button>
+      <button class="sm" id="exportBtn">Export CSV</button>
+      <button class="sm" id="resetAllBtn">Reset semua</button>
     </div>
   </div>
 
-  <div class="stat-row" id="stats"></div>
+  <p class="summary" id="summary"></p>
 
-  <div class="card" style="padding:0;overflow:auto;max-height:70vh">
+  <div class="table-scroll">
     <table>
       <thead>
         <tr>
           <th></th>
           <th>Peserta</th>
           <th>Status</th>
-          <th id="thSec1">Bagian 1</th>
-          <th id="thSec2">Bagian 2</th>
+          <th>Sisa</th>
+          <th>TPKS</th>
+          <th>CP (soal yang didapat)</th>
           <th>Pelanggaran</th>
-          <th class="num">TPKS</th>
-          <th class="num">CP</th>
           <th class="num">Nilai</th>
           <th>IP</th>
           <th>Aksi</th>
@@ -60,9 +57,10 @@
     </table>
   </div>
 
-  <p class="faint">
-    Titik hijau = peserta online (terdeteksi &lt;25 detik lalu). Peserta offline bisa jadi
-    menutup browser, berpindah aplikasi, atau WiFi-nya terputus — cek kolom pelanggaran.
+  <p class="small dim">
+    Tanda bulat pada kolom pertama berarti peserta online (terdeteksi &lt;25 detik lalu).
+    Peserta offline bisa jadi menutup browser, berpindah aplikasi, atau WiFi-nya terputus —
+    periksa kolom pelanggaran.
   </p>
 </div>
 

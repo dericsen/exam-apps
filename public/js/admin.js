@@ -14,24 +14,24 @@
     );
 
   function fmtMs(ms) {
-    if (ms == null) return '—';
+    if (ms == null) return '-';
     const t = Math.max(0, Math.floor(ms / 1000));
-    const m = Math.floor(t / 60);
-    const s = t % 60;
-    return `${m}:${String(s).padStart(2, '0')}`;
+    return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
   }
-
   function fmtAgo(ms) {
     const s = Math.floor(ms / 1000);
     if (s < 60) return s + 's lalu';
     if (s < 3600) return Math.floor(s / 60) + 'm lalu';
     return Math.floor(s / 3600) + 'j lalu';
   }
+  function jam(ts) {
+    return new Date(ts).toLocaleTimeString('id-ID');
+  }
 
   // -------------------------------------------------------------------------
   // Login
   // -------------------------------------------------------------------------
-  async function tryLogin(key) {
+  async function fetchOverview(key) {
     const res = await fetch('/api/admin/overview?key=' + encodeURIComponent(key), {
       cache: 'no-store',
     });
@@ -42,19 +42,25 @@
     return res.json();
   }
 
+  async function enter(key) {
+    const data = await fetchOverview(key);
+    adminKey = key;
+    try {
+      sessionStorage.setItem(KEY_STORE, key);
+    } catch (_) {}
+    $('loginPane').classList.add('hidden');
+    $('dash').classList.remove('hidden');
+    paint(data);
+    clearInterval(timer);
+    timer = setInterval(() => {
+      if ($('autoRefresh').checked) refresh();
+    }, 5000);
+  }
+
   $('loginBtn').onclick = async () => {
-    const key = $('key').value.trim();
     $('loginErr').classList.add('hidden');
     try {
-      const data = await tryLogin(key);
-      adminKey = key;
-      try {
-        sessionStorage.setItem(KEY_STORE, key);
-      } catch (_) {}
-      $('loginPane').classList.add('hidden');
-      $('dash').classList.remove('hidden');
-      paint(data);
-      startAuto();
+      await enter($('key').value.trim());
     } catch (e) {
       $('loginErr').textContent = e.message;
       $('loginErr').classList.remove('hidden');
@@ -64,22 +70,12 @@
     if (e.key === 'Enter') $('loginBtn').click();
   });
 
-  // -------------------------------------------------------------------------
-  // Refresh loop
-  // -------------------------------------------------------------------------
   async function refresh() {
     try {
-      paint(await tryLogin(adminKey));
+      paint(await fetchOverview(adminKey));
     } catch (e) {
       console.warn(e.message);
     }
-  }
-
-  function startAuto() {
-    clearInterval(timer);
-    timer = setInterval(() => {
-      if ($('autoRefresh').checked) refresh();
-    }, 5000);
   }
 
   $('refreshBtn').onclick = refresh;
@@ -90,12 +86,12 @@
     if (
       !confirm(
         'HAPUS SEMUA data peserta dan mulai dari nol?\n\n' +
-          'Gunakan ini hanya SEBELUM ujian dimulai (mis. setelah uji coba).\n' +
-          'Data jawaban yang sudah masuk akan hilang permanen.'
+          'Gunakan hanya SEBELUM ujian dimulai (mis. setelah uji coba).\n' +
+          'Jawaban yang sudah masuk akan hilang permanen.'
       )
     )
       return;
-    if (!confirm('Konfirmasi sekali lagi: benar-benar hapus semua attempt?')) return;
+    if (!confirm('Konfirmasi sekali lagi: benar-benar hapus semua?')) return;
     await action({ action: 'reset_all' });
   };
 
@@ -117,103 +113,74 @@
     lastData = data;
     $('dashTitle').textContent = data.exam_title;
     $('dashMeta').textContent =
-      `Bahasa judge: ${data.languages.map((l) => l.label).join(', ')} · ` +
-      `Soal CP: ${data.problems.map((p) => p.id).join(', ')} · ` +
-      `Server: ${new Date(data.server_time).toLocaleTimeString('id-ID')}`;
-
-    if (data.sections[0]) $('thSec1').textContent = data.sections[0].name;
-    if (data.sections[1]) $('thSec2').textContent = data.sections[1].name;
+      `Durasi ${data.duration_min} menit per peserta sejak enroll. ` +
+      `${data.cp_problem_count} soal CP diacak dari pool: ${data.cp_pool.join(', ')}. ` +
+      `Judge: ${data.languages.map((l) => l.label).join(', ')}. ` +
+      `Jam server ${jam(data.server_time)}.`;
 
     const s = data.summary;
-    $('stats').innerHTML = [
-      ['Peserta', s.total, ''],
-      ['Mengerjakan', s.active, ''],
-      ['Selesai', s.finished, ''],
-      ['Kena pelanggaran', s.flagged, s.flagged ? 'color:#f0c674' : ''],
-      ['Didiskualifikasi', s.disqualified, s.disqualified ? 'color:#ffb3ad' : ''],
-    ]
-      .map(
-        ([l, n, style]) =>
-          `<div class="stat"><div class="n" style="${style}">${n}</div><div class="l">${l}</div></div>`
-      )
-      .join('');
+    $('summary').innerHTML =
+      `Peserta <b>${s.total}</b> &middot; mengerjakan <b>${s.active}</b> &middot; ` +
+      `selesai <b>${s.finished}</b> &middot; kena pelanggaran <b>${s.flagged}</b> &middot; ` +
+      `diskualifikasi <b>${s.disqualified}</b>`;
 
-    const secIds = data.sections.map((x) => x.id);
+    $('rows').innerHTML =
+      data.attempts
+        .map((a) => {
+          const status =
+            a.status === 'active'
+              ? 'mengerjakan'
+              : a.status === 'disqualified'
+              ? '<span class="tag bad">diskualifikasi</span>'
+              : 'selesai';
 
-    $('rows').innerHTML = data.attempts
-      .map((a) => {
-        const statusBadge =
-          a.status === 'active'
-            ? '<span class="badge blue">mengerjakan</span>'
-            : a.status === 'finished'
-            ? '<span class="badge green">selesai</span>'
-            : a.status === 'disqualified'
-            ? '<span class="badge red">diskualifikasi</span>'
-            : '<span class="badge gray">siap</span>';
+          const cpCell = a.cp_detail
+            .map(
+              (p) =>
+                `<div class="small mono">${esc(p.id)} ${p.passed}/${p.total}` +
+                `${p.solved ? ' <span class="tag ok">ok</span>' : ''}` +
+                `<span class="dim"> (${p.attempts}x)</span></div>`
+            )
+            .join('');
 
-        const cell = (sid) => {
-          const sec = a.sections[sid];
-          if (!sec) return '—';
-          const label =
-            sec.status === 'active'
-              ? `<span class="mono">${fmtMs(sec.remaining_ms)}</span>`
-              : sec.status === 'finished'
-              ? `<span class="badge green">selesai</span>`
-              : `<span class="badge gray">belum</span>`;
-          return `${label}<div class="faint">${esc(sec.progress)}</div>`;
-        };
+          const viol = a.violation_count
+            ? `<span class="tag ${a.violation_count >= data.max_violations ? 'bad' : 'warn'}">` +
+              `${a.violation_count}/${data.max_violations}</span>` +
+              `<div class="small dim">${esc(a.last_violation ? a.last_violation.kind : '')}</div>`
+            : '<span class="dim">0</span>';
 
-        const violCell = a.violation_count
-          ? `<span class="badge ${
-              a.violation_count >= data.max_violations ? 'red' : 'yellow'
-            }">${a.violation_count}/${data.max_violations}</span>
-             <div class="faint">${esc(a.last_violation ? a.last_violation.kind : '')}</div>`
-          : '<span class="faint">0</span>';
+          const t = a.scores ? a.scores.tpks : null;
 
-        const t = a.scores && a.scores[secIds[0]] ? a.scores[secIds[0]] : null;
-        const c = a.scores && a.scores[secIds[1]] ? a.scores[secIds[1]] : null;
-
-        return `<tr>
-          <td><span class="${a.online ? 'dot-online' : 'dot-offline'}"
-                 title="${a.online ? 'online' : 'terakhir terlihat ' + fmtAgo(a.last_seen_ago_ms)}"></span></td>
-          <td><strong>${esc(a.participant.nama)}</strong>
-              <div class="faint">${esc(a.participant.nim)} · ${esc(a.participant.kelas || '-')}</div></td>
-          <td>${statusBadge}</td>
-          <td>${cell(secIds[0])}</td>
-          <td>${cell(secIds[1])}</td>
-          <td>${violCell}</td>
-          <td class="num">${t ? t.correct + '/' + t.total : '—'}</td>
-          <td class="num">${c ? c.solved_count + '/' + c.problem_count : '—'}</td>
-          <td class="num"><strong>${a.final ? a.final.total : '—'}</strong></td>
-          <td class="faint mono">${esc(a.ip)}</td>
-          <td>
-            <button class="ghost sm" data-act="detail" data-sid="${a.sid}">Detail</button>
-            <button class="ghost sm" data-act="extend" data-sid="${a.sid}">+5m</button>
-            <button class="ghost sm" data-act="clear_violations" data-sid="${a.sid}">Maafkan</button>
-            <button class="ghost sm" data-act="menu" data-sid="${a.sid}">⋯</button>
-          </td>
-        </tr>`;
-      })
-      .join('');
-
-    if (!data.attempts.length) {
-      $('rows').innerHTML =
-        '<tr><td colspan="11" class="center faint" style="padding:2rem">Belum ada peserta yang login.</td></tr>';
-    }
+          return `<tr>
+            <td title="${a.online ? 'online' : 'terakhir terlihat ' + fmtAgo(a.last_seen_ago_ms)}">
+              ${a.online ? '&#9679;' : '<span class="dim">&#9675;</span>'}</td>
+            <td>${esc(a.participant.nama)}
+              <div class="small dim">${esc(a.participant.nim)} / ${esc(a.participant.kelas || '-')}</div></td>
+            <td class="small">${status}
+              ${a.finish_reason ? `<div class="small dim">${esc(a.finish_reason)}</div>` : ''}</td>
+            <td class="num">${a.status === 'active' ? fmtMs(a.remaining_ms) : '-'}</td>
+            <td class="num">${esc(a.tpks_progress)}${t ? `<div class="small dim">${t.correct} benar</div>` : ''}</td>
+            <td>${cpCell}</td>
+            <td>${viol}</td>
+            <td class="num"><b>${a.final ? a.final.total : '-'}</b></td>
+            <td class="small dim mono">${esc(a.ip)}</td>
+            <td class="nowrap">
+              <button class="sm" data-act="detail" data-sid="${a.sid}">Detail</button>
+              <button class="sm" data-act="extend" data-sid="${a.sid}">+5m</button>
+              <button class="sm" data-act="menu" data-sid="${a.sid}">Lain</button>
+            </td>
+          </tr>`;
+        })
+        .join('') ||
+      '<tr><td colspan="10" class="center dim" style="padding:1.5rem">Belum ada peserta yang enroll.</td></tr>';
   }
 
-  $('rows').addEventListener('click', async (e) => {
+  $('rows').addEventListener('click', (e) => {
     const btn = e.target.closest('button');
     if (!btn) return;
-    const sid = btn.dataset.sid;
-    const act = btn.dataset.act;
-
+    const { sid, act } = btn.dataset;
     if (act === 'detail') return showDetail(sid);
     if (act === 'extend') return action({ action: 'extend', sid, minutes: 5 });
-    if (act === 'clear_violations') {
-      if (confirm('Hapus catatan pelanggaran peserta ini?')) action({ action: 'clear_violations', sid });
-      return;
-    }
     if (act === 'menu') return showMenu(sid);
   });
 
@@ -232,16 +199,18 @@
     const a = lastData.attempts.find((x) => x.sid === sid);
     openModal(`
       <h2>${esc(a.participant.nama)}</h2>
-      <p class="faint">${esc(a.participant.nim)} · ${esc(a.ip)}</p>
-      <div class="row" style="flex-direction:column;align-items:stretch;gap:.5rem;margin-top:1rem">
-        <button class="ghost" data-m="extend15">Tambah waktu 15 menit</button>
-        <button class="ghost" data-m="reopen">Buka kembali bagian terakhir (+10 menit)</button>
-        <button class="ghost" data-m="force_finish">Hentikan &amp; kumpulkan paksa</button>
-        <button class="danger" data-m="disqualify">Diskualifikasi peserta</button>
-        <button class="ghost" data-m="close">Tutup</button>
+      <p class="small dim">${esc(a.participant.nim)} &middot; ${esc(a.ip)} &middot;
+        enroll ${jam(a.enrolled_at)} &middot; batas ${jam(a.ends_at)}</p>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:1rem">
+        <button data-m="extend15">Tambah waktu 15 menit</button>
+        <button data-m="reopen">Buka kembali ujian, beri 10 menit dari sekarang</button>
+        <button data-m="clear">Hapus catatan pelanggaran</button>
+        <button data-m="force_finish">Hentikan dan kumpulkan paksa</button>
+        <button data-m="disqualify">Diskualifikasi peserta</button>
+        <button data-m="close">Tutup</button>
       </div>
-      <p class="faint" style="margin-top:1rem">
-        "Buka kembali" berguna kalau laptop peserta mati atau WiFi-nya putus lama.
+      <p class="small dim" style="margin-top:.8rem">
+        "Buka kembali" dipakai kalau laptop peserta mati atau WiFi-nya putus lama.
       </p>`);
 
     $('modalHost').addEventListener('click', (e) => {
@@ -251,104 +220,111 @@
       closeModal();
       if (m === 'extend15') action({ action: 'extend', sid, minutes: 15 });
       else if (m === 'reopen') action({ action: 'reopen', sid, minutes: 10 });
+      else if (m === 'clear') action({ action: 'clear_violations', sid });
       else if (m === 'force_finish') {
-        if (confirm('Kumpulkan paksa semua bagian peserta ini?')) action({ action: 'force_finish', sid });
+        if (confirm('Kumpulkan paksa jawaban peserta ini sekarang?')) {
+          action({ action: 'force_finish', sid });
+        }
       } else if (m === 'disqualify') {
-        if (confirm('Diskualifikasi peserta ini? Sesinya tidak bisa dibuka lagi.'))
+        if (confirm('Diskualifikasi peserta ini? Sesinya tidak bisa dibuka lagi.')) {
           action({ action: 'disqualify', sid });
+        }
       }
     });
   }
 
   async function showDetail(sid) {
-    openModal('<p class="dim">Memuat…</p>');
+    openModal('<p class="dim">Memuat...</p>');
     const res = await fetch(
       `/api/admin/attempt?key=${encodeURIComponent(adminKey)}&sid=${encodeURIComponent(sid)}`,
       { cache: 'no-store' }
     );
     const d = await res.json();
-    if (!res.ok) return openModal(`<div class="alert err">${esc(d.error)}</div>`);
+    if (!res.ok) return openModal(`<div class="msg err">${esc(d.error)}</div>`);
 
     const viol = d.violations.length
-      ? d.violations
+      ? '<table><tr><th>Jam</th><th>Jenis</th><th>Keterangan</th></tr>' +
+        d.violations
           .map(
             (v) =>
-              `<div class="verdict-row"><span class="v v-WA">${esc(v.kind)}</span>
-                 <span class="dim">${esc(v.detail || '')}</span><div class="grow"></div>
-                 <span class="faint">${new Date(v.at).toLocaleTimeString('id-ID')}</span></div>`
+              `<tr><td class="mono">${jam(v.at)}</td><td>${esc(v.kind)}</td>` +
+              `<td class="small dim">${esc(v.detail || '')}</td></tr>`
           )
-          .join('')
-      : '<p class="faint">Tidak ada pelanggaran tercatat.</p>';
-
-    const tpks = d.tpks.length
-      ? `<table><thead><tr><th>No</th><th>ID</th><th>Soal</th><th>Jawab</th><th>Kunci</th><th></th></tr></thead>
-         <tbody>${d.tpks
-           .map(
-             (q) => `<tr>
-               <td>${q.no}</td>
-               <td class="faint mono">${esc(q.qid)}</td>
-               <td>${esc(q.q.slice(0, 90))}${q.q.length > 90 ? '…' : ''}</td>
-               <td class="mono">${q.picked || '—'}</td>
-               <td class="mono">${q.correct}</td>
-               <td>${
-                 q.picked == null
-                   ? '<span class="badge gray">kosong</span>'
-                   : q.is_correct
-                   ? '<span class="badge green">benar</span>'
-                   : '<span class="badge red">salah</span>'
-               }</td></tr>`
-           )
-           .join('')}</tbody></table>`
-      : '<p class="faint">Belum ada paket soal TPKS.</p>';
+          .join('') +
+        '</table>'
+      : '<p class="dim small">Tidak ada pelanggaran tercatat.</p>';
 
     const cp = d.cp
       .map(
-        (p) => `<div class="card tight">
+        (p) => `<div class="box">
           <div class="row between">
-            <strong>${esc(p.problem_id)} — ${esc(p.title)}</strong>
-            <span class="faint">${p.submissions.length} submit</span>
+            <b>${esc(p.problem_id)} &mdash; ${esc(p.title)}</b>
+            <span class="small dim">${p.submissions.length} submit, ${p.total_tests} test case</span>
           </div>
           ${
             p.submissions.length
               ? p.submissions
                   .map(
-                    (s, i) => `<details style="margin-top:.4rem">
-                      <summary class="mono" style="cursor:pointer">
-                        #${i + 1} <span class="v-${s.verdict}">${s.verdict}</span>
-                        ${s.passed}/${s.total} · ${esc(s.language)} · ${s.max_time_ms}ms ·
-                        ${new Date(s.at).toLocaleTimeString('id-ID')}
-                      </summary>
-                      <pre class="io">${esc(s.code)}</pre>
-                    </details>`
+                    (s, i) => `<details>
+                      <summary class="mono small">#${i + 1}
+                        <span class="v-${s.verdict}">${s.verdict}</span>
+                        ${s.passed}/${s.total} &middot; ${esc(s.language)} &middot;
+                        ${s.max_time_ms}ms &middot; ${jam(s.at)}</summary>
+                      <pre class="io">${esc(s.code)}</pre></details>`
                   )
                   .join('')
               : p.draft
-              ? `<details style="margin-top:.4rem"><summary class="faint">draft belum disubmit</summary>
+              ? `<details><summary class="small dim">draft, belum pernah disubmit</summary>
                    <pre class="io">${esc(p.draft.code || '')}</pre></details>`
-              : '<p class="faint" style="margin:.3rem 0 0">Belum ada kiriman.</p>'
+              : '<p class="small dim" style="margin:.3rem 0 0">Belum ada kiriman.</p>'
           }
         </div>`
       )
       .join('');
 
+    const tpks =
+      '<table><tr><th>No</th><th>ID</th><th>Soal</th><th>Jawab</th><th>Kunci</th><th></th></tr>' +
+      d.tpks
+        .map(
+          (q) => `<tr>
+            <td class="num">${q.no}</td>
+            <td class="small dim mono">${esc(q.qid)}</td>
+            <td class="small">${esc(q.q.slice(0, 80))}${q.q.length > 80 ? '...' : ''}</td>
+            <td class="mono">${q.picked || '-'}</td>
+            <td class="mono">${q.correct}</td>
+            <td class="small">${
+              q.picked == null
+                ? '<span class="dim">kosong</span>'
+                : q.is_correct
+                ? '<span class="tag ok">benar</span>'
+                : '<span class="tag bad">salah</span>'
+            }</td></tr>`
+        )
+        .join('') +
+      '</table>';
+
     openModal(`
       <div class="row between">
         <div>
           <h2 style="margin:0">${esc(d.participant.nama)}</h2>
-          <span class="faint">${esc(d.participant.nim)} · ${esc(d.participant.kelas || '-')} ·
-            ${esc(d.ip)} · nilai akhir <strong>${d.final ? d.final.total : '—'}</strong></span>
+          <span class="small dim">${esc(d.participant.nim)} / ${esc(d.participant.kelas || '-')} &middot;
+            ${esc(d.ip)} &middot; status ${esc(d.status)} &middot;
+            nilai akhir <b>${d.final ? d.final.total : '-'}</b></span>
         </div>
-        <button class="ghost sm" onclick="document.getElementById('modalHost').innerHTML=''">Tutup</button>
+        <button class="sm" onclick="document.getElementById('modalHost').innerHTML=''">Tutup</button>
       </div>
-      <p class="faint mono" style="margin-top:.5rem">${esc(d.user_agent || '')}</p>
+      <p class="small dim" style="margin-top:.4rem">
+        Enroll ${jam(d.enrolled_at)} &middot; batas ${jam(d.ends_at)} &middot;
+        ${esc(d.user_agent || '')}
+      </p>
 
-      <h3 style="margin-top:1.25rem">Pelanggaran Lockdown</h3>
+      <h3 style="margin-top:1rem">Pelanggaran lockdown</h3>
       ${viol}
 
-      <h3 style="margin-top:1.25rem">Competitive Programming</h3>
+      <h3 style="margin-top:1rem">Competitive Programming</h3>
       ${cp}
 
-      <h3 style="margin-top:1.25rem">Rincian TPKS</h3>
+      <h3 style="margin-top:1rem">Rincian TPKS</h3>
       <div style="max-height:300px;overflow:auto">${tpks}</div>
     `);
   }
@@ -361,12 +337,7 @@
     } catch (_) {}
     if (!saved) return;
     try {
-      const data = await tryLogin(saved);
-      adminKey = saved;
-      $('loginPane').classList.add('hidden');
-      $('dash').classList.remove('hidden');
-      paint(data);
-      startAuto();
+      await enter(saved);
     } catch (_) {
       /* kunci lama tidak valid, tampilkan form login */
     }

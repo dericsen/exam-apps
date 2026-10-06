@@ -3,9 +3,15 @@
   "host": "0.0.0.0",
 
   "exam_title": "Seleksi Tim Riset & Proyek Ilmu Komputer 2026",
-  "exam_subtitle": "Tes Potensi Komputasi & Sains (TPKS) + Competitive Programming",
+  "exam_subtitle": "TPKS + Competitive Programming",
 
   "admin_key": "GANTI-KUNCI-INI-SEBELUM-UJIAN",
+
+  "exam": {
+    "_note": "Satu timer untuk seluruh ujian. Waktu mulai berjalan saat peserta menekan Masuk di halaman login (enroll), bukan saat ia membuka soal.",
+    "duration_min": 90,
+    "warn_minutes": 10
+  },
 
   "registration": {
     "mode": "open",
@@ -21,22 +27,24 @@
       "name": "TPKS",
       "full_name": "Tes Potensi Komputasi & Sains",
       "type": "mcq",
-      "duration_min": 45,
       "composition": { "A_PATTERN": 10, "B_LOGIC": 10, "C_ANALYTIC": 10 },
       "shuffle_questions": true,
       "shuffle_options": true,
-      "allow_back": true,
       "weight": 0.4,
-      "_exclude_note": "Soal cacat yang tidak boleh keluar. Jalankan `node tools/validate_bank.js` untuk melihat alasannya.",
+      "_exclude_note": "Soal cacat yang tidak boleh keluar. Jalankan `node tools/validate_bank.js` untuk alasannya.",
       "exclude_question_ids": ["A_PATTERN-002", "A_PATTERN-007"]
     },
     {
       "id": "cp",
       "name": "Competitive Programming",
-      "full_name": "Competitive Programming (Level Mudah)",
+      "full_name": "Competitive Programming",
       "type": "code",
-      "duration_min": 90,
-      "problem_ids": ["E-001", "E-004", "E-008", "E-011", "E-012"],
+      "problem_count": 2,
+      "_tier_note": "Tiap peserta mendapat 1 soal acak dari SETIAP tier, berurutan. Ini menjaga tingkat kesulitan tetap setara antar peserta walaupun soalnya berbeda. Hapus problem_tiers kalau mau acak bebas dari seluruh pool.",
+      "problem_tiers": [
+        ["E-001", "E-002", "E-005", "E-006", "E-007", "E-013"],
+        ["E-003", "E-004", "E-008", "E-009", "E-010", "E-011", "E-012", "E-014", "E-015"]
+      ],
       "languages": ["python", "cpp", "javascript"],
       "max_submissions_per_problem": 25,
       "show_hidden_test_detail": false,

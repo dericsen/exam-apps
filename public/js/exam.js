@@ -1,17 +1,17 @@
-/* Aplikasi ujian peserta: TPKS (pilihan ganda) + CP (editor kode + judge). */
+/* Aplikasi ujian peserta.
+   Satu timer global; bagian TPKS dan CP dibuka bersamaan dan peserta bebas
+   berpindah di antara keduanya. */
 (function () {
   'use strict';
 
   let state = null;
-  let deadlineAt = null;      // timestamp lokal hasil sinkronisasi dengan server
+  let deadlineAt = null; // timestamp lokal hasil sinkronisasi dengan server
   let tickTimer = null;
   let syncTimer = null;
   let armed = false;
+  let currentPart = 'tpks';
 
-  // --- state TPKS
   let tpksIndex = 0;
-
-  // --- state CP
   let cpCurrent = null;
   let draftTimer = null;
   let judging = false;
@@ -22,19 +22,15 @@
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])
     );
 
-  /** Format teks soal: escape dulu, lalu izinkan **tebal** dan `kode`. */
+  /** Escape dulu, lalu izinkan **tebal** dan `kode` dari teks soal. */
   function fmt(text) {
     return esc(text)
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/`([^`]+)`/g, '<code class="mono">$1</code>');
+      .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
   }
 
-  function section(id) {
-    return state.sections.find((s) => s.id === id);
-  }
-  function currentSection() {
-    return state.current_section ? section(state.current_section) : null;
-  }
+  const tpks = () => state.parts.tpks;
+  const cp = () => state.parts.cp;
 
   // =========================================================================
   // Bootstrap
@@ -44,140 +40,106 @@
       location.replace('index.html');
       return;
     }
-
-    API.onOffline(() => $('offlineBadge').classList.remove('hidden'));
-    API.onOnline(() => $('offlineBadge').classList.add('hidden'));
+    API.onOffline(() => $('offlineTag').classList.remove('hidden'));
+    API.onOnline(() => $('offlineTag').classList.add('hidden'));
 
     try {
       await sync();
     } catch (e) {
       $('gateMsg').textContent = '';
-      showGateError(e.message + ' Pastikan WiFi tersambung, lalu muat ulang halaman.');
+      gateError(e.message + ' Periksa WiFi, lalu muat ulang halaman.');
       return;
     }
     setupGate();
   }
 
   async function sync() {
-    const res = await API.get('/api/state');
-    applyState(res.state);
+    applyState((await API.get('/api/state')).state);
   }
 
   function applyState(next) {
     state = next;
-    const sec = currentSection();
-    if (sec && sec.status === 'active' && sec.remaining_ms != null) {
-      deadlineAt = Date.now() + sec.remaining_ms;
-    } else {
-      deadlineAt = null;
-    }
+    deadlineAt = state.status === 'active' ? Date.now() + state.remaining_ms : null;
     $('pName').textContent = state.participant.nama;
     $('pMeta').textContent = [state.participant.nim, state.participant.kelas]
       .filter(Boolean)
-      .join(' · ');
-    updateViolationBadge();
+      .join(' / ');
+    paintViolation();
   }
 
-  function updateViolationBadge() {
-    const badge = $('violBadge');
+  function paintViolation() {
+    const tag = $('violTag');
     if (!state.violation_count) {
-      badge.classList.add('hidden');
+      tag.classList.add('hidden');
       return;
     }
-    badge.classList.remove('hidden');
-    badge.textContent = `Pelanggaran ${state.violation_count}/${state.max_violations}`;
-    badge.className =
-      'badge ' + (state.violation_count >= state.max_violations - 1 ? 'red' : 'yellow');
+    tag.classList.remove('hidden');
+    tag.textContent = `pelanggaran ${state.violation_count}/${state.max_violations}`;
+    tag.className = 'tag ' + (state.violation_count >= state.max_violations - 1 ? 'bad' : 'warn');
   }
 
-  function showGateError(msg) {
-    const el = $('gateError');
-    el.textContent = msg;
-    el.classList.remove('hidden');
+  function gateError(msg) {
+    $('gateError').textContent = msg;
+    $('gateError').classList.remove('hidden');
   }
 
   // =========================================================================
-  // Gerbang masuk / antar bagian
+  // Gerbang masuk
   // =========================================================================
   function setupGate() {
-    const gate = $('gate');
-    const btn = $('gateBtn');
     $('gateError').classList.add('hidden');
 
-    if (state.status === 'finished' || state.status === 'disqualified') {
-      gate.classList.add('hidden');
-      enterShell();
+    if (state.status !== 'active') {
+      $('gate').classList.add('hidden');
       renderDone();
       return;
     }
 
-    const sec = currentSection();
-    if (!sec) {
-      gate.classList.add('hidden');
-      enterShell();
-      renderDone();
-      return;
-    }
+    const mins = Math.floor(state.remaining_ms / 60000);
+    const secs = Math.floor((state.remaining_ms % 60000) / 1000);
+    $('gateInfo').innerHTML =
+      `<dt>Peserta</dt><dd>${esc(state.participant.nama)} (${esc(state.participant.nim)})</dd>` +
+      `<dt>Isi ujian</dt><dd>${tpks().question_count} soal ${esc(tpks().name)} + ` +
+      `${cp().problem_count} soal ${esc(cp().name)}</dd>` +
+      `<dt>Total waktu</dt><dd>${state.duration_min} menit</dd>` +
+      `<dt>Sisa waktu</dt><dd><b>${mins} menit ${secs} detik</b></dd>`;
 
-    $('gateSection').classList.remove('hidden');
-    $('gateSectionName').textContent = sec.full_name || sec.name;
-    $('gateSectionTime').textContent = sec.duration_min + ' menit';
-    $('gateSectionDesc').textContent =
-      sec.type === 'mcq'
-        ? `${sec.question_count} soal pilihan ganda. Bobot ${Math.round((sec.weight || 0) * 100)}% dari nilai akhir.`
-        : `${(sec.problems && sec.problems.length) || '5'} soal pemrograman, dinilai otomatis per test case. ` +
-          `Bobot ${Math.round((sec.weight || 0) * 100)}% dari nilai akhir.`;
+    $('gateMsg').textContent =
+      'Timer sudah berjalan sejak kamu enroll. Kedua bagian dibuka bersamaan dan ' +
+      'kamu bebas berpindah di antara keduanya.';
 
-    if (sec.status === 'active') {
-      $('gateTitle').textContent = 'Lanjutkan ujian';
-      $('gateMsg').textContent =
-        'Sesi kamu masih berjalan. Waktu terus berjalan di server, jadi segera lanjutkan.';
-      btn.textContent = 'Masuk Kembali ke Ujian';
-    } else {
-      $('gateTitle').textContent = 'Siap memulai?';
-      $('gateMsg').textContent =
-        'Timer mulai berjalan begitu kamu menekan tombol di bawah dan tidak bisa dihentikan.';
-      btn.textContent = 'Mulai ' + sec.name;
-    }
-
+    const btn = $('gateBtn');
     btn.disabled = false;
+    btn.textContent = 'Masuk layar penuh dan mulai mengerjakan';
     btn.onclick = async () => {
       btn.disabled = true;
-      btn.textContent = 'Menyiapkan…';
+      btn.textContent = 'Menyiapkan...';
       $('gateError').classList.add('hidden');
 
       if (state.lockdown.require_fullscreen) {
-        const ok = await Lockdown.enterFullscreen();
-        if (!ok) {
-          showGateError(
-            'Browser menolak mode layar penuh. Izinkan fullscreen (atau tekan F11) lalu coba lagi.'
-          );
+        if (!(await Lockdown.enterFullscreen())) {
+          gateError('Browser menolak mode layar penuh. Izinkan fullscreen (atau tekan F11), lalu coba lagi.');
           btn.disabled = false;
-          btn.textContent = 'Coba Lagi';
+          btn.textContent = 'Coba lagi';
           return;
         }
       }
 
       try {
-        const res = await API.post('/api/section/start', { section: sec.id });
-        applyState(res.state);
+        await sync();
       } catch (e) {
-        showGateError(e.message);
+        gateError(e.message);
         btn.disabled = false;
-        btn.textContent = 'Coba Lagi';
+        btn.textContent = 'Coba lagi';
         return;
       }
 
       armLockdown();
-      gate.classList.add('hidden');
-      enterShell();
+      $('gate').classList.add('hidden');
+      $('examRoot').classList.remove('hidden');
       render();
       startTimers();
     };
-  }
-
-  function enterShell() {
-    $('examRoot').classList.remove('hidden');
   }
 
   function armLockdown() {
@@ -185,8 +147,7 @@
     armed = true;
     Lockdown.arm(state.lockdown, {
       onViolation: handleViolation,
-      onBlockedPaste: () =>
-        flashConsole('Menempel kode dari luar diblokir. Tulis kodemu sendiri.', 'warn'),
+      onBlockedPaste: () => note('Menempel kode dari luar diblokir. Tulis kodemu sendiri.', 'warn'),
       onSaveShortcut: () => saveDraft(true),
     });
   }
@@ -199,41 +160,37 @@
       devtools_key: 'Kamu mencoba membuka developer tools.',
       paste_code: 'Kamu mencoba menempel kode dari luar editor.',
     };
+    const text = labels[kind] || 'Aktivitas tidak diizinkan terdeteksi.';
 
     let res;
     try {
       res = await API.post('/api/violation', { kind, detail });
     } catch (_) {
-      // Server tak terjangkau: tetap tampilkan peringatan supaya soal tertutup.
-      Lockdown.showViolationOverlay(labels[kind] || 'Aktivitas tidak diizinkan terdeteksi.', '?', 0);
+      // Server tak terjangkau: tetap tutup layar soal.
+      Lockdown.showViolationOverlay(text, '?', 0);
       return;
     }
 
     state.violation_count = res.violation_count;
-    updateViolationBadge();
+    paintViolation();
 
     if (res.forced_finish) {
       Lockdown.disarm();
       await sync();
-      render();
+      renderDone();
       Lockdown.showNotice(
         'Ujian dihentikan',
         'Batas pelanggaran lockdown terlampaui. Jawabanmu sudah dikumpulkan otomatis. Hubungi pengawas.',
-        'Mengerti',
+        'Tutup',
         () => Lockdown.hideOverlay()
       );
       return;
     }
-
-    Lockdown.showViolationOverlay(
-      labels[kind] || 'Aktivitas tidak diizinkan terdeteksi.',
-      res.violation_count,
-      res.max_violations
-    );
+    Lockdown.showViolationOverlay(text, res.violation_count, res.max_violations);
   }
 
   // =========================================================================
-  // Timer + sinkronisasi
+  // Timer
   // =========================================================================
   function startTimers() {
     clearInterval(tickTimer);
@@ -247,20 +204,17 @@
     const el = $('timer');
     if (!deadlineAt) {
       el.textContent = '--:--';
-      el.className = 'timer';
+      el.className = '';
       return;
     }
     const left = Math.max(0, deadlineAt - Date.now());
-    const totalSec = Math.floor(left / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
+    const total = Math.floor(left / 1000);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
     el.textContent =
-      (h > 0 ? String(h).padStart(2, '0') + ':' : '') +
-      String(m).padStart(2, '0') +
-      ':' +
-      String(s).padStart(2, '0');
-    el.className = 'timer' + (totalSec <= 60 ? ' critical' : totalSec <= 300 ? ' warn' : '');
+      (h > 0 ? h + ':' + String(m).padStart(2, '0') : String(m)) + ':' + String(s).padStart(2, '0');
+    el.className = total <= (state.warn_minutes || 10) * 60 ? 'low' : '';
 
     if (left <= 0) {
       deadlineAt = null;
@@ -269,51 +223,78 @@
   }
 
   async function backgroundSync() {
+    const prevStatus = state.status;
     try {
-      const prevSection = state.current_section;
-      const prevStatus = state.status;
       await sync();
-      updateViolationBadge();
-      if (state.status !== prevStatus || state.current_section !== prevSection) {
-        render();
-      }
     } catch (_) {
-      /* badge offline sudah menyala; coba lagi di interval berikutnya */
+      return; // tag offline sudah menyala
     }
+    if (state.status !== prevStatus) render();
   }
 
   // =========================================================================
   // Router tampilan
   // =========================================================================
   function render() {
-    const sec = currentSection();
-    const area = $('mainArea');
-
-    if (!sec || state.status === 'finished' || state.status === 'disqualified') {
+    if (state.status !== 'active') {
       renderDone();
       return;
     }
 
-    if (sec.status === 'ready') {
-      // Bagian berikutnya belum dimulai -> tampilkan gerbang lagi.
-      $('examRoot').classList.add('hidden');
-      $('gate').classList.remove('hidden');
-      clearInterval(tickTimer);
-      setupGate();
-      return;
-    }
+    [...$('partTabs').children].forEach((b) => {
+      b.classList.toggle('active', b.dataset.part === currentPart);
+    });
 
-    $('sectionBadge').textContent = sec.name;
-    $('finishBtn').classList.remove('hidden');
-    $('finishBtn').onclick = () => confirmFinish(sec);
-
+    const area = $('mainArea');
     area.innerHTML = '';
-    if (sec.type === 'mcq') {
+    if (currentPart === 'tpks') {
       area.appendChild($('tplTpks').content.cloneNode(true));
-      initTpks(sec);
+      initTpks();
     } else {
       area.appendChild($('tplCp').content.cloneNode(true));
-      initCp(sec);
+      initCp();
+    }
+    paintTabLabels();
+  }
+
+  function paintTabLabels() {
+    const tabs = $('partTabs').children;
+    tabs[0].textContent = `${tpks().name} (${Object.keys(tpks().answers).length}/${tpks().question_count})`;
+    const solved = (cp().progress || []).filter((p) => p.solved).length;
+    tabs[1].textContent = `${cp().name === 'Competitive Programming' ? 'CP' : cp().name} (${solved}/${cp().problem_count})`;
+  }
+
+  $('partTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b || b.dataset.part === currentPart) return;
+    if (currentPart === 'cp') saveDraft(true);
+    currentPart = b.dataset.part;
+    render();
+  });
+
+  $('finishBtn').addEventListener('click', confirmFinish);
+
+  async function confirmFinish() {
+    const blank = tpks().question_count - Object.keys(tpks().answers).length;
+    const unsolved = (cp().progress || []).filter((p) => !p.attempts).length;
+    let warn = '';
+    if (blank > 0) warn += `\n- ${blank} soal TPKS belum dijawab`;
+    if (unsolved > 0) warn += `\n- ${unsolved} soal CP belum pernah disubmit`;
+
+    if (
+      !confirm(
+        'Kumpulkan seluruh jawaban dan akhiri ujian?\n\nTindakan ini tidak bisa dibatalkan.' +
+          (warn ? '\n' + warn : '')
+      )
+    )
+      return;
+
+    if (currentPart === 'cp') await saveDraft(true);
+    try {
+      applyState((await API.post('/api/finish')).state);
+      renderDone();
+    } catch (e) {
+      alert('Gagal mengumpulkan: ' + e.message);
     }
   }
 
@@ -322,11 +303,13 @@
     clearInterval(syncTimer);
     Lockdown.disarm();
     armed = false;
+    document.onkeydown = null;
+
     $('gate').classList.add('hidden');
     $('examRoot').classList.remove('hidden');
     $('finishBtn').classList.add('hidden');
+    $('partTabs').classList.add('hidden');
     $('timer').textContent = '--:--';
-    $('sectionBadge').textContent = 'Selesai';
 
     const area = $('mainArea');
     area.innerHTML = '';
@@ -334,191 +317,153 @@
 
     const r = state.result || {};
     if (state.status === 'disqualified') {
-      $('doneTitle').textContent = 'Ujian Dihentikan';
-      $('doneMsg').textContent =
-        'Sesi kamu dihentikan oleh panitia. Silakan hubungi pengawas di ruangan.';
+      $('doneTitle').textContent = 'Ujian dihentikan';
+      $('doneMsg').textContent = 'Sesi kamu dihentikan panitia. Hubungi pengawas di ruangan.';
     } else {
-      $('doneTitle').textContent = 'Ujian Selesai';
-      $('doneMsg').textContent =
-        'Semua jawaban kamu sudah tersimpan di server. Terima kasih sudah mengikuti seleksi.';
+      $('doneTitle').textContent = 'Ujian selesai';
+      $('doneMsg').textContent = 'Semua jawaban kamu sudah tersimpan di server.';
     }
 
-    const parts = [];
-    parts.push(`<div class="card tight"><dl class="kv">
-      <dt>Nama</dt><dd>${esc(state.participant.nama)}</dd>
-      <dt>NIM</dt><dd>${esc(state.participant.nim)}</dd>
-      <dt>Pelanggaran tercatat</dt><dd>${state.violation_count}</dd>
-    </dl></div>`);
-
-    for (const sec of state.sections) {
-      parts.push(`<div class="card tight row between">
-        <div><strong>${esc(sec.name)}</strong>
-          <div class="faint">${esc(sec.finish_reason || 'selesai')}</div></div>
-        <span class="badge ${sec.status === 'finished' ? 'green' : 'gray'}">${esc(sec.status)}</span>
-      </div>`);
-    }
+    let html =
+      `<div class="box"><dl class="kv">
+        <dt>Nama</dt><dd>${esc(state.participant.nama)}</dd>
+        <dt>NIM</dt><dd>${esc(state.participant.nim)}</dd>
+        <dt>Alasan selesai</dt><dd>${esc(state.finish_reason || '-')}</dd>
+        <dt>Pelanggaran tercatat</dt><dd>${state.violation_count}</dd>
+      </dl></div>`;
 
     if (r.show_score && r.final) {
-      parts.push(`<div class="card tight center">
-        <div class="faint">NILAI AKHIR</div>
-        <div style="font-size:2.2rem;font-weight:700" class="mono">${r.final.total}</div>
-      </div>`);
+      html += `<div class="box"><dl class="kv">
+        <dt>TPKS</dt><dd>${r.scores.tpks.correct}/${r.scores.tpks.total} (${r.scores.tpks.percent}%)</dd>
+        <dt>CP</dt><dd>${r.scores.cp.solved_count}/${r.scores.cp.problem_count} solved (${r.scores.cp.percent}%)</dd>
+        <dt>Nilai akhir</dt><dd><b>${r.final.total}</b></dd>
+      </dl></div>`;
     }
-    $('doneDetail').innerHTML = parts.join('');
-  }
-
-  async function confirmFinish(sec) {
-    const isLast = state.sections[state.sections.length - 1].id === sec.id;
-    let extra = '';
-    if (sec.type === 'mcq') {
-      const blank = sec.question_count - Object.keys(sec.answers || {}).length;
-      if (blank > 0) extra = `\n\nMasih ada ${blank} soal yang belum dijawab!`;
-    }
-    const msg =
-      `Kumpulkan bagian "${sec.name}"?\n\nBagian yang sudah dikumpulkan TIDAK bisa dibuka kembali.` +
-      extra +
-      (isLast ? '\n\nIni bagian terakhir — ujian akan berakhir.' : '');
-    if (!confirm(msg)) return;
-
-    if (sec.type === 'code') await saveDraft(true);
-    try {
-      const res = await API.post('/api/section/finish', { section: sec.id });
-      applyState(res.state);
-      render();
-    } catch (e) {
-      alert('Gagal mengumpulkan: ' + e.message);
-    }
+    $('doneDetail').innerHTML = html;
   }
 
   // =========================================================================
-  // Bagian TPKS
+  // TPKS
   // =========================================================================
-  function initTpks(sec) {
-    tpksIndex = Math.min(tpksIndex, Math.max(0, sec.questions.length - 1));
+  function initTpks() {
+    const qs = tpks().questions;
+    tpksIndex = Math.min(tpksIndex, Math.max(0, qs.length - 1));
 
-    $('qgrid').innerHTML = sec.questions
-      .map((q) => `<button data-i="${q.no - 1}">${q.no}</button>`)
-      .join('');
+    $('qgrid').innerHTML = qs.map((q) => `<button data-i="${q.no - 1}">${q.no}</button>`).join('');
     $('qgrid').onclick = (e) => {
       const b = e.target.closest('button');
       if (!b) return;
       tpksIndex = Number(b.dataset.i);
-      paintTpks(sec);
+      paintTpks();
     };
 
     $('prevBtn').onclick = () => {
       if (tpksIndex > 0) tpksIndex--;
-      paintTpks(sec);
+      paintTpks();
     };
     $('nextBtn').onclick = () => {
-      if (tpksIndex < sec.questions.length - 1) tpksIndex++;
-      paintTpks(sec);
+      if (tpksIndex < qs.length - 1) tpksIndex++;
+      paintTpks();
     };
-    $('clearBtn').onclick = () => answer(sec, '');
+    $('clearBtn').onclick = () => answer('');
 
     document.onkeydown = (e) => {
-      if (Lockdown.isPaused()) return;
+      if (Lockdown.isPaused() || currentPart !== 'tpks') return;
+      if (e.target && e.target.tagName === 'INPUT') return;
       const k = (e.key || '').toUpperCase();
-      if (['A', 'B', 'C', 'D'].includes(k)) {
-        answer(sec, k);
-      } else if (['1', '2', '3', '4'].includes(k)) {
-        answer(sec, 'ABCD'[Number(k) - 1]);
-      } else if (e.key === 'ArrowRight') {
-        $('nextBtn').click();
-      } else if (e.key === 'ArrowLeft') {
-        $('prevBtn').click();
-      }
+      if (['A', 'B', 'C', 'D'].includes(k)) answer(k);
+      else if (['1', '2', '3', '4'].includes(k)) answer('ABCD'[Number(k) - 1]);
+      else if (e.key === 'ArrowRight') $('nextBtn').click();
+      else if (e.key === 'ArrowLeft') $('prevBtn').click();
     };
 
-    paintTpks(sec);
+    paintTpks();
   }
 
-  function paintTpks(sec) {
-    const q = sec.questions[tpksIndex];
+  function paintTpks() {
+    const qs = tpks().questions;
+    const q = qs[tpksIndex];
     if (!q) return;
-    const picked = sec.answers[q.qid] || null;
+    const picked = tpks().answers[q.qid] || null;
 
-    $('qCounter').textContent = `Soal ${q.no} dari ${sec.questions.length}`;
-    $('qType').textContent = q.type.replace(/^[A-C]_/, '').replace('_', ' ');
+    $('qCounter').textContent = `Soal ${q.no} dari ${qs.length}`;
+    $('qType').textContent = q.type.replace(/^[A-C]_/, '').replace('_', ' ').toLowerCase();
     $('qText').innerHTML = fmt(q.q);
 
     $('qOpts').innerHTML = q.opts
       .map((text, i) => {
         const letter = 'ABCD'[i];
-        return `<div class="opt ${picked === letter ? 'selected' : ''}" data-letter="${letter}">
-          <span class="key">${letter}</span><span>${fmt(text)}</span>
-        </div>`;
+        return `<div class="opt${picked === letter ? ' selected' : ''}" data-letter="${letter}">
+          <span class="key">${letter}.</span><span>${fmt(text)}</span></div>`;
       })
       .join('');
     $('qOpts').onclick = (e) => {
       const opt = e.target.closest('.opt');
-      if (opt) answer(sec, opt.dataset.letter);
+      if (opt) answer(opt.dataset.letter);
     };
 
     $('prevBtn').disabled = tpksIndex === 0;
-    $('nextBtn').disabled = tpksIndex === sec.questions.length - 1;
+    $('nextBtn').disabled = tpksIndex === qs.length - 1;
     $('clearBtn').disabled = !picked;
 
-    // Navigasi samping
-    const answered = Object.keys(sec.answers).length;
-    $('answeredInfo').textContent = `${answered}/${sec.questions.length}`;
-    $('tpksProgress').style.width = (answered / sec.questions.length) * 100 + '%';
+    const answered = Object.keys(tpks().answers).length;
+    $('answeredInfo').textContent = `${answered}/${qs.length} dijawab`;
     [...$('qgrid').children].forEach((btn, i) => {
-      const qq = sec.questions[i];
-      btn.className = (sec.answers[qq.qid] ? 'answered' : '') + (i === tpksIndex ? ' current' : '');
+      btn.className =
+        (tpks().answers[qs[i].qid] ? 'answered' : '') + (i === tpksIndex ? ' current' : '');
     });
+    paintTabLabels();
   }
 
-  async function answer(sec, letter) {
-    const q = sec.questions[tpksIndex];
+  async function answer(letter) {
+    const q = tpks().questions[tpksIndex];
     if (!q) return;
-    const prev = sec.answers[q.qid];
-    // Klik pilihan yang sama = batalkan pilihan.
-    const value = prev === letter ? '' : letter;
-    if (value) sec.answers[q.qid] = value;
-    else delete sec.answers[q.qid];
-    paintTpks(sec);
+    const prev = tpks().answers[q.qid];
+    const value = prev === letter ? '' : letter; // klik pilihan sama = batalkan
+
+    if (value) tpks().answers[q.qid] = value;
+    else delete tpks().answers[q.qid];
+    paintTpks();
 
     try {
       await API.post('/api/answer', { qid: q.qid, choice: value });
     } catch (e) {
-      // Kembalikan tampilan agar peserta tahu jawabannya belum tersimpan.
-      if (prev) sec.answers[q.qid] = prev;
-      else delete sec.answers[q.qid];
-      paintTpks(sec);
+      // Kembalikan tampilan supaya peserta tahu jawabannya belum tersimpan.
+      if (prev) tpks().answers[q.qid] = prev;
+      else delete tpks().answers[q.qid];
+      paintTpks();
       alert('Jawaban gagal tersimpan: ' + e.message);
     }
   }
 
   // =========================================================================
-  // Bagian CP
+  // CP
   // =========================================================================
-  function initCp(sec) {
+  function initCp() {
     document.onkeydown = null;
-
-    const problems = sec.problems || [];
+    const problems = cp().problems || [];
     if (!problems.length) {
-      $('statement').innerHTML = '<div class="alert err">Soal CP tidak tersedia.</div>';
+      $('statement').innerHTML = '<div class="msg err">Soal CP tidak tersedia.</div>';
       return;
     }
     if (!cpCurrent || !problems.some((p) => p.id === cpCurrent)) cpCurrent = problems[0].id;
 
-    $('langSelect').innerHTML = (sec.languages || [])
+    $('langSelect').innerHTML = (cp().languages || [])
       .map((l) => `<option value="${esc(l.id)}">${esc(l.label)}</option>`)
       .join('');
 
     $('cpTabs').onclick = (e) => {
       const b = e.target.closest('button');
-      if (!b) return;
+      if (!b || b.dataset.pid === cpCurrent) return;
       saveDraft(true);
       cpCurrent = b.dataset.pid;
-      paintCp(sec);
+      paintCp();
     };
 
     const area = $('codeArea');
     area.oninput = () => {
       syncGutter();
-      $('draftStatus').textContent = 'belum tersimpan…';
+      $('draftStatus').textContent = 'belum tersimpan';
       clearTimeout(draftTimer);
       draftTimer = setTimeout(() => saveDraft(false), 1500);
     };
@@ -528,111 +473,102 @@
     area.onkeydown = handleEditorKeys;
 
     $('langSelect').onchange = () => {
-      const p = problems.find((x) => x.id === cpCurrent);
-      const draft = (sec.drafts || {})[cpCurrent];
-      const isPristine =
-        !area.value.trim() ||
-        Object.values(sec.starter_code || {}).some((s) => s.trim() === area.value.trim());
-      if (isPristine) {
-        area.value = (sec.starter_code || {})[$('langSelect').value] || '';
+      // Hanya ganti templat kalau peserta belum menulis apa pun.
+      const starters = Object.values(cp().starter_code || {}).map((s) => s.trim());
+      if (!area.value.trim() || starters.includes(area.value.trim())) {
+        area.value = (cp().starter_code || {})[$('langSelect').value] || '';
         syncGutter();
       }
       saveDraft(false);
     };
 
-    $('runBtn').onclick = () => runCode(sec, false);
-    $('submitCodeBtn').onclick = () => runCode(sec, true);
+    $('runBtn').onclick = () => runCode(false);
+    $('submitCodeBtn').onclick = () => runCode(true);
     $('resetCodeBtn').onclick = () => {
-      if (!confirm('Kembalikan kode ke templat awal? Kode saat ini akan hilang.')) return;
-      area.value = (sec.starter_code || {})[$('langSelect').value] || '';
+      if (!confirm('Kembalikan kode ke templat awal? Kode saat ini hilang.')) return;
+      area.value = (cp().starter_code || {})[$('langSelect').value] || '';
       syncGutter();
       saveDraft(true);
     };
-    $('customToggle').onchange = () => renderCustomInput(sec);
+    $('customToggle').onchange = renderCustomInput;
 
-    paintCp(sec);
+    paintCp();
   }
 
-  function paintCp(sec) {
-    const problems = sec.problems || [];
-    const progress = new Map((sec.progress || []).map((p) => [p.problem_id, p]));
+  function paintCp() {
+    const problems = cp().problems || [];
+    const prog = new Map((cp().progress || []).map((p) => [p.problem_id, p]));
 
     $('cpTabs').innerHTML = problems
-      .map((p) => {
-        const pr = progress.get(p.id) || {};
-        const dot = pr.solved ? '🟢' : pr.attempts ? '🟡' : '⚪';
+      .map((p, i) => {
+        const pr = prog.get(p.id) || {};
+        const mark = pr.solved ? ' [selesai]' : pr.attempts ? ` [${pr.best_passed}/${pr.total_tests}]` : '';
         return `<button data-pid="${esc(p.id)}" class="${p.id === cpCurrent ? 'active' : ''}">
-          <span class="dot">${dot}</span>${esc(p.id)} · ${esc(p.title)}
-        </button>`;
+          Soal ${i + 1}: ${esc(p.title)}${mark}</button>`;
       })
       .join('');
 
     const p = problems.find((x) => x.id === cpCurrent);
-    const pr = progress.get(p.id) || {};
+    const pr = prog.get(p.id) || {};
 
     $('statement').innerHTML = `
-      <h2>${esc(p.id)}. ${esc(p.title)}</h2>
-      <div class="meta">
-        ${esc(p.topic)} &middot; batas waktu ${p.time_limit_ms / 1000}s &middot;
-        ${p.total_tests} test case &middot;
-        ${pr.attempts || 0}/${sec.max_submissions_per_problem} submit terpakai
-        ${pr.solved ? '<span class="badge green" style="margin-left:.4rem">SOLVED</span>' : ''}
-      </div>
+      <h2>${esc(p.title)}</h2>
+      <p class="small dim">${esc(p.id)} &middot; ${esc(p.topic)} &middot;
+        batas waktu ${p.time_limit_ms / 1000}s &middot; ${p.total_tests} test case &middot;
+        ${pr.attempts || 0}/${cp().max_submissions_per_problem} submit terpakai
+        ${pr.solved ? '&middot; <b>selesai</b>' : ''}</p>
       <section><div class="body">${fmt(p.statement)}</div></section>
-      <section><h4>Format Input</h4><div class="body">${fmt(p.input_format)}</div></section>
-      <section><h4>Format Output</h4><div class="body">${fmt(p.output_format)}</div></section>
-      <section><h4>Batasan</h4><div class="body mono" style="font-size:.85rem">${fmt(p.constraints)}</div></section>
+      <section><h4>Format input</h4><div class="body">${fmt(p.input_format)}</div></section>
+      <section><h4>Format output</h4><div class="body">${fmt(p.output_format)}</div></section>
+      <section><h4>Batasan</h4><div class="body mono small">${fmt(p.constraints)}</div></section>
       ${p.notes ? `<section><h4>Catatan</h4><div class="body dim">${fmt(p.notes)}</div></section>` : ''}
-      <section><h4>Contoh Kasus</h4>
+      <section><h4>Contoh kasus</h4>
         ${p.samples
           .map(
-            (s, i) => `<div style="margin-bottom:.6rem">
-              <div class="faint" style="margin-bottom:.25rem">Contoh ${i + 1}</div>
-              <div class="sample-grid">
+            (s, i) => `<div style="margin-bottom:.5rem">
+              <div class="small dim">Contoh ${i + 1}</div>
+              <div class="io-pair">
                 <div><span>Input</span><pre class="io">${esc(s.input)}</pre></div>
                 <div><span>Output</span><pre class="io">${esc(s.output)}</pre></div>
-              </div>
-            </div>`
+              </div></div>`
           )
           .join('')}
       </section>`;
 
-    // Muat draft tersimpan, atau templat awal bahasa terpilih.
-    const draft = (sec.drafts || {})[p.id];
+    const draft = (cp().drafts || {})[p.id];
     if (draft) {
       if (draft.language) $('langSelect').value = draft.language;
       $('codeArea').value = draft.code || '';
       $('draftStatus').textContent = 'draft tersimpan';
     } else {
-      $('codeArea').value = (sec.starter_code || {})[$('langSelect').value] || '';
+      $('codeArea').value = (cp().starter_code || {})[$('langSelect').value] || '';
       $('draftStatus').textContent = '';
     }
     syncGutter();
 
-    const limitReached = (pr.attempts || 0) >= sec.max_submissions_per_problem;
+    const limitReached = (pr.attempts || 0) >= cp().max_submissions_per_problem;
     $('submitCodeBtn').disabled = limitReached;
     $('submitCodeBtn').title = limitReached ? 'Batas submit soal ini sudah habis' : '';
-    renderCustomInput(sec);
+    renderCustomInput();
+    paintTabLabels();
   }
 
-  function renderCustomInput(sec) {
+  function renderCustomInput() {
+    const body = $('consoleBody');
     if (!$('customToggle').checked) {
       $('consoleTitle').textContent = 'Hasil';
-      const body = $('consoleBody');
       if (body.dataset.mode === 'custom') {
         body.dataset.mode = '';
-        body.innerHTML = '<p class="faint">Mode input manual dimatikan.</p>';
+        body.innerHTML = '<p class="dim small">Mode input manual dimatikan.</p>';
       }
       return;
     }
     $('consoleTitle').textContent = 'Input manual';
-    const body = $('consoleBody');
     body.dataset.mode = 'custom';
     body.innerHTML = `
-      <p class="faint" style="margin-top:0">Tulis input sendiri untuk mengetes kodemu. Tidak dinilai.</p>
-      <textarea id="customInput" data-allow-editing="true" rows="4" spellcheck="false"
-        class="mono" placeholder="contoh:\n5\n1 2 3 4 5"></textarea>
-      <div id="customOut" style="margin-top:.5rem"></div>`;
+      <p class="dim small" style="margin-top:0">Tulis input sendiri untuk mengetes kodemu. Tidak dinilai.</p>
+      <textarea id="customInput" data-allow-editing="true" rows="4" spellcheck="false" class="mono"></textarea>
+      <div id="customOut" style="margin-top:.4rem"></div>`;
   }
 
   function syncGutter() {
@@ -648,9 +584,7 @@
     const area = e.target;
     if (e.key === 'Tab') {
       e.preventDefault();
-      const start = area.selectionStart;
-      const end = area.selectionEnd;
-      area.setRangeText('    ', start, end, 'end');
+      area.setRangeText('    ', area.selectionStart, area.selectionEnd, 'end');
       area.dispatchEvent(new Event('input'));
       return;
     }
@@ -669,19 +603,14 @@
   }
 
   async function saveDraft(force) {
-    const sec = section('cp');
-    if (!sec || sec.status !== 'active' || !cpCurrent) return;
+    if (!state || state.status !== 'active' || !cpCurrent || !$('codeArea')) return;
     clearTimeout(draftTimer);
-    const code = $('codeArea') ? $('codeArea').value : null;
-    if (code == null) return;
-    sec.drafts = sec.drafts || {};
-    sec.drafts[cpCurrent] = { language: $('langSelect').value, code };
+    const code = $('codeArea').value;
+    const language = $('langSelect').value;
+    cp().drafts = cp().drafts || {};
+    cp().drafts[cpCurrent] = { language, code };
     try {
-      await API.post('/api/cp/draft', {
-        problem_id: cpCurrent,
-        language: $('langSelect').value,
-        code,
-      });
+      await API.post('/api/cp/draft', { problem_id: cpCurrent, language, code });
       if ($('draftStatus')) $('draftStatus').textContent = 'draft tersimpan';
     } catch (e) {
       if ($('draftStatus')) $('draftStatus').textContent = 'draft GAGAL tersimpan';
@@ -689,61 +618,55 @@
     }
   }
 
-  function flashConsole(text, kind) {
+  function note(text, kind) {
     const body = $('consoleBody');
     if (!body) return;
     const div = document.createElement('div');
-    div.className = 'alert ' + (kind || 'info');
+    div.className = 'msg ' + (kind || '');
     div.textContent = text;
     body.prepend(div);
     setTimeout(() => div.remove(), 4000);
   }
 
-  async function runCode(sec, isSubmit) {
+  async function runCode(isSubmit) {
     if (judging) return;
     const code = $('codeArea').value;
-    if (!code.trim()) {
-      flashConsole('Kode masih kosong.', 'warn');
-      return;
-    }
-    if (isSubmit && !confirm('Submit untuk dinilai? Ini akan menggunakan satu kesempatan submit.')) {
-      return;
-    }
+    if (!code.trim()) return note('Kode masih kosong.', 'warn');
+    if (isSubmit && !confirm('Submit untuk dinilai? Ini memakai satu kesempatan submit.')) return;
 
     judging = true;
     $('runBtn').disabled = true;
     $('submitCodeBtn').disabled = true;
+
     const body = $('consoleBody');
     const customEl = $('customInput');
-    const customInput = $('customToggle').checked && customEl ? customEl.value : '';
-
-    // Dalam mode input manual, jangan hapus isi console -- textarea input
-    // peserta ada di dalamnya. Tulis status ke kotak output khusus.
+    const customInput = !isSubmit && $('customToggle').checked && customEl ? customEl.value : '';
+    // Di mode input manual jangan hapus isi console -- textarea input peserta
+    // ada di dalamnya.
     const usingCustom = !isSubmit && $('customToggle').checked && customEl;
+
     if (usingCustom) {
-      $('customOut').innerHTML = '<p class="dim">Menjalankan kode di server…</p>';
+      $('customOut').innerHTML = '<p class="dim small">Menjalankan...</p>';
     } else {
-      $('consoleTitle').textContent = isSubmit ? 'Hasil Submit' : 'Hasil Uji';
+      $('consoleTitle').textContent = isSubmit ? 'Hasil submit' : 'Hasil uji contoh';
       body.dataset.mode = '';
-      body.innerHTML = '<p class="dim">Menjalankan kode di server… mohon tunggu.</p>';
+      body.innerHTML = '<p class="dim small">Menjalankan kode di server...</p>';
     }
 
     await saveDraft(true);
 
     try {
-      let res;
       if (isSubmit) {
-        res = await API.post('/api/cp/submit', {
+        const res = await API.post('/api/cp/submit', {
           problem_id: cpCurrent,
           language: $('langSelect').value,
           code,
         });
         applyState(res.state);
         renderJudge(res.submission, true);
-        // Perbarui tab + hitungan submit.
-        paintCpAfterSubmit(res.submission);
+        refreshCpMeta();
       } else {
-        res = await API.post('/api/cp/run', {
+        const res = await API.post('/api/cp/run', {
           problem_id: cpCurrent,
           language: $('langSelect').value,
           code,
@@ -753,34 +676,35 @@
         else renderJudge(res.result, false);
       }
     } catch (e) {
-      const target = usingCustom ? $('customOut') : body;
-      target.innerHTML = `<div class="alert err">${esc(e.message)}</div>`;
+      (usingCustom ? $('customOut') : body).innerHTML = `<div class="msg err">${esc(e.message)}</div>`;
     } finally {
       judging = false;
       $('runBtn').disabled = false;
-      const pr = (section('cp').progress || []).find((p) => p.problem_id === cpCurrent) || {};
-      $('submitCodeBtn').disabled =
-        (pr.attempts || 0) >= section('cp').max_submissions_per_problem;
+      const pr = (cp().progress || []).find((p) => p.problem_id === cpCurrent) || {};
+      $('submitCodeBtn').disabled = (pr.attempts || 0) >= cp().max_submissions_per_problem;
     }
   }
 
-  function paintCpAfterSubmit(sub) {
-    const sec = section('cp');
-    const progress = new Map((sec.progress || []).map((p) => [p.problem_id, p]));
-    [...$('cpTabs').children].forEach((btn) => {
-      const pr = progress.get(btn.dataset.pid) || {};
-      const dot = btn.querySelector('.dot');
-      if (dot) dot.textContent = pr.solved ? '🟢' : pr.attempts ? '🟡' : '⚪';
+  /** Perbarui label tab & baris meta tanpa membongkar seluruh panel. */
+  function refreshCpMeta() {
+    const prog = new Map((cp().progress || []).map((p) => [p.problem_id, p]));
+    [...$('cpTabs').children].forEach((btn, i) => {
+      const pr = prog.get(btn.dataset.pid) || {};
+      const p = (cp().problems || [])[i];
+      const mark = pr.solved ? ' [selesai]' : pr.attempts ? ` [${pr.best_passed}/${pr.total_tests}]` : '';
+      btn.textContent = `Soal ${i + 1}: ${p ? p.title : btn.dataset.pid}${mark}`;
     });
-    const p = (sec.problems || []).find((x) => x.id === cpCurrent);
-    const pr = progress.get(cpCurrent) || {};
-    const meta = $('statement').querySelector('.meta');
+
+    const p = (cp().problems || []).find((x) => x.id === cpCurrent);
+    const pr = prog.get(cpCurrent) || {};
+    const meta = $('statement').querySelector('p.small');
     if (meta && p) {
       meta.innerHTML =
-        `${esc(p.topic)} &middot; batas waktu ${p.time_limit_ms / 1000}s &middot; ` +
-        `${p.total_tests} test case &middot; ${pr.attempts || 0}/${sec.max_submissions_per_problem} submit terpakai` +
-        (pr.solved ? ' <span class="badge green" style="margin-left:.4rem">SOLVED</span>' : '');
+        `${esc(p.id)} &middot; ${esc(p.topic)} &middot; batas waktu ${p.time_limit_ms / 1000}s &middot; ` +
+        `${p.total_tests} test case &middot; ${pr.attempts || 0}/${cp().max_submissions_per_problem} submit terpakai` +
+        (pr.solved ? ' &middot; <b>selesai</b>' : '');
     }
+    paintTabLabels();
   }
 
   function renderJudge(result, isSubmit) {
@@ -789,69 +713,60 @@
     const passed = result.passed || 0;
 
     if (result.verdict === 'CE') {
-      body.innerHTML = `
-        <div class="alert err">Compile Error — kode tidak bisa dikompilasi.</div>
-        <pre class="io">${esc(result.compile_output || '-')}</pre>`;
+      body.innerHTML =
+        '<div class="msg err">Compile Error &mdash; kode tidak bisa dikompilasi.</div>' +
+        `<pre class="io">${esc(result.compile_output || '-')}</pre>`;
       return;
     }
     if (result.verdict === 'IE') {
-      body.innerHTML = `<div class="alert err">Judge error: ${esc(result.message || 'tidak diketahui')}</div>`;
+      body.innerHTML = `<div class="msg err">Judge error: ${esc(result.message || 'tidak diketahui')}</div>`;
       return;
     }
 
     const allOk = passed === total && total > 0;
     const head = isSubmit
-      ? `<div class="alert ${allOk ? 'ok' : 'err'}">
-           <strong>${allOk ? 'ACCEPTED' : result.verdict}</strong> —
-           ${passed} dari ${total} test case lulus
-           (nilai soal ini: ${total ? Math.round((passed / total) * 100) : 0}/100)
-         </div>`
-      : `<div class="alert ${allOk ? 'ok' : 'warn'}">
-           ${allOk ? 'Semua contoh kasus lulus.' : `${passed}/${total} contoh kasus lulus.`}
-           ${allOk ? ' Jangan lupa tekan <strong>Submit &amp; Nilai</strong>.' : ''}
-         </div>`;
+      ? `<div class="msg ${allOk ? 'ok' : 'err'}">${allOk ? 'Accepted' : result.verdict} &mdash;
+           ${passed} dari ${total} test case lulus. Nilai soal ini
+           ${total ? Math.round((passed / total) * 100) : 0}/100.</div>`
+      : `<div class="msg ${allOk ? 'ok' : 'warn'}">${passed}/${total} contoh kasus lulus.
+           ${allOk ? 'Jangan lupa tekan Submit &amp; nilai.' : ''}</div>`;
 
     const rows = (result.results || [])
       .map((r) => {
         let detail = '';
         if (r.input != null) {
-          detail = `<div class="sample-grid" style="margin:.35rem 0 .75rem">
+          detail = `<div class="io-pair" style="margin:.3rem 0 .6rem">
               <div><span>Input</span><pre class="io">${esc(r.input)}</pre></div>
               <div><span>Output kamu</span><pre class="io">${esc(r.got || '(kosong)')}</pre></div>
               <div><span>Output seharusnya</span><pre class="io">${esc(r.expected)}</pre></div>
               ${r.stderr ? `<div><span>Stderr</span><pre class="io">${esc(r.stderr)}</pre></div>` : ''}
             </div>`;
         } else if (r.stderr) {
-          detail = `<pre class="io" style="margin:.35rem 0 .75rem">${esc(r.stderr)}</pre>`;
+          detail = `<pre class="io" style="margin:.3rem 0 .6rem">${esc(r.stderr)}</pre>`;
         }
-        return `<div class="verdict-row">
-            <span class="v v-${r.verdict}">${r.verdict}</span>
-            <span class="dim">Test ${r.no}${r.is_sample ? ' (contoh)' : ''}</span>
-            <div class="grow"></div>
-            <span class="faint">${r.time_ms} ms</span>
-          </div>${detail}`;
+        return `<div class="tc"><span class="v v-${r.verdict}">${r.verdict}</span>
+            <span>test ${r.no}${r.is_sample ? ' (contoh)' : ''}</span>
+            <span class="grow"></span><span class="dim">${r.time_ms} ms</span></div>${detail}`;
       })
       .join('');
 
     body.innerHTML =
       head +
       (result.compile_output
-        ? `<details style="margin-bottom:.5rem"><summary class="faint">Peringatan compiler</summary>
-             <pre class="io">${esc(result.compile_output)}</pre></details>`
+        ? `<details><summary class="small dim">Peringatan compiler</summary><pre class="io">${esc(
+            result.compile_output
+          )}</pre></details>`
         : '') +
       rows;
   }
 
   function renderCustomResult(r) {
     const target = $('customOut') || $('consoleBody');
-    target.innerHTML = `
-      <div class="alert ${r.verdict === 'OK' ? 'ok' : 'warn'}">
-        ${esc(r.label || r.verdict)} &middot; ${r.time_ms} ms &middot; exit code ${r.exit_code}
-      </div>
-      <div class="faint">Output</div>
-      <pre class="io">${esc(r.stdout || '(kosong)')}</pre>
-      ${r.stderr ? `<div class="faint">Stderr</div><pre class="io">${esc(r.stderr)}</pre>` : ''}
-      ${r.compile_output ? `<div class="faint">Compile</div><pre class="io">${esc(r.compile_output)}</pre>` : ''}`;
+    target.innerHTML =
+      `<div class="msg ${r.verdict === 'OK' ? 'ok' : 'warn'}">${esc(r.label || r.verdict)} &middot;
+        ${r.time_ms} ms &middot; exit code ${r.exit_code}</div>
+      <div class="small dim">Output</div><pre class="io">${esc(r.stdout || '(kosong)')}</pre>` +
+      (r.stderr ? `<div class="small dim">Stderr</div><pre class="io">${esc(r.stderr)}</pre>` : '');
   }
 
   init();

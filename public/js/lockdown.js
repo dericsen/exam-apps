@@ -63,13 +63,12 @@
     overlayEl = document.createElement('div');
     overlayEl.className = 'overlay hidden';
     overlayEl.innerHTML = `
-      <div class="overlay-box danger">
-        <div class="big">&#9888;</div>
+      <div class="overlay-box">
         <h2 id="ldTitle">Kamu keluar dari mode ujian</h2>
-        <p class="dim" id="ldMsg"></p>
-        <div class="alert warn" id="ldCount"></div>
-        <button id="ldResume" class="block">Kembali ke ujian</button>
-        <p class="faint" style="margin-top:.75rem">
+        <p id="ldMsg"></p>
+        <div class="msg warn" id="ldCount"></div>
+        <button id="ldResume" class="primary block">Kembali ke ujian</button>
+        <p class="small dim" style="margin:.7rem 0 0">
           Waktu ujian tetap berjalan selama layar ini tampil.
         </p>
       </div>`;
@@ -134,8 +133,6 @@
   function showNotice(title, message, actionLabel, action) {
     paused = true;
     const el = buildOverlay();
-    el.querySelector('.overlay-box').classList.remove('danger');
-    el.querySelector('.big').innerHTML = '&#10003;';
     el.querySelector('#ldTitle').textContent = title;
     el.querySelector('#ldMsg').textContent = message;
     el.querySelector('#ldCount').classList.add('hidden');

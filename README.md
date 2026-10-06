@@ -110,8 +110,9 @@ kumpulkan* mengakhiri seluruh ujian.
 
 ### Soal diacak per peserta
 
-**TPKS** — 30 soal diambil dari 138 soal unik: 10 A_PATTERN, 10 B_LOGIC, 10 C_ANALYTIC.
-Urutan soal dan urutan pilihan jawaban juga diacak.
+**TPKS** — 30 soal: 10 A_PATTERN, 10 B_LOGIC, 10 C_ANALYTIC. Urutan soal dan urutan
+pilihan jawaban juga diacak. **Dijamin tidak ada dua soal yang isinya sama** dalam
+satu paket — lihat [Masalah duplikat](#masalah-duplikat-dan-ukuran-bank-sebenarnya).
 
 **CP** — 2 soal diambil dari pool 15 soal, **satu soal dari setiap tier**:
 
@@ -246,13 +247,62 @@ Google pribadinya ke sesi ujian.
 
 ### TPKS — `data/tpks.json`
 
-150 entri, 140 unik, 138 siap dipakai: A_PATTERN (pola & deret), B_LOGIC (logika),
-C_ANALYTIC (analitis).
+150 entri soal: A_PATTERN (pola & deret), B_LOGIC (logika), C_ANALYTIC (analitis).
 
-Bank aslinya memuat banyak soal yang isinya identik — soal deret `2, 6, 12, 20, 30`
-saja muncul belasan kali di tiga tipe berbeda. Server mengelompokkan soal yang teksnya
-praktis sama dan hanya mengambil **satu wakil per kelompok**, sehingga peserta tidak
-pernah menerima soal yang sama dua kali. Duplikatnya tidak perlu dihapus.
+<a name="masalah-duplikat-dan-ukuran-bank-sebenarnya"></a>
+#### Masalah duplikat dan ukuran bank sebenarnya
+
+**Dari 150 entri, hanya 40 yang benar-benar soal berbeda.** Bank menulis ulang soal
+yang sama dengan kalimat *dan* pilihan jawaban yang berbeda, sehingga sekilas tampak
+seperti soal baru:
+
+| ID | Teks | Pilihan |
+|---|---|---|
+| `A_PATTERN-001` | "Perhatikan deret berikut: 2, 6, 12, 20, 30..." | 38/40/42/44 |
+| `A_PATTERN-026` | "**Tentukan angka selanjutnya dari** deret berikut: 2, 6, 12, 20, 30..." | 40/42/44/46 |
+| `B_LOGIC-032` | "Tentukan angka selanjutnya dari deret berikut: 2, 6, 12, 20, 30..." | 36/40/42/44 |
+
+Soal deret `2, 6, 12, 20, 30` saja punya **30 varian** — 10 di setiap tipe. Soal swap
+variabel punya 16 varian, soal dependency graph 14.
+
+Karena itu setiap soal diberi field `group` oleh `tools/cluster_tpks.js`, dan server
+menjamin **satu peserta tidak pernah menerima dua soal dari grup yang sama**.
+Pengelompokan memakai dua mekanisme:
+
+1. **TF-IDF + cosine similarity** — menangkap soal yang redaksinya diubah. Kata
+   boilerplate ("perhatikan", "berikut") otomatis berbobot kecil karena muncul di
+   hampir semua soal, sementara token khas ("xor", "kernel", angka deret) mendominasi.
+2. **Awalan deret angka** — menangkap soal yang menanyakan deret yang sama pada titik
+   berbeda, yang luput dari cara pertama:
+   `"1, 1, 2, 3, 5, 8, 13, 21 → ?"` dan `"1, 1, 2, 3, 5, 8, 13 → ?"` adalah soal yang
+   sama bagi peserta meskipun jawabannya berbeda.
+
+Duplikatnya **tidak perlu dihapus** dari bank. Cukup jalankan ulang
+`node tools/cluster_tpks.js --write` setelah menambah soal.
+
+#### Konsekuensi yang perlu kamu tahu
+
+Dengan 40 kelompok dan 30 soal per peserta, **dua peserta berbagi sekitar 78% soal
+yang sama**. Itu batasan banknya, bukan kodenya. Pilihanmu:
+
+| Komposisi | Soal | Irisan antar peserta |
+|---|---|---|
+| 10/10/10 (sekarang) | 30 | ~78% |
+| 7/7/7 | 21 | ~56% |
+| 6/6/6 | 18 | ~49% |
+
+Kalau variasi antar peserta penting, turunkan `composition` di `config.json` atau
+tambah soal baru ke bank. Kalau yang penting cakupan materi, 30 soal tetap wajar —
+semua peserta mengerjakan soal dari pool yang sama dan tidak ada yang menerima soal
+berulang.
+
+Catatan lain: **label tipe di bank ini tidak konsisten**. Soal swap variabel yang
+sama muncul sebagai `B_LOGIC` di beberapa entri dan `C_ANALYTIC` di entri lain, jadi
+"10 per tipe" tidak benar-benar berarti tiga ranah kemampuan yang terpisah. Kalau
+kamu tidak peduli pembagian tipe, hapus `composition` dan pakai
+`"question_count": 30` — soal akan diambil dari seluruh bank.
+
+#### Soal cacat yang dikeluarkan
 
 Dua soal dikeluarkan karena cacat (`exclude_question_ids` di config):
 
@@ -263,6 +313,20 @@ Dua soal dikeluarkan karena cacat (`exclude_question_ids` di config):
 
 Jalankan `node tools/validate_bank.js` untuk laporan lengkap, termasuk soal lain
 yang kuncinya patut diperiksa manual.
+
+#### Menambah soal TPKS
+
+```bash
+# 1. Tambahkan entri baru ke data/tpks.json dengan format:
+#    { "id": "...", "type": "A_PATTERN", "q": "...", "opt": [4 pilihan], "ans": "C", "exp": "..." }
+
+# 2. Kelompokkan ulang supaya duplikat terdeteksi
+node tools/cluster_tpks.js            # lihat usulan kelompok dulu
+node tools/cluster_tpks.js --write    # simpan field "group" ke bank
+
+# 3. Pastikan komposisi di config masih bisa dipenuhi
+node tools/validate_bank.js
+```
 
 ### Competitive Programming — `data/cp-problems.json`
 
@@ -410,8 +474,12 @@ node tools/doctor.js
 # dan judge harus menolak solusi salah (uji negatif WA/TLE/RTE/CE)
 node tools/verify_cp.js
 
-# Laporan kualitas bank TPKS: duplikat, pilihan kembar, kunci vs pembahasan
+# Laporan kualitas bank TPKS: kelompok duplikat, pilihan kembar,
+# kunci vs pembahasan, dan uji kapasitas komposisi
 node tools/validate_bank.js
+
+# Kelompokkan ulang soal TPKS yang isinya sama (wajib setelah menambah soal)
+node tools/cluster_tpks.js --write
 
 # Uji end-to-end seluruh alur ujian (127 pemeriksaan, port & data terpisah)
 node tools/selftest.js
@@ -488,10 +556,11 @@ exam-apps/
 │     └─ admin.js            # Dashboard
 ├─ tools/
 │  ├─ doctor.js              # Preflight check kesiapan laptop ujian
+│  ├─ cluster_tpks.js        # Kelompokkan soal TPKS yang isinya sama
 │  ├─ gen_cp.py              # Generator bank CP (expected output dihitung, bukan ditulis)
 │  ├─ verify_cp.js           # Verifikasi bank CP + uji negatif judge
-│  ├─ validate_bank.js       # Laporan kualitas bank TPKS
-│  └─ selftest.js            # 127 pemeriksaan end-to-end
+│  ├─ validate_bank.js       # Laporan kualitas bank TPKS + uji kapasitas
+│  └─ selftest.js            # 130 pemeriksaan end-to-end
 ├─ start.bat                 # Launcher Windows (preflight + server)
 ├─ start.sh                  # Launcher macOS/Linux
 └─ DEPLOY.md                 # Panduan deploy langkah demi langkah
@@ -508,6 +577,19 @@ jam sistem atau devtools. Deadline disimpan di server; klien hanya menampilkanny
 **Kenapa paket soal dibekukan saat enroll?** Soal dan kunci jawaban peserta disimpan
 utuh di attempt-nya. Reload, ganti laptop, atau restart server tidak mengubah soal
 yang ia terima.
+
+**Kenapa pemilihan soal pakai bipartite matching, bukan ambil-acak biasa?** Satu
+kelompok soal sering punya anggota di beberapa tipe sekaligus — soal swap variabel
+muncul sebagai `B_LOGIC` maupun `C_ANALYTIC`. Kalau tiap tipe memilih serakah satu
+per satu, tipe yang diproses lebih dulu bisa menghabiskan kelompok yang dibutuhkan
+tipe berikutnya, lalu kuota tidak terpenuhi. Pool B_LOGIC dan C_ANALYTIC hanya punya
+25 kelompok gabungan untuk kuota 20, jadi marginnya tipis dan greedy benar-benar bisa
+gagal. Algoritma Kuhn menjamin komposisi selalu terpenuhi kalau secara matematis
+memang mungkin — diuji 200x oleh `validate_bank.js` dan 1000x saat pengembangan.
+
+**Kenapa pengelompokan disimpan di data, bukan dihitung saat server start?** Supaya
+keputusan "soal mana yang dianggap sama" bisa diaudit manusia sebelum ujian, dan
+supaya hasilnya tidak berubah diam-diam kalau heuristiknya nanti disetel ulang.
 
 **Kenapa kunci jawaban tidak pernah dikirim ke browser?** Peserta hanya menerima
 `no`, `qid`, `type`, `q`, dan `opts`. Field `ans` dan `exp` tidak ikut — dicek

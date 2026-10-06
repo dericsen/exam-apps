@@ -9,155 +9,2113 @@
     "C_ANALYTIC": "Analitis"
   },
   "questions": [
-    { "id": "A_PATTERN-001", "type": "A_PATTERN", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?", "opt": ["38", "40", "42", "44"], "ans": "C", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka, langkah berikutnya adalah 30 + 12 = 42." },
-    { "id": "A_PATTERN-002", "type": "A_PATTERN", "q": "Jika 'KOMPUTER' dikodekan menjadi 'LPNQVSFS', maka bagaimana kode untuk 'SISTEM'?", "opt": ["TJTUFN", "TJTUFN", "TJUUN", "TJTUFN"], "ans": "D", "exp": "Setiap huruf digeser satu posisi ke depan dalam urutan alfabet (K->L, O->P, M->N, dst). Maka S->T, I->J, S->T, T->U, E->F, M->N. Hasilnya adalah TJTUFN." },
-    { "id": "A_PATTERN-003", "type": "A_PATTERN", "q": "Tentukan angka yang hilang pada pola berikut: 1, 4, 9, 16, ?, 36", "opt": ["20", "24", "25", "30"], "ans": "C", "exp": "Deret tersebut merupakan kuadrat dari bilangan bulat berurutan: 1^2, 2^2, 3^2, 4^2, 5^2, 6^2. Jadi, 5^2 = 25." },
-    { "id": "A_PATTERN-004", "type": "A_PATTERN", "q": "Jika pola 2=6, 3=12, 4=20, 5=30, maka 8=...", "opt": ["56", "64", "72", "80"], "ans": "C", "exp": "Pola yang digunakan adalah n * (n+1). Untuk 8, maka 8 * (8+1) = 8 * 9 = 72." },
-    { "id": "A_PATTERN-005", "type": "A_PATTERN", "q": "Pilihlah deret huruf berikutnya: B, D, G, K, P, ...", "opt": ["U", "V", "W", "X"], "ans": "B", "exp": "Jarak antar huruf adalah: B(+2)D(+3)G(+4)K(+5)P(+6)V. Penambahan jarak dilakukan secara berurutan." },
-    { "id": "A_PATTERN-006", "type": "A_PATTERN", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka, langkah berikutnya adalah +12. 30 + 12 = 42." },
-    { "id": "A_PATTERN-007", "type": "A_PATTERN", "q": "Jika 'KOMPUTER' dikodekan menjadi 'LPNQVFS', bagaimana kode untuk 'ALGORITMA'?", "opt": ["BMHPSJUUB", "BMHQSJUMB", "BMHPSJUMB", "BMHQSJUUB"], "ans": "D", "exp": "Pola enkripsinya adalah menggeser setiap huruf maju satu posisi dalam alfabet (n+1). A->B, L->M, G->H, O->P, R->S, I->J, T->U, M->N, A->B. Maka hasilnya adalah BMHPSJUUB." },
-    { "id": "A_PATTERN-008", "type": "A_PATTERN", "q": "Tentukan angka yang hilang pada pola matriks berikut: (2, 4, 8), (3, 9, 27), (4, 16, ?)", "opt": ["32", "48", "64", "81"], "ans": "C", "exp": "Pola setiap baris adalah (n, n^2, n^3). Maka untuk 4, 16, maka angka selanjutnya adalah 4^3 = 64." },
-    { "id": "A_PATTERN-009", "type": "A_PATTERN", "q": "Pilihlah deret huruf yang paling tepat untuk melanjutkan: A, C, F, J, O, ...", "opt": ["T", "U", "V", "W"], "ans": "B", "exp": "Jarak antar huruf adalah: A ke C (+2), C ke F (+3), F ke J (+4), J ke O (+5). Maka berikutnya adalah O + 6 = U." },
-    { "id": "A_PATTERN-010", "type": "A_PATTERN", "q": "Jika 1=3, 2=3, 3=5, 4=4, 5=4, maka 6=...", "opt": ["3", "4", "5", "6"], "ans": "A", "exp": "Pola ini berdasarkan jumlah karakter dari penulisan angka dalam bahasa Inggris: ONE(3), TWO(3), THREE(5), FOUR(4), FIVE(4), SIX(3)." },
-    { "id": "A_PATTERN-011", "type": "A_PATTERN", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah selisih antar angka yang meningkat +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42." },
-    { "id": "A_PATTERN-012", "type": "A_PATTERN", "q": "Diberikan deret huruf: A, C, F, J, O, ... Huruf berikutnya adalah?", "opt": ["Q", "R", "S", "U"], "ans": "D", "exp": "Jarak antar huruf adalah +2, +3, +4, +5. Setelah O (ke-15), maka lompatan selanjutnya adalah +6. Huruf ke-21 adalah U." },
-    { "id": "A_PATTERN-013", "type": "A_PATTERN", "q": "Jika pola 1-2-4, 3-6-12, 5-10-20, maka pola selanjutnya adalah?", "opt": ["6-12-24", "7-14-28", "8-16-32", "7-12-24"], "ans": "B", "exp": "Setiap kelompok mengikuti pola n, 2n, 4n. Kelompok pertama dimulai dari angka ganjil 1, kedua 3, ketiga 5, maka selanjutnya adalah 7. 7*2=14, 7*4=28." },
-    { "id": "A_PATTERN-014", "type": "A_PATTERN", "q": "Tentukan angka yang hilang pada deret: 100, 95, 85, 70, 50, ...", "opt": ["35", "30", "25", "20"], "ans": "C", "exp": "Pola pengurangannya adalah -5, -10, -15, -20. Langkah berikutnya adalah -25, sehingga 50 - 25 = 25." },
-    { "id": "A_PATTERN-015", "type": "A_PATTERN", "q": "Dalam sebuah urutan simbol: [X, O, X, X, O, O, X, X, X, O, O, O, ...]. Berapa jumlah X pada urutan ke-14?", "opt": ["4", "5", "6", "7"], "ans": "A", "exp": "Pola tersebut terdiri dari 1X 1O, 2X 2O, 3X 3O, 4X 4O. Total elemen sampai grup ke-3 adalah 12. Elemen ke-13 adalah X, ke-14 adalah X. Maka total X dalam grup ke-4 adalah 4." },
-    { "id": "A_PATTERN-016", "type": "A_PATTERN", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka angka selanjutnya adalah 30 + 12 = 42." },
-    { "id": "A_PATTERN-017", "type": "A_PATTERN", "q": "Tentukan huruf berikutnya dalam deret: A, C, F, J, O, ...", "opt": ["Q", "R", "U", "T"], "ans": "C", "exp": "Jarak antar huruf adalah +2, +3, +4, +5. Setelah O (ke-15), maka lompatan selanjutnya adalah +6. Huruf ke-21 adalah U." },
-    { "id": "A_PATTERN-018", "type": "A_PATTERN", "q": "Jika pola 1, 4, 9, 16, 25 merepresentasikan kuadrat dari bilangan asli, tentukan elemen ke-8 dari pola tersebut.", "opt": ["49", "64", "81", "100"], "ans": "B", "exp": "Pola adalah n^2. Untuk elemen ke-8, maka 8^2 = 64." },
-    { "id": "A_PATTERN-019", "type": "A_PATTERN", "q": "Perhatikan pola: 100, 95, 85, 70, 50, ... Angka berikutnya adalah?", "opt": ["35", "30", "25", "20"], "ans": "C", "exp": "Pola pengurangan adalah -5, -10, -15, -20. Maka langkah selanjutnya adalah 50 - 25 = 25." },
-    { "id": "A_PATTERN-020", "type": "A_PATTERN", "q": "Dalam kode biner atau pola logika, jika 2=6, 3=12, 4=20, maka 6=...", "opt": ["30", "36", "42", "48"], "ans": "C", "exp": "Pola ini mengikuti rumus n(n+1). 2(3)=6, 3(4)=12, 4(5)=20. Maka 6(7)=42." },
-    { "id": "A_PATTERN-021", "type": "A_PATTERN", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya dalam deret tersebut?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah berikutnya adalah 30 + 12 = 42." },
-    { "id": "A_PATTERN-022", "type": "A_PATTERN", "q": "Jika pola huruf adalah A, C, F, J, O, ... maka huruf selanjutnya adalah:", "opt": ["S", "T", "U", "V"], "ans": "C", "exp": "Selisih posisi abjad: A(+2)C(+3)F(+4)J(+5)O(+6). Posisi O adalah 15, 15 + 6 = 21. Huruf ke-21 adalah U." },
-    { "id": "A_PATTERN-023", "type": "A_PATTERN", "q": "Diberikan deret: 1, 1, 2, 3, 5, 8, 13, 21, ... Angka berikutnya adalah:", "opt": ["32", "34", "36", "38"], "ans": "B", "exp": "Ini adalah deret Fibonacci di mana setiap angka adalah jumlah dari dua angka sebelumnya. 13 + 21 = 34." },
-    { "id": "A_PATTERN-024", "type": "A_PATTERN", "q": "Jika pola angka adalah 3, 9, 27, 81, ... maka angka berikutnya adalah:", "opt": ["162", "243", "247", "324"], "ans": "B", "exp": "Deret ini adalah deret geometri dengan rasio 3 (perkalian 3). 81 x 3 = 243." },
-    { "id": "A_PATTERN-025", "type": "A_PATTERN", "q": "Perhatikan deret berikut: 100, 95, 85, 70, 50, ... Berapakah angka selanjutnya?", "opt": ["25", "30", "35", "40"], "ans": "A", "exp": "Pola pengurangan adalah kelipatan 5 yang meningkat: -5, -10, -15, -20. Langkah berikutnya adalah 50 - 25 = 25." },
-    { "id": "A_PATTERN-026", "type": "A_PATTERN", "q": "Tentukan angka selanjutnya dari deret berikut: 2, 6, 12, 20, 30, ...", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan bilangan genap yang meningkat: +4, +6, +8, +10, sehingga selanjutnya adalah +12. 30 + 12 = 42." },
-    { "id": "A_PATTERN-027", "type": "A_PATTERN", "q": "Jika pola huruf adalah A, C, F, J, O, maka huruf berikutnya adalah...", "opt": ["R", "S", "T", "U"], "ans": "D", "exp": "Selisih posisi huruf dalam abjad: A(+2)C(+3)F(+4)J(+5)O(+6) = U." },
-    { "id": "A_PATTERN-028", "type": "A_PATTERN", "q": "Perhatikan deret angka berikut: 1, 1, 2, 3, 5, 8, 13, ... Angka berikutnya adalah...", "opt": ["18", "20", "21", "22"], "ans": "C", "exp": "Ini adalah deret Fibonacci, di mana angka berikutnya adalah jumlah dari dua angka sebelumnya. 8 + 13 = 21." },
-    { "id": "A_PATTERN-029", "type": "A_PATTERN", "q": "Jika kode untuk 'DATA' adalah 'EBUB', maka kode untuk 'CODE' adalah...", "opt": ["DPEF", "DPFD", "DPEE", "EQEF"], "ans": "A", "exp": "Setiap huruf digeser satu langkah ke depan dalam abjad (Shift +1). C->D, O->P, D->E, E->F." },
-    { "id": "A_PATTERN-030", "type": "A_PATTERN", "q": "Tentukan nilai yang hilang dari deret: 100, 95, 85, 70, 50, ...", "opt": ["20", "25", "30", "35"], "ans": "B", "exp": "Pola pengurangannya adalah kelipatan 5 yang bertambah: -5, -10, -15, -20, sehingga selanjutnya adalah -25. 50 - 25 = 25." },
-    { "id": "A_PATTERN-031", "type": "A_PATTERN", "q": "Perhatikan pola deret berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka selanjutnya adalah 30 + 12 = 42." },
-    { "id": "A_PATTERN-032", "type": "A_PATTERN", "q": "Diberikan deret huruf: A, C, F, J, O, ... Huruf berikutnya adalah?", "opt": ["R", "S", "T", "U"], "ans": "D", "exp": "Jarak antar huruf adalah +2, +3, +4, +5. Jadi, O (15) + 6 = 21, yaitu huruf U." },
-    { "id": "A_PATTERN-033", "type": "A_PATTERN", "q": "Pilihlah angka yang melengkapi deret: 1, 1, 2, 3, 5, 8, 13, ...", "opt": ["18", "20", "21", "22"], "ans": "C", "exp": "Ini adalah deret Fibonacci di mana suku berikutnya adalah jumlah dari dua suku sebelumnya (8 + 13 = 21)." },
-    { "id": "A_PATTERN-034", "type": "A_PATTERN", "q": "Jika pola 3, 9, 27, 81 mengikuti aturan eksponensial, berapakah angka ke-6 dalam deret tersebut?", "opt": ["243", "486", "729", "2187"], "ans": "C", "exp": "Pola tersebut adalah 3^n. Suku ke-6 adalah 3^6 = 729." },
-    { "id": "A_PATTERN-035", "type": "A_PATTERN", "q": "Lanjutkan pola berikut: 100, 95, 85, 70, 50, ...", "opt": ["25", "30", "35", "40"], "ans": "A", "exp": "Pola pengurangannya adalah -5, -10, -15, -20. Maka langkah berikutnya adalah 50 - 25 = 25." },
-    { "id": "A_PATTERN-036", "type": "A_PATTERN", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka angka selanjutnya adalah 30 + 12 = 42." },
-    { "id": "A_PATTERN-037", "type": "A_PATTERN", "q": "Tentukan huruf berikutnya dalam urutan: A, C, F, J, O, ...", "opt": ["U", "T", "V", "S"], "ans": "A", "exp": "Pola didasarkan pada penambahan indeks alfabet: A(+2)=C, C(+3)=F, F(+4)=J, J(+5)=O. Maka O(+6) = U." },
-    { "id": "A_PATTERN-038", "type": "A_PATTERN", "q": "Diberikan urutan: 1, 1, 2, 3, 5, 8, 13, ... Angka berikutnya adalah?", "opt": ["20", "21", "22", "24"], "ans": "B", "exp": "Ini adalah deret Fibonacci di mana angka berikutnya adalah jumlah dari dua angka sebelumnya: 5+8=13, maka 8+13=21." },
-    { "id": "A_PATTERN-039", "type": "A_PATTERN", "q": "Jika pola 2, 5, 11, 23, 47 mengikuti aturan tertentu, tentukan angka berikutnya.", "opt": ["94", "95", "96", "97"], "ans": "B", "exp": "Pola tersebut adalah (n * 2) + 1. Contoh: 2*2+1=5, 5*2+1=11, 11*2+1=23, 23*2+1=47. Maka 47*2+1=95." },
-    { "id": "A_PATTERN-040", "type": "A_PATTERN", "q": "Perhatikan deret huruf: Z, X, U, Q, L, ...", "opt": ["G", "H", "F", "I"], "ans": "C", "exp": "Pola penurunan posisi alfabet adalah: -2, -3, -4, -5. Z ke X (-2), X ke U (-3), U ke Q (-4), Q ke L (-5). Maka L - 6 posisi mundur adalah F." },
-    { "id": "A_PATTERN-041", "type": "A_PATTERN", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Tentukan angka berikutnya.", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Selisih antar angka membentuk pola: +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42." },
-    { "id": "A_PATTERN-042", "type": "A_PATTERN", "q": "Jika pola huruf adalah A, C, F, J, O, ... tentukan huruf berikutnya.", "opt": ["R", "S", "T", "U"], "ans": "D", "exp": "Jarak antar huruf adalah: A(+2)C(+3)F(+4)J(+5)O(+6). Huruf ke-15 (O) + 6 = 21, yaitu U." },
-    { "id": "A_PATTERN-043", "type": "A_PATTERN", "q": "Diberikan urutan: 1, 4, 9, 16, 25, ... manakah angka yang merupakan elemen ke-8 dari deret tersebut?", "opt": ["49", "64", "81", "100"], "ans": "B", "exp": "Deret tersebut adalah deret kuadrat n^2. Elemen ke-8 adalah 8^2 = 64." },
-    { "id": "A_PATTERN-044", "type": "A_PATTERN", "q": "Tentukan elemen yang hilang dalam deret: 3, 7, 15, ?, 63, 127.", "opt": ["27", "31", "33", "35"], "ans": "B", "exp": "Pola deret adalah (x * 2) + 1. Maka 15 * 2 + 1 = 31." },
-    { "id": "A_PATTERN-045", "type": "A_PATTERN", "q": "Perhatikan urutan alfabet: Z, X, V, T, R, ... Tentukan dua huruf berikutnya.", "opt": ["P, N", "O, M", "Q, O", "P, O"], "ans": "A", "exp": "Pola ini melompat mundur dua huruf setiap langkahnya (-2). R - 2 = P, P - 2 = N." },
-    { "id": "A_PATTERN-046", "type": "A_PATTERN", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah +12, sehingga 30 + 12 = 42." },
-    { "id": "A_PATTERN-047", "type": "A_PATTERN", "q": "Jika pola huruf adalah: A, C, F, J, O, ... maka huruf selanjutnya adalah?", "opt": ["Q", "R", "U", "V"], "ans": "C", "exp": "Selisih posisi huruf adalah: A ke C (+2), C ke F (+3), F ke J (+4), J ke O (+5). Maka langkah berikutnya adalah +6. O(15) + 6 = 21, yang merupakan huruf U." },
-    { "id": "A_PATTERN-048", "type": "A_PATTERN", "q": "Diberikan urutan: 1, 1, 2, 3, 5, 8, 13, ... Angka berikutnya adalah?", "opt": ["18", "20", "21", "24"], "ans": "C", "exp": "Ini adalah deret Fibonacci di mana setiap angka adalah jumlah dari dua angka sebelumnya (1+1=2, 1+2=3, 2+3=5, 3+5=8, 5+8=13, 8+13=21)." },
-    { "id": "A_PATTERN-049", "type": "A_PATTERN", "q": "Pola angka: 81, 64, 49, 36, 25, ... Angka berapakah selanjutnya?", "opt": ["16", "18", "14", "9"], "ans": "A", "exp": "Pola tersebut merupakan kuadrat dari angka yang menurun: 9^2, 8^2, 7^2, 6^2, 5^2. Maka selanjutnya adalah 4^2 = 16." },
-    { "id": "A_PATTERN-050", "type": "A_PATTERN", "q": "Jika pola huruf: B, D, G, K, P, ... maka huruf selanjutnya adalah?", "opt": ["R", "S", "T", "V"], "ans": "D", "exp": "Selisih posisi huruf: B ke D (+2), D ke G (+3), G ke K (+4), K ke P (+5). Maka langkah berikutnya adalah +6. P(16) + 6 = 22, yang merupakan huruf V." },
-    { "id": "B_LOGIC-001", "type": "B_LOGIC", "q": "Tentukan angka berikutnya dari deret: 2, 6, 12, 20, 30, ...", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan angka genap yang meningkat: +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42." },
-    { "id": "B_LOGIC-002", "type": "B_LOGIC", "q": "Diberikan proposisi: 'Jika sistem operasi stabil, maka server tidak down'. Pernyataan yang ekuivalen secara logis dengan proposisi tersebut adalah...", "opt": ["Jika server tidak down, maka sistem operasi stabil", "Jika server down, maka sistem operasi tidak stabil", "Jika sistem operasi tidak stabil, maka server down", "Server tidak down jika dan hanya jika sistem operasi stabil"], "ans": "B", "exp": "Dalam logika proposisi (p -> q), ekuivalensi yang valid adalah kontrapositifnya (~q -> ~p). Jadi, jika server down (~q), maka sistem operasi tidak stabil (~p)." },
-    { "id": "B_LOGIC-003", "type": "B_LOGIC", "q": "Perhatikan algoritma berikut: Variabel X=10, Y=5. Langkah 1: X = X + Y; Langkah 2: Y = X - Y; Langkah 3: X = X - Y. Apa nilai akhir dari X dan Y?", "opt": ["X=5, Y=10", "X=10, Y=5", "X=15, Y=5", "X=5, Y=15"], "ans": "A", "exp": "Ini adalah algoritma standar untuk menukar (swap) nilai dua variabel tanpa variabel bantuan. Setelah Langkah 1 (X=15), Langkah 2 (Y=10), dan Langkah 3 (X=5), nilai keduanya berhasil tertukar." },
-    { "id": "B_LOGIC-004", "type": "B_LOGIC", "q": "Dalam sebuah gerbang logika, output akan bernilai 1 HANYA JIKA input A=1 dan input B=0. Gerbang apakah ini?", "opt": ["AND", "OR", "NAND", "IMPLIKASI (A -> B' atau A AND NOT B)"], "ans": "D", "exp": "Gerbang logika yang menghasilkan output 1 hanya jika A=1 dan B=0 adalah representasi dari fungsi A AND NOT B, yang dalam tabel kebenaran implikasi inversi atau logika dasar setara dengan A > B." },
-    { "id": "B_LOGIC-005", "type": "B_LOGIC", "q": "Terdapat 4 modul sistem: A, B, C, dan D. A harus selesai sebelum B. C harus selesai sebelum D. B harus selesai sebelum C. Bagaimana urutan eksekusi yang benar?", "opt": ["A, C, B, D", "A, B, C, D", "C, D, A, B", "B, A, D, C"], "ans": "B", "exp": "Berdasarkan dependency: (A -> B), (C -> D), dan (B -> C). Jika digabungkan menjadi rantai: A -> B -> C -> D." },
-    { "id": "B_LOGIC-006", "type": "B_LOGIC", "q": "Diberikan urutan: 2, 6, 12, 20, 30, ... . Berapakah angka selanjutnya dalam deret tersebut?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka selanjutnya adalah 30 + 12 = 42." },
-    { "id": "B_LOGIC-007", "type": "B_LOGIC", "q": "Jika 'Semua sistem operasi memerlukan kernel' dan 'Beberapa sistem operasi bersifat open-source', manakah kesimpulan yang benar?", "opt": ["Semua sistem operasi open-source memerlukan kernel.", "Beberapa sistem operasi open-source memerlukan kernel.", "Hanya kernel yang bersifat open-source.", "Tidak ada sistem operasi open-source yang memerlukan kernel."], "ans": "B", "exp": "Karena semua sistem operasi memerlukan kernel, dan ada beberapa sistem operasi yang open-source, maka secara logis bagian sistem operasi yang open-source tersebut juga memerlukan kernel." },
-    { "id": "B_LOGIC-008", "type": "B_LOGIC", "q": "Diketahui gerbang logika dengan input A=1 dan B=0. Jika output diberikan ke gerbang NAND, kemudian hasilnya dimasukkan ke gerbang NOT, berapakah nilai akhirnya?", "opt": ["0", "1", "Tidak dapat ditentukan", "Himpunan kosong"], "ans": "A", "exp": "A=1, B=0 melalui NAND menghasilkan 1. Kemudian 1 melalui NOT menghasilkan 0." },
-    { "id": "B_LOGIC-009", "type": "B_LOGIC", "q": "Analisis algoritma berikut: x = 5; x = x + 3; x = x * 2; x = x - 4; Berapakah nilai akhir x?", "opt": ["12", "14", "16", "18"], "ans": "A", "exp": "x=5 -> x=8 -> x=16 -> x=12." },
-    { "id": "B_LOGIC-010", "type": "B_LOGIC", "q": "Dalam dependency graph, tugas A harus selesai sebelum B, tugas C harus selesai sebelum B, dan tugas B harus selesai sebelum D. Urutan mana yang mungkin untuk menyelesaikan tugas tersebut?", "opt": ["A, B, C, D", "B, A, C, D", "C, A, B, D", "D, B, A, C"], "ans": "C", "exp": "B bergantung pada A dan C, D bergantung pada B. Jadi, A dan C harus mendahului B, dan B harus mendahului D. Urutan C, A, B, D memenuhi semua batasan tersebut." },
-    { "id": "B_LOGIC-011", "type": "B_LOGIC", "q": "Jika diketahui pernyataan: 'Jika sistem operasi stabil, maka server tidak crash' dan 'Server crash'. Manakah kesimpulan yang paling tepat berdasarkan logika proposisi?", "opt": ["Sistem operasi stabil", "Sistem operasi tidak stabil", "Server sedang dalam pemeliharaan", "Tidak dapat disimpulkan kondisi sistem operasi"], "ans": "B", "exp": "Menggunakan aturan Modus Tollens (Jika P maka Q, bukan Q, maka bukan P). P: Sistem stabil, Q: Server tidak crash. Karena Q salah (server crash), maka P harus salah (tidak stabil)." },
-    { "id": "B_LOGIC-012", "type": "B_LOGIC", "q": "Tentukan angka selanjutnya dari deret berikut: 2, 6, 12, 20, 30, ...", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42." },
-    { "id": "B_LOGIC-013", "type": "B_LOGIC", "q": "Diberikan algoritma sederhana: 'x = 5; y = 10; x = x + y; y = x - y; x = x - y;'. Berapakah nilai x dan y setelah baris terakhir dieksekusi?", "opt": ["x=10, y=5", "x=5, y=10", "x=15, y=15", "x=5, y=5"], "ans": "A", "exp": "Ini adalah algoritma klasik untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel bantuan. x menjadi 15, y menjadi 15-10=5, x menjadi 15-5=10." },
-    { "id": "B_LOGIC-014", "type": "B_LOGIC", "q": "Dalam sebuah gerbang logika, output akan bernilai 1 hanya jika kedua input bernilai berbeda. Gerbang logika manakah yang dimaksud?", "opt": ["AND", "OR", "NAND", "XOR"], "ans": "D", "exp": "Gerbang Exclusive-OR (XOR) memiliki karakteristik output 1 jika dan hanya jika input bernilai ganjil (satu bernilai 1 dan satu bernilai 0)." },
-    { "id": "B_LOGIC-015", "type": "B_LOGIC", "q": "Terdapat 3 modul: A, B, dan C. A harus diselesaikan sebelum B. C harus diselesaikan sebelum A. Berdasarkan ketergantungan tersebut, manakah urutan pengerjaan yang benar?", "opt": ["A -> B -> C", "C -> B -> A", "C -> A -> B", "B -> A -> C"], "ans": "C", "exp": "Dependency graph menunjukkan urutan: C -> A (karena C sebelum A) dan A -> B (karena A sebelum B). Maka urutan linear yang mungkin adalah C -> A -> B." },
-    { "id": "B_LOGIC-016", "type": "B_LOGIC", "q": "Tentukan pola angka selanjutnya dari deret berikut: 2, 6, 12, 20, 30, ...", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan angka genap yang meningkat: +4, +6, +8, +10. Maka, langkah selanjutnya adalah 30 + 12 = 42." },
-    { "id": "B_LOGIC-017", "type": "B_LOGIC", "q": "Jika 'Semua programer menyukai kopi' adalah benar, dan 'Budi tidak menyukai kopi' adalah benar, manakah kesimpulan yang valid?", "opt": ["Budi adalah seorang programer.", "Budi mungkin seorang programer.", "Budi bukan seorang programer.", "Tidak dapat disimpulkan."], "ans": "C", "exp": "Ini adalah silogisme modus tollens. Jika P maka Q (Programer -> Suka Kopi). Premis kedua adalah ~Q (Tidak suka kopi). Maka kesimpulannya adalah ~P (Bukan programer)." },
-    { "id": "B_LOGIC-018", "type": "B_LOGIC", "q": "Diberikan nilai variabel: a = true, b = false, c = true. Berapakah hasil dari ekspresi logika: (a AND b) OR (NOT b AND c)?", "opt": ["true", "false", "null", "undefined"], "ans": "A", "exp": "(true AND false) = false. (NOT false AND true) = (true AND true) = true. false OR true = true." },
-    { "id": "B_LOGIC-019", "type": "B_LOGIC", "q": "Terdapat 3 modul: A, B, dan C. Modul B bergantung pada A. Modul C bergantung pada B. Jika modul B mengalami kegagalan, manakah yang pasti terpengaruh?", "opt": ["Modul A saja", "Modul C saja", "Modul A dan C", "Tidak ada yang terpengaruh"], "ans": "B", "exp": "Karena C bergantung pada B (Dependency Graph C -> B), maka jika B gagal, C tidak akan bisa berfungsi. A tidak terpengaruh karena A adalah dependensi dari B, bukan sebaliknya." },
-    { "id": "B_LOGIC-020", "type": "B_LOGIC", "q": "Perhatikan algoritma sederhana berikut: 1. x = 5; 2. x = x + 3; 3. x = x * 2; 4. x = x - 4. Berapakah nilai akhir x?", "opt": ["10", "12", "14", "16"], "ans": "B", "exp": "Tracing: (5 + 3) = 8. (8 * 2) = 16. (16 - 4) = 12." },
-    { "id": "B_LOGIC-021", "type": "B_LOGIC", "q": "Jika diketahui pernyataan: 'Jika sistem operasi stabil, maka aplikasi berjalan lancar.' dan 'Aplikasi tidak berjalan lancar'. Berdasarkan logika proposisi, kesimpulan yang valid adalah...", "opt": ["Sistem operasi tidak stabil", "Sistem operasi stabil", "Aplikasi mungkin berjalan lancar", "Sistem operasi mungkin tidak stabil"], "ans": "A", "exp": "Menggunakan aturan Modus Tollens: Jika P maka Q, dan bukan Q, maka kesimpulannya bukan P. P=Sistem stabil, Q=Aplikasi lancar. Karena bukan Q, maka bukan P (Sistem tidak stabil)." },
-    { "id": "B_LOGIC-022", "type": "B_LOGIC", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka selanjutnya adalah...", "opt": ["36", "40", "42", "44"], "ans": "C", "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42." },
-    { "id": "B_LOGIC-023", "type": "B_LOGIC", "q": "Dalam sebuah dependency graph: Tugas A harus selesai sebelum B. Tugas C harus selesai sebelum B. Tugas B harus selesai sebelum D. Manakah urutan yang mungkin dilakukan?", "opt": ["A -> D -> B -> C", "C -> A -> B -> D", "B -> A -> C -> D", "D -> B -> A -> C"], "ans": "B", "exp": "Dependensi adalah {A, C} -> B -> D. Artinya A dan C harus mendahului B, dan B harus mendahului D. Pilihan B memenuhi syarat karena C dan A diselesaikan sebelum B." },
-    { "id": "B_LOGIC-024", "type": "B_LOGIC", "q": "Diberikan pseudocode: x = 5; x = x + 2; y = x * 2; x = y - x; Berapakah nilai akhir x?", "opt": ["5", "7", "14", "9"], "ans": "B", "exp": "Tracing: x=5. x menjadi 5+2=7. y menjadi 7*2=14. x menjadi 14-7=7." },
-    { "id": "B_LOGIC-025", "type": "B_LOGIC", "q": "Gerbang logika manakah yang menghasilkan output '1' (True) hanya jika kedua inputnya berbeda?", "opt": ["AND", "OR", "XOR", "NAND"], "ans": "C", "exp": "Gerbang XOR (Exclusive OR) dirancang untuk memberikan output 1 hanya jika input A dan B tidak sama (salah satu 0 dan yang lain 1)." },
-    { "id": "B_LOGIC-026", "type": "B_LOGIC", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret menggunakan selisih yang meningkat: +4, +6, +8, +10. Maka selisih berikutnya adalah +12. 30 + 12 = 42." },
-    { "id": "B_LOGIC-027", "type": "B_LOGIC", "q": "Jika fungsi logika F = NOT(A AND B) OR C, berapakah nilai output jika A=1, B=1, dan C=0?", "opt": ["0", "1", "Tidak terdefinisi", "Error"], "ans": "A", "exp": "A AND B = 1 AND 1 = 1. NOT(1) = 0. Maka, 0 OR C (0) = 0." },
-    { "id": "B_LOGIC-028", "type": "B_LOGIC", "q": "Diberikan algoritma sederhana: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?", "opt": ["x=10, y=5", "x=5, y=10", "x=15, y=5", "x=10, y=15"], "ans": "A", "exp": "Ini adalah algoritma pertukaran nilai (swapping) tanpa variabel bantu. x menjadi 15, kemudian y menjadi 15-10=5, dan x menjadi 15-5=10." },
-    { "id": "B_LOGIC-029", "type": "B_LOGIC", "q": "Tentukan huruf berikutnya dalam deret: A, C, F, J, O, ...", "opt": ["R", "S", "T", "U"], "ans": "D", "exp": "Jarak antar huruf meningkat: A ke C (+2), C ke F (+3), F ke J (+4), J ke O (+5). Maka O ke huruf berikutnya adalah +6, yaitu U." },
-    { "id": "B_LOGIC-030", "type": "B_LOGIC", "q": "Dalam dependency graph, tugas A harus selesai sebelum B. Tugas C harus selesai sebelum B. Tugas D harus selesai setelah B. Manakah urutan yang mungkin?", "opt": ["A -> C -> B -> D", "B -> A -> C -> D", "A -> D -> C -> B", "C -> D -> A -> B"], "ans": "A", "exp": "A dan C adalah prasyarat B, dan B adalah prasyarat D. Jadi, A dan C harus di depan B, dan D harus paling belakang." },
-    { "id": "B_LOGIC-031", "type": "B_LOGIC", "q": "Jika sebuah sistem menyatakan: 'Jika server mati, maka aplikasi tidak bisa diakses' dan 'Aplikasi bisa diakses', maka kesimpulan yang paling tepat adalah...", "opt": ["Server sedang dalam pemeliharaan", "Server tidak mati", "Server menyala dan aplikasi tidak bisa diakses", "Aplikasi tidak bisa diakses karena server mati"], "ans": "B", "exp": "Menggunakan prinsip Modus Tollens. Jika P maka Q, dan bukan Q, maka bukan P. P=Server mati, Q=Aplikasi tidak bisa diakses. Jika negasi Q adalah 'Aplikasi bisa diakses', maka negasi P adalah 'Server tidak mati'." },
-    { "id": "B_LOGIC-032", "type": "B_LOGIC", "q": "Tentukan angka selanjutnya dari deret berikut: 2, 6, 12, 20, 30, ...", "opt": ["36", "40", "42", "44"], "ans": "C", "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42." },
-    { "id": "B_LOGIC-033", "type": "B_LOGIC", "q": "Diberikan pseudocode: x = 5; y = 10; z = 0; if (x > 2) { z = x + y; } else { z = y - x; } z = z * 2; Berapakah nilai akhir z?", "opt": ["10", "15", "20", "30"], "ans": "D", "exp": "Karena x (5) > 2, maka z = 5 + 10 = 15. Kemudian z = 15 * 2 = 30." },
-    { "id": "B_LOGIC-034", "type": "B_LOGIC", "q": "Dalam gerbang logika, output dari gerbang NAND akan bernilai '0' (False) hanya jika...", "opt": ["Kedua input bernilai 0", "Salah satu input bernilai 0", "Kedua input bernilai 1", "Salah satu input bernilai 1"], "ans": "C", "exp": "Gerbang NAND adalah kebalikan dari AND. AND menghasilkan 1 hanya jika semua input 1. NAND menghasilkan 0 hanya jika semua input 1." },
-    { "id": "B_LOGIC-035", "type": "B_LOGIC", "q": "Ada 4 tugas (A, B, C, D). A harus selesai sebelum B. C harus selesai sebelum D. B harus selesai sebelum C. Urutan manakah yang mungkin?", "opt": ["A, C, B, D", "D, C, B, A", "A, B, C, D", "B, A, D, C"], "ans": "C", "exp": "Berdasarkan dependensi: A < B, B < C, C < D. Maka urutan logisnya adalah A -> B -> C -> D." },
-    { "id": "B_LOGIC-036", "type": "B_LOGIC", "q": "Diberikan pernyataan: 'Jika sistem operasi stabil, maka server tidak akan crash'. Jika faktanya 'Server crash', manakah kesimpulan yang logis berdasarkan logika proposisi?", "opt": ["Sistem operasi stabil.", "Sistem operasi tidak stabil.", "Server mungkin stabil.", "Sistem operasi mungkin stabil."], "ans": "B", "exp": "Ini menggunakan aturan Modus Tollens. Jika P maka Q (P -> Q). Jika negasi Q (~Q), maka negasi P (~P). Jika server crash (~Q), maka sistem operasi tidak stabil (~P)." },
-    { "id": "B_LOGIC-037", "type": "B_LOGIC", "q": "Perhatikan deret angka berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42." },
-    { "id": "B_LOGIC-038", "type": "B_LOGIC", "q": "Dalam sebuah dependency graph, Task A harus selesai sebelum Task B. Task C harus selesai sebelum Task A. Task D harus selesai setelah Task B. Manakah urutan eksekusi yang valid?", "opt": ["C -> B -> A -> D", "A -> C -> B -> D", "C -> A -> B -> D", "D -> B -> A -> C"], "ans": "C", "exp": "Berdasarkan dependensi: C < A < B < D. Opsi C memenuhi semua urutan ketergantungan tersebut." },
-    { "id": "B_LOGIC-039", "type": "B_LOGIC", "q": "Jika gerbang logika XOR memiliki input A=1 dan B=0, berapakah outputnya?", "opt": ["0", "1", "Null", "Tidak dapat ditentukan"], "ans": "B", "exp": "Gerbang XOR (Exclusive OR) menghasilkan output 1 jika kedua input berbeda, dan 0 jika inputnya sama." },
-    { "id": "B_LOGIC-040", "type": "B_LOGIC", "q": "Diberikan variabel: x = 5, y = 10. Apa nilai akhir dari x jika dilakukan algoritma berikut: x = x + y; y = x - y; x = x - y?", "opt": ["x = 5", "x = 10", "x = 15", "x = 0"], "ans": "B", "exp": "Ini adalah algoritma swap (pertukaran nilai). Langkah 1: x=15. Langkah 2: y=15-10=5. Langkah 3: x=15-5=10. Nilai akhir x adalah 10." },
-    { "id": "B_LOGIC-041", "type": "B_LOGIC", "q": "Perhatikan pola berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola ini menggunakan penambahan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42." },
-    { "id": "B_LOGIC-042", "type": "B_LOGIC", "q": "Jika 'Semua programmer adalah pemecah masalah' dan 'Beberapa pemecah masalah adalah kreatif', manakah kesimpulan yang mutlak benar?", "opt": ["Semua programmer adalah kreatif", "Beberapa programmer adalah kreatif", "Tidak ada programmer yang kreatif", "Tidak dapat ditarik kesimpulan tentang programmer yang kreatif"], "ans": "D", "exp": "Kategori 'pemecah masalah' sebagai irisan tidak menjamin bahwa sub-kelompok 'programmer' termasuk dalam sub-kelompok 'kreatif'." },
-    { "id": "B_LOGIC-043", "type": "B_LOGIC", "q": "Diberikan pseudocode: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai x dan y setelah instruksi selesai?", "opt": ["x = 5, y = 10", "x = 10, y = 5", "x = 15, y = 5", "x = 10, y = 15"], "ans": "B", "exp": "Ini adalah algoritma swap (pertukaran) nilai variabel tanpa variabel bantu. x menjadi 15, kemudian y menjadi 15-10=5, kemudian x menjadi 15-5=10." },
-    { "id": "B_LOGIC-044", "type": "B_LOGIC", "q": "Tiga buah server (A, B, C) harus diinstal dengan urutan tertentu. A harus diinstal sebelum B. C harus diinstal setelah B. Jika B diinstal di urutan kedua, manakah pernyataan yang benar?", "opt": ["A di urutan ketiga", "C di urutan pertama", "A di urutan pertama", "C di urutan kedua"], "ans": "C", "exp": "B di posisi 2. Karena A harus sebelum B, maka A harus di posisi 1. C harus setelah B, maka C otomatis di posisi 3." },
-    { "id": "B_LOGIC-045", "type": "B_LOGIC", "q": "Gerbang logika manakah yang menghasilkan output '1' (High) hanya jika kedua inputnya berbeda?", "opt": ["AND", "OR", "XOR", "NAND"], "ans": "C", "exp": "Gerbang XOR (Exclusive OR) dirancang khusus untuk memberikan output 1 jika kedua input memiliki nilai yang berbeda (satu 0 dan satu 1)." },
-    { "id": "B_LOGIC-046", "type": "B_LOGIC", "q": "Jika diketahui pernyataan: 'Semua sistem operasi (OS) memerlukan kernel' dan 'Beberapa sistem operasi bersifat open source'. Manakah kesimpulan yang paling tepat?", "opt": ["Semua sistem operasi open source memerlukan kernel", "Beberapa sistem operasi open source memerlukan kernel", "Hanya sistem operasi open source yang memerlukan kernel", "Tidak ada sistem operasi open source yang memerlukan kernel"], "ans": "B", "exp": "Karena 'Semua OS memerlukan kernel' mencakup seluruh anggota himpunan OS, maka sub-himpunan 'OS open source' secara otomatis juga memerlukan kernel." },
-    { "id": "B_LOGIC-047", "type": "B_LOGIC", "q": "Perhatikan urutan deret berikut: 2, 6, 12, 20, 30, ... Angka selanjutnya adalah?", "opt": ["36", "40", "42", "44"], "ans": "C", "exp": "Pola deret tersebut adalah penambahan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42." },
-    { "id": "B_LOGIC-048", "type": "B_LOGIC", "q": "Dalam sebuah sirkuit logika, output (Y) akan bernilai 1 jika (A AND B) OR (NOT C). Jika A=1, B=0, dan C=0, berapakah nilai Y?", "opt": ["0", "1", "Tidak dapat ditentukan", "Eror"], "ans": "B", "exp": "A AND B = 1 AND 0 = 0. NOT C = NOT 0 = 1. Maka 0 OR 1 = 1." },
-    { "id": "B_LOGIC-049", "type": "B_LOGIC", "q": "Terdapat 3 modul program: A, B, dan C. Modul A harus diselesaikan sebelum B. Modul C harus diselesaikan setelah B. Namun, modul A harus diselesaikan sesudah C. Manakah urutan yang benar?", "opt": ["A -> B -> C", "B -> C -> A", "C -> A -> B", "Urutan tersebut mustahil/kontradiktif"], "ans": "D", "exp": "Terdapat siklus ketergantungan (Dependency Cycle): A < B, B < C, dan C < A. Dalam graf ketergantungan, ini membentuk cycle sehingga tidak ada urutan eksekusi yang valid." },
-    { "id": "B_LOGIC-050", "type": "B_LOGIC", "q": "Diberikan algoritma: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?", "opt": ["x=10, y=5", "x=5, y=10", "x=15, y=5", "x=10, y=10"], "ans": "A", "exp": "Ini adalah algoritma klasik untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel bantu. x menjadi 15, y menjadi 15-10=5, x menjadi 15-5=10." },
-    { "id": "C_ANALYTIC-001", "type": "C_ANALYTIC", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka selanjutnya adalah 30 + 12 = 42." },
-    { "id": "C_ANALYTIC-002", "type": "C_ANALYTIC", "q": "Jika 'Semua sistem operasi memerlukan kernel' adalah benar, dan 'Windows adalah sistem operasi', maka kesimpulan yang paling logis adalah?", "opt": ["Beberapa Windows tidak memerlukan kernel", "Kernel memerlukan Windows", "Windows memerlukan kernel", "Tidak semua sistem operasi adalah Windows"], "ans": "C", "exp": "Ini adalah bentuk silogisme kategoris (Modus Ponens). Jika A adalah anggota B, dan semua B memiliki sifat C, maka A memiliki sifat C." },
-    { "id": "C_ANALYTIC-003", "type": "C_ANALYTIC", "q": "Diberikan pseudocode: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai x dan y setelah instruksi selesai?", "opt": ["x=10, y=5", "x=5, y=10", "x=15, y=10", "x=10, y=10"], "ans": "A", "exp": "Ini adalah algoritma klasik untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel tambahan. x menjadi 15, y menjadi 15-10=5, dan x menjadi 15-5=10." },
-    { "id": "C_ANALYTIC-004", "type": "C_ANALYTIC", "q": "Dalam sebuah dependency graph, tugas A harus selesai sebelum B, tugas C harus selesai sebelum B, dan tugas D harus selesai sebelum C. Manakah tugas yang paling mungkin menjadi bottleneck (terakhir dikerjakan)?", "opt": ["A", "B", "C", "D"], "ans": "B", "exp": "B bergantung pada A dan C, sedangkan C bergantung pada D. Urutan dependensinya adalah D -> C -> B dan A -> B. Maka B adalah tugas yang paling akhir diselesaikan karena merupakan muara dependensi." },
-    { "id": "C_ANALYTIC-005", "type": "C_ANALYTIC", "q": "Jika gerbang logika AND memiliki input (A=1, B=0), dan outputnya dihubungkan ke gerbang NOT, berapakah hasil akhirnya?", "opt": ["0", "1", "Tidak terdefinisi", "A tergantung B"], "ans": "B", "exp": "Output gerbang AND dengan input (1, 0) adalah 0. Kemudian, 0 dimasukkan ke gerbang NOT yang membalikkan nilai menjadi 1." },
-    { "id": "C_ANALYTIC-006", "type": "C_ANALYTIC", "q": "Perhatikan deret angka berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42." },
-    { "id": "C_ANALYTIC-007", "type": "C_ANALYTIC", "q": "Jika 'Semua sistem operasi mendukung multitasking' bernilai benar, dan 'Windows adalah sistem operasi', maka kesimpulan yang benar adalah?", "opt": ["Hanya Windows yang mendukung multitasking.", "Beberapa sistem operasi mendukung multitasking.", "Windows mendukung multitasking.", "Windows bukan sistem operasi."], "ans": "C", "exp": "Ini adalah silogisme kategoris. Premis mayor: Semua A adalah B. Premis minor: C adalah A. Kesimpulan: C adalah B." },
-    { "id": "C_ANALYTIC-008", "type": "C_ANALYTIC", "q": "Perhatikan pseudocode berikut: int x = 10; int y = 5; x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?", "opt": ["x = 10, y = 5", "x = 5, y = 10", "x = 15, y = 5", "x = 5, y = 5"], "ans": "B", "exp": "Algoritma ini adalah teknik swap nilai dua variabel tanpa variabel bantuan. x menjadi 15, lalu y menjadi 10, dan x menjadi 5." },
-    { "id": "C_ANALYTIC-009", "type": "C_ANALYTIC", "q": "Terdapat lima server (A, B, C, D, E) yang harus diinstalasi. Server B harus diinstal sebelum D, server A harus sebelum B, dan C harus setelah E tetapi sebelum A. Urutan instalasi yang mungkin adalah?", "opt": ["E - C - A - B - D", "A - B - C - D - E", "C - E - A - D - B", "E - A - C - B - D"], "ans": "A", "exp": "Berdasarkan dependency: E < C, C < A, A < B, B < D. Rantai urutannya menjadi E -> C -> A -> B -> D." },
-    { "id": "C_ANALYTIC-010", "type": "C_ANALYTIC", "q": "Jika gerbang logika AND memiliki dua input (A, B) yang keduanya bernilai 1, maka outputnya adalah 1. Jika salah satu atau keduanya 0, maka output 0. Manakah yang menghasilkan output 1 pada gerbang NAND (NOT AND)?", "opt": ["Input A=1, B=1", "Input A=1, B=0", "Input A=0, B=0", "B dan C benar"], "ans": "D", "exp": "NAND adalah kebalikan dari AND. NAND akan bernilai 0 hanya jika semua input bernilai 1. Selain kondisi itu (1,0; 0,1; 0,0), outputnya adalah 1." },
-    { "id": "C_ANALYTIC-011", "type": "C_ANALYTIC", "q": "Diberikan deret angka: 2, 6, 12, 20, 30, ... . Berapakah angka selanjutnya?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42." },
-    { "id": "C_ANALYTIC-012", "type": "C_ANALYTIC", "q": "Jika 'Semua programmer adalah pemikir logis' dan 'Beberapa pemikir logis adalah orang yang kreatif', manakah kesimpulan yang mutlak benar?", "opt": ["Semua programmer adalah orang yang kreatif", "Beberapa programmer adalah orang yang kreatif", "Tidak dapat disimpulkan apakah programmer adalah orang kreatif", "Semua orang kreatif adalah programmer"], "ans": "C", "exp": "Karena subjek 'programmer' merupakan subset dari 'pemikir logis', dan 'orang kreatif' hanya sebagian dari 'pemikir logis', tidak ada informasi yang cukup untuk menghubungkan programmer dengan orang kreatif." },
-    { "id": "C_ANALYTIC-013", "type": "C_ANALYTIC", "q": "Diberikan kode semu: X = 5; Y = 10; X = X + Y; Y = X - Y; X = X - Y. Berapakah nilai akhir X dan Y?", "opt": ["X=5, Y=10", "X=10, Y=5", "X=15, Y=5", "X=10, Y=15"], "ans": "B", "exp": "Ini adalah algoritma standar untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel bantuan. Setelah X=X+Y (15), Y=X-Y (15-10=5), dan X=X-Y (15-5=10), maka X menjadi 10 dan Y menjadi 5." },
-    { "id": "C_ANALYTIC-014", "type": "C_ANALYTIC", "q": "Dalam sebuah dependency graph, Task B bergantung pada Task A, Task C bergantung pada Task A, dan Task D bergantung pada Task B dan Task C. Berapakah jalur terpanjang (critical path) jika setiap task berdurasi 1 unit waktu?", "opt": ["2 unit", "3 unit", "4 unit", "1 unit"], "ans": "B", "exp": "Dependency: A -> B -> D atau A -> C -> D. Jalur terpanjang adalah A ke B/C lalu ke D, yang melibatkan 3 task, sehingga total waktu adalah 3 unit." },
-    { "id": "C_ANALYTIC-015", "type": "C_ANALYTIC", "q": "Gerbang logika NAND akan menghasilkan output 0 (False) jika dan hanya jika:", "opt": ["Input A=0, Input B=0", "Input A=0, Input B=1", "Input A=1, Input B=0", "Input A=1, Input B=1"], "ans": "D", "exp": "NAND adalah kebalikan dari AND. Gerbang AND hanya bernilai 1 jika semua input 1. Maka, NAND hanya bernilai 0 jika semua input 1." },
-    { "id": "C_ANALYTIC-016", "type": "C_ANALYTIC", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka, langkah selanjutnya adalah 30 + 12 = 42." },
-    { "id": "C_ANALYTIC-017", "type": "C_ANALYTIC", "q": "Jika 'Semua programer menyukai logika' dan 'Sebagian mahasiswa CS adalah programer', maka kesimpulan yang paling tepat adalah?", "opt": ["Semua mahasiswa CS menyukai logika", "Sebagian mahasiswa CS menyukai logika", "Tidak ada mahasiswa CS yang tidak menyukai logika", "Orang yang menyukai logika adalah mahasiswa CS"], "ans": "B", "exp": "Karena sebagian mahasiswa CS adalah programer dan semua programer menyukai logika, maka secara logis sebagian mahasiswa CS tersebut pasti menyukai logika." },
-    { "id": "C_ANALYTIC-018", "type": "C_ANALYTIC", "q": "Diberikan variabel: x = 5, y = 10. Operasi: x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?", "opt": ["x = 5, y = 10", "x = 10, y = 5", "x = 15, y = 5", "x = 5, y = 5"], "ans": "B", "exp": "Ini adalah algoritma klasik untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel bantuan. x menjadi 15, lalu y menjadi 15-10=5, dan x menjadi 15-5=10." },
-    { "id": "C_ANALYTIC-019", "type": "C_ANALYTIC", "q": "Terdapat 4 tugas: A, B, C, dan D. Tugas B harus diselesaikan setelah A, dan D harus diselesaikan sebelum C. Jika tugas A harus dilakukan paling awal, manakah urutan yang mungkin?", "opt": ["A, D, C, B", "A, B, C, D", "D, A, B, C", "A, C, D, B"], "ans": "A", "exp": "Urutan harus memenuhi: A di posisi 1, B setelah A, dan D sebelum C. Opsi A (A, D, C, B) memenuhi semua syarat: B setelah A, dan D sebelum C." },
-    { "id": "C_ANALYTIC-020", "type": "C_ANALYTIC", "q": "Dalam gerbang logika, output 1 akan dihasilkan oleh gerbang OR jika...", "opt": ["Kedua input adalah 0", "Kedua input adalah 1", "Salah satu atau kedua input adalah 1", "Hanya jika input pertama adalah 1"], "ans": "C", "exp": "Gerbang OR menghasilkan output 1 (True) selama ada setidaknya satu input yang bernilai 1. Jika kedua input adalah 0, maka outputnya adalah 0." },
-    { "id": "C_ANALYTIC-021", "type": "C_ANALYTIC", "q": "Diberikan deret angka: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya dalam deret tersebut?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42." },
-    { "id": "C_ANALYTIC-022", "type": "C_ANALYTIC", "q": "Jika 'Semua sistem operasi mendukung multitasking' dan 'Beberapa sistem operasi bersifat open-source', maka kesimpulan yang paling tepat adalah:", "opt": ["Semua sistem operasi yang mendukung multitasking adalah open-source.", "Beberapa sistem operasi yang mendukung multitasking bersifat open-source.", "Hanya sistem operasi open-source yang mendukung multitasking.", "Tidak ada sistem operasi open-source yang mendukung multitasking."], "ans": "B", "exp": "Karena semua sistem operasi mendukung multitasking, dan ada sebagian sistem operasi yang open-source, maka irisan keduanya menyatakan bahwa beberapa sistem operasi yang mendukung multitasking bersifat open-source." },
-    { "id": "C_ANALYTIC-023", "type": "C_ANALYTIC", "q": "Perhatikan fragmen kode berikut: x = 5; y = 10; z = 0; Jika (x > 3 AND y < 15) { z = x + y; } Jika tidak { z = x - y; }. Berapakah nilai akhir z?", "opt": ["-5", "5", "15", "0"], "ans": "C", "exp": "Kondisi (5 > 3) bernilai TRUE dan (10 < 15) bernilai TRUE. Maka blok pertama dijalankan: z = 5 + 10 = 15." },
-    { "id": "C_ANALYTIC-024", "type": "C_ANALYTIC", "q": "Tiga buah tugas (T1, T2, T3) memiliki ketergantungan: T2 harus diselesaikan sebelum T1, dan T3 harus diselesaikan setelah T1. Manakah urutan eksekusi yang valid?", "opt": ["T1 -> T2 -> T3", "T3 -> T2 -> T1", "T2 -> T1 -> T3", "T2 -> T3 -> T1"], "ans": "C", "exp": "Berdasarkan dependency graph: T2 -> T1 dan T1 -> T3. Maka urutan yang benar adalah T2 kemudian T1, baru kemudian T3." },
-    { "id": "C_ANALYTIC-025", "type": "C_ANALYTIC", "q": "Jika gerbang logika AND memiliki dua input, A dan B, kapan outputnya akan bernilai 1 (HIGH)?", "opt": ["Jika salah satu input A atau B bernilai 1.", "Jika input A bernilai 1 dan input B bernilai 0.", "Jika kedua input A dan B bernilai 1.", "Jika kedua input A dan B bernilai 0."], "ans": "C", "exp": "Sifat dasar gerbang logika AND adalah hanya akan menghasilkan output 1 (HIGH) jika dan hanya jika semua inputnya bernilai 1." },
-    { "id": "C_ANALYTIC-026", "type": "C_ANALYTIC", "q": "Perhatikan urutan proses berikut: (1) Inisialisasi X=5, (2) Jika X < 10, X = X + 3, (3) Jika X genap, X = X + 1, (4) Ulangi langkah 2 dan 3 sebanyak satu kali lagi. Berapakah nilai akhir X?", "opt": ["11", "12", "13", "14"], "ans": "B", "exp": "Iterasi 1: X=5. (2) 5<10 benar, X=5+3=8. (3) 8 genap, X=8+1=9. Iterasi 2: (2) 9<10 benar, X=9+3=12. (3) 12 genap, X=12+1=13. Namun, perintahnya adalah mengulang langkah 2 dan 3 'satu kali lagi' setelah langkah awal. Hasil akhir menjadi 12 jika evaluasi dilakukan tepat sesuai urutan logika." },
-    { "id": "C_ANALYTIC-027", "type": "C_ANALYTIC", "q": "Jika gerbang logika AND menghasilkan output 1 hanya jika semua input adalah 1, dan gerbang OR menghasilkan output 0 hanya jika semua input adalah 0. Berapakah output dari rangkaian: (A AND B) OR C, dengan input A=1, B=0, C=1?", "opt": ["0", "1", "Tidak dapat ditentukan", "Error"], "ans": "B", "exp": "Langkah 1: (A AND B) = (1 AND 0) = 0. Langkah 2: (0 OR C) = (0 OR 1) = 1." },
-    { "id": "C_ANALYTIC-028", "type": "C_ANALYTIC", "q": "Tentukan pola berikutnya dari deret: 2, 6, 12, 20, 30, ...", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Selisih antar angka adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42." },
-    { "id": "C_ANALYTIC-029", "type": "C_ANALYTIC", "q": "Dalam sebuah dependency graph: Task A harus selesai sebelum Task B. Task C harus selesai sebelum Task B. Task B harus selesai sebelum Task D. Apa urutan yang mungkin untuk menyelesaikan semua tugas?", "opt": ["A, B, C, D", "B, A, C, D", "C, A, B, D", "D, C, B, A"], "ans": "C", "exp": "Task B bergantung pada A dan C. Maka A dan C harus muncul sebelum B. Task D bergantung pada B. Jadi urutan yang valid harus memiliki (A, C) sebelum B, dan B sebelum D." },
-    { "id": "C_ANALYTIC-030", "type": "C_ANALYTIC", "q": "Diberikan pernyataan: 'Jika algoritma efisien, maka waktu eksekusi singkat.' Pernyataan mana yang secara logis ekuivalen?", "opt": ["Jika waktu eksekusi singkat, maka algoritma efisien.", "Jika waktu eksekusi tidak singkat, maka algoritma tidak efisien.", "Jika algoritma tidak efisien, maka waktu eksekusi tidak singkat.", "Algoritma efisien hanya jika waktu eksekusi tidak singkat."], "ans": "B", "exp": "Pernyataan 'Jika P maka Q' ekuivalen dengan kontrapositifnya yaitu 'Jika tidak Q maka tidak P'. P=algoritma efisien, Q=waktu singkat. Maka 'Jika tidak waktu singkat, maka tidak algoritma efisien'." },
-    { "id": "C_ANALYTIC-031", "type": "C_ANALYTIC", "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10, maka selanjutnya adalah +12. 30 + 12 = 42." },
-    { "id": "C_ANALYTIC-032", "type": "C_ANALYTIC", "q": "Jika p adalah 'Sistem operasi stabil' dan q adalah 'Pengguna puas', maka negasi dari pernyataan 'Jika sistem operasi stabil maka pengguna puas' adalah...", "opt": ["Sistem operasi tidak stabil dan pengguna tidak puas", "Sistem operasi stabil dan pengguna tidak puas", "Sistem operasi tidak stabil atau pengguna tidak puas", "Jika sistem operasi tidak stabil maka pengguna tidak puas"], "ans": "B", "exp": "Negasi dari implikasi (p -> q) adalah (p AND ~q). Artinya: sistem operasi stabil DAN pengguna tidak puas." },
-    { "id": "C_ANALYTIC-033", "type": "C_ANALYTIC", "q": "Sebuah algoritma menjalankan fungsi berikut: x = 5; y = 10; x = x + y; y = x - y; x = x - y. Berapakah nilai akhir x dan y?", "opt": ["x=10, y=5", "x=5, y=10", "x=15, y=5", "x=10, y=15"], "ans": "A", "exp": "Ini adalah algoritma swapping dua variabel tanpa variabel bantuan. x=15, y=15-10=5, x=15-5=10. Hasilnya x=10 dan y=5." },
-    { "id": "C_ANALYTIC-034", "type": "C_ANALYTIC", "q": "Terdapat 3 mata kuliah: A, B, dan C. B harus diambil setelah A. C harus diambil sebelum A. Bagaimana urutan yang benar?", "opt": ["A, B, C", "C, A, B", "B, A, C", "A, C, B"], "ans": "B", "exp": "B setelah A (A -> B). C sebelum A (C -> A). Maka urutan logisnya adalah C -> A -> B." },
-    { "id": "C_ANALYTIC-035", "type": "C_ANALYTIC", "q": "Dalam gerbang logika, input A=1 dan B=0. Jika dihubungkan ke gerbang XOR, berapakah outputnya?", "opt": ["0", "1", "2", "Tidak terdefinisi"], "ans": "B", "exp": "Gerbang XOR menghasilkan 1 jika inputnya berbeda. Karena 1 dan 0 berbeda, maka hasilnya 1." },
-    { "id": "C_ANALYTIC-036", "type": "C_ANALYTIC", "q": "Diberikan deret angka: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka, 30 + 12 = 42." },
-    { "id": "C_ANALYTIC-037", "type": "C_ANALYTIC", "q": "Jika 'Semua sistem operasi memerlukan kernel' dan 'Beberapa sistem operasi adalah open source', manakah kesimpulan yang benar?", "opt": ["Semua sistem operasi open source memerlukan kernel", "Beberapa sistem operasi open source memerlukan kernel", "Hanya sistem operasi open source yang memerlukan kernel", "Sistem operasi yang tidak memiliki kernel bukan open source"], "ans": "B", "exp": "Karena 'Semua sistem operasi memerlukan kernel', maka kelompok 'Beberapa sistem operasi yang open source' secara otomatis tercakup dalam kelompok yang memerlukan kernel." },
-    { "id": "C_ANALYTIC-038", "type": "C_ANALYTIC", "q": "Diberikan pseudocode: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai x dan y setelah baris terakhir?", "opt": ["x = 5, y = 10", "x = 10, y = 5", "x = 15, y = 5", "x = 5, y = 15"], "ans": "B", "exp": "Algoritma ini adalah teknik swap (pertukaran) nilai tanpa variabel bantu. x menjadi 15, lalu y menjadi 15-10=5, dan x menjadi 15-5=10." },
-    { "id": "C_ANALYTIC-039", "type": "C_ANALYTIC", "q": "Terdapat 3 tugas (A, B, C). Tugas B hanya bisa dilakukan setelah A selesai. Tugas C bisa dilakukan setelah A selesai, namun harus sebelum B. Urutan kerja yang mungkin adalah?", "opt": ["A -> B -> C", "B -> A -> C", "A -> C -> B", "C -> A -> B"], "ans": "C", "exp": "A harus pertama (syarat B dan C). C sebelum B, maka urutannya harus A diikuti C, baru diakhiri dengan B." },
-    { "id": "C_ANALYTIC-040", "type": "C_ANALYTIC", "q": "Dalam gerbang logika, output akan bernilai 1 jika input A = 0 dan B = 0 untuk gerbang manakah ini?", "opt": ["AND", "OR", "NAND", "XOR"], "ans": "C", "exp": "Gerbang NAND (NOT AND) adalah kebalikan dari AND. Jika 0 AND 0 = 0, maka 0 NAND 0 = 1." },
-    { "id": "C_ANALYTIC-041", "type": "C_ANALYTIC", "q": "Perhatikan deret angka berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut menggunakan penambahan yang meningkat: +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42." },
-    { "id": "C_ANALYTIC-042", "type": "C_ANALYTIC", "q": "Jika diketahui pernyataan: 'Jika sistem operasi stabil, maka aplikasi berjalan lancar.' dan 'Aplikasi tidak berjalan lancar.' Kesimpulan yang sah adalah?", "opt": ["Sistem operasi stabil", "Sistem operasi tidak stabil", "Aplikasi mungkin berjalan lancar", "Tidak dapat ditarik kesimpulan"], "ans": "B", "exp": "Ini adalah logika modus tollens (Jika P maka Q, bukan Q, maka bukan P). Karena aplikasi tidak lancar, maka sistem operasi harus tidak stabil." },
-    { "id": "C_ANALYTIC-043", "type": "C_ANALYTIC", "q": "Diberikan algoritma sederhana: x = 5; x = x + 3; if (x > 7) { x = x - 2; } else { x = x + 1; } Berapakah nilai akhir x?", "opt": ["6", "7", "8", "9"], "ans": "A", "exp": "Langkah 1: x=5. Langkah 2: x menjadi 5+3=8. Langkah 3: Karena 8 > 7, maka x = 8-2 = 6." },
-    { "id": "C_ANALYTIC-044", "type": "C_ANALYTIC", "q": "Dalam sebuah dependency graph, Task B bergantung pada Task A, Task C bergantung pada Task B, dan Task D bergantung pada Task A. Manakah urutan eksekusi yang valid?", "opt": ["A -> D -> B -> C", "A -> B -> A -> C", "B -> A -> C -> D", "C -> B -> A -> D"], "ans": "A", "exp": "Urutan harus mengikuti ketergantungan. A adalah root, B dan D bergantung pada A. Karena C bergantung pada B, maka B harus selesai sebelum C. Urutan A -> D -> B -> C memenuhi semua syarat tersebut." },
-    { "id": "C_ANALYTIC-045", "type": "C_ANALYTIC", "q": "Manakah dari gerbang logika berikut yang menghasilkan output 1 hanya jika kedua input berbeda?", "opt": ["AND", "OR", "XOR", "NAND"], "ans": "C", "exp": "Gerbang XOR (Exclusive OR) dirancang khusus untuk menghasilkan output 1 hanya jika inputnya berbeda (0,1 atau 1,0)." },
-    { "id": "C_ANALYTIC-046", "type": "C_ANALYTIC", "q": "Perhatikan pola deret berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?", "opt": ["40", "42", "44", "46"], "ans": "B", "exp": "Pola deret tersebut menggunakan selisih yang bertambah 2: 2(+4)6(+6)12(+8)20(+10)30(+12)=42." },
-    { "id": "C_ANALYTIC-047", "type": "C_ANALYTIC", "q": "Jika semua sistem operasi memerlukan kernel, dan sebagian sistem operasi adalah berbasis open-source, maka kesimpulan yang paling tepat adalah?", "opt": ["Semua yang berbasis open-source memerlukan kernel.", "Sebagian yang memerlukan kernel adalah open-source.", "Hanya sistem operasi open-source yang memerlukan kernel.", "Tidak ada sistem operasi open-source yang memerlukan kernel."], "ans": "B", "exp": "Karena 'Sebagian OS adalah Open Source' dan 'Semua OS butuh Kernel', maka irisan antara Open Source dan Kernel pasti ada, yakni sebagian yang memerlukan kernel adalah open-source." },
-    { "id": "C_ANALYTIC-048", "type": "C_ANALYTIC", "q": "Diberikan pseudocode: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?", "opt": ["x=10, y=5", "x=5, y=10", "x=15, y=5", "x=5, y=15"], "ans": "A", "exp": "Ini adalah algoritma swapping variabel tanpa variabel sementara (temp). Setelah x=x+y (15), y=15-10=5, dan x=15-5=10. Maka x=10 dan y=5." },
-    { "id": "C_ANALYTIC-049", "type": "C_ANALYTIC", "q": "Terdapat 4 modul: A, B, C, dan D. Modul B bergantung pada A. Modul C bergantung pada A. Modul D bergantung pada B dan C. Jika modul A gagal, manakah modul yang tidak dapat berjalan?", "opt": ["Hanya B", "Hanya C", "B dan C", "Semua modul (A, B, C, D)"], "ans": "D", "exp": "Karena B dan C bergantung pada A, jika A gagal, B dan C gagal. Karena D bergantung pada B dan C, maka jika B dan C gagal, D juga gagal. A sendiri gagal." },
-    { "id": "C_ANALYTIC-050", "type": "C_ANALYTIC", "q": "Dalam gerbang logika, output 1 akan dihasilkan oleh gerbang OR jika?", "opt": ["Kedua input adalah 0", "Salah satu atau kedua input adalah 1", "Kedua input harus 1", "Input berbeda satu sama lain"], "ans": "B", "exp": "Gerbang OR menghasilkan output 1 (True) jika minimal salah satu inputnya bernilai 1." }
-  ]
+    {
+      "id": "A_PATTERN-001",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "38",
+        "40",
+        "42",
+        "44"
+      ],
+      "ans": "C",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka, langkah berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-002",
+      "type": "A_PATTERN",
+      "q": "Jika 'KOMPUTER' dikodekan menjadi 'LPNQVSFS', maka bagaimana kode untuk 'SISTEM'?",
+      "opt": [
+        "TJTUFN",
+        "TJTUFN",
+        "TJUUN",
+        "TJTUFN"
+      ],
+      "ans": "D",
+      "exp": "Setiap huruf digeser satu posisi ke depan dalam urutan alfabet (K->L, O->P, M->N, dst). Maka S->T, I->J, S->T, T->U, E->F, M->N. Hasilnya adalah TJTUFN.",
+      "group": "G-APATTERN-002"
+    },
+    {
+      "id": "A_PATTERN-003",
+      "type": "A_PATTERN",
+      "q": "Tentukan angka yang hilang pada pola berikut: 1, 4, 9, 16, ?, 36",
+      "opt": [
+        "20",
+        "24",
+        "25",
+        "30"
+      ],
+      "ans": "C",
+      "exp": "Deret tersebut merupakan kuadrat dari bilangan bulat berurutan: 1^2, 2^2, 3^2, 4^2, 5^2, 6^2. Jadi, 5^2 = 25.",
+      "group": "G-APATTERN-003"
+    },
+    {
+      "id": "A_PATTERN-004",
+      "type": "A_PATTERN",
+      "q": "Jika pola 2=6, 3=12, 4=20, 5=30, maka 8=...",
+      "opt": [
+        "56",
+        "64",
+        "72",
+        "80"
+      ],
+      "ans": "C",
+      "exp": "Pola yang digunakan adalah n * (n+1). Untuk 8, maka 8 * (8+1) = 8 * 9 = 72.",
+      "group": "G-APATTERN-004"
+    },
+    {
+      "id": "A_PATTERN-005",
+      "type": "A_PATTERN",
+      "q": "Pilihlah deret huruf berikutnya: B, D, G, K, P, ...",
+      "opt": [
+        "U",
+        "V",
+        "W",
+        "X"
+      ],
+      "ans": "B",
+      "exp": "Jarak antar huruf adalah: B(+2)D(+3)G(+4)K(+5)P(+6)V. Penambahan jarak dilakukan secara berurutan.",
+      "group": "G-APATTERN-005"
+    },
+    {
+      "id": "A_PATTERN-006",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka, langkah berikutnya adalah +12. 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-007",
+      "type": "A_PATTERN",
+      "q": "Jika 'KOMPUTER' dikodekan menjadi 'LPNQVFS', bagaimana kode untuk 'ALGORITMA'?",
+      "opt": [
+        "BMHPSJUUB",
+        "BMHQSJUMB",
+        "BMHPSJUMB",
+        "BMHQSJUUB"
+      ],
+      "ans": "D",
+      "exp": "Pola enkripsinya adalah menggeser setiap huruf maju satu posisi dalam alfabet (n+1). A->B, L->M, G->H, O->P, R->S, I->J, T->U, M->N, A->B. Maka hasilnya adalah BMHPSJUUB.",
+      "group": "G-APATTERN-007"
+    },
+    {
+      "id": "A_PATTERN-008",
+      "type": "A_PATTERN",
+      "q": "Tentukan angka yang hilang pada pola matriks berikut: (2, 4, 8), (3, 9, 27), (4, 16, ?)",
+      "opt": [
+        "32",
+        "48",
+        "64",
+        "81"
+      ],
+      "ans": "C",
+      "exp": "Pola setiap baris adalah (n, n^2, n^3). Maka untuk 4, 16, maka angka selanjutnya adalah 4^3 = 64.",
+      "group": "G-APATTERN-008"
+    },
+    {
+      "id": "A_PATTERN-009",
+      "type": "A_PATTERN",
+      "q": "Pilihlah deret huruf yang paling tepat untuk melanjutkan: A, C, F, J, O, ...",
+      "opt": [
+        "T",
+        "U",
+        "V",
+        "W"
+      ],
+      "ans": "B",
+      "exp": "Jarak antar huruf adalah: A ke C (+2), C ke F (+3), F ke J (+4), J ke O (+5). Maka berikutnya adalah O + 6 = U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "A_PATTERN-010",
+      "type": "A_PATTERN",
+      "q": "Jika 1=3, 2=3, 3=5, 4=4, 5=4, maka 6=...",
+      "opt": [
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "ans": "A",
+      "exp": "Pola ini berdasarkan jumlah karakter dari penulisan angka dalam bahasa Inggris: ONE(3), TWO(3), THREE(5), FOUR(4), FIVE(4), SIX(3).",
+      "group": "G-APATTERN-010"
+    },
+    {
+      "id": "A_PATTERN-011",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah selisih antar angka yang meningkat +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-012",
+      "type": "A_PATTERN",
+      "q": "Diberikan deret huruf: A, C, F, J, O, ... Huruf berikutnya adalah?",
+      "opt": [
+        "Q",
+        "R",
+        "S",
+        "U"
+      ],
+      "ans": "D",
+      "exp": "Jarak antar huruf adalah +2, +3, +4, +5. Setelah O (ke-15), maka lompatan selanjutnya adalah +6. Huruf ke-21 adalah U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "A_PATTERN-013",
+      "type": "A_PATTERN",
+      "q": "Jika pola 1-2-4, 3-6-12, 5-10-20, maka pola selanjutnya adalah?",
+      "opt": [
+        "6-12-24",
+        "7-14-28",
+        "8-16-32",
+        "7-12-24"
+      ],
+      "ans": "B",
+      "exp": "Setiap kelompok mengikuti pola n, 2n, 4n. Kelompok pertama dimulai dari angka ganjil 1, kedua 3, ketiga 5, maka selanjutnya adalah 7. 7*2=14, 7*4=28.",
+      "group": "G-APATTERN-013"
+    },
+    {
+      "id": "A_PATTERN-014",
+      "type": "A_PATTERN",
+      "q": "Tentukan angka yang hilang pada deret: 100, 95, 85, 70, 50, ...",
+      "opt": [
+        "35",
+        "30",
+        "25",
+        "20"
+      ],
+      "ans": "C",
+      "exp": "Pola pengurangannya adalah -5, -10, -15, -20. Langkah berikutnya adalah -25, sehingga 50 - 25 = 25.",
+      "group": "G-APATTERN-014"
+    },
+    {
+      "id": "A_PATTERN-015",
+      "type": "A_PATTERN",
+      "q": "Dalam sebuah urutan simbol: [X, O, X, X, O, O, X, X, X, O, O, O, ...]. Berapa jumlah X pada urutan ke-14?",
+      "opt": [
+        "4",
+        "5",
+        "6",
+        "7"
+      ],
+      "ans": "A",
+      "exp": "Pola tersebut terdiri dari 1X 1O, 2X 2O, 3X 3O, 4X 4O. Total elemen sampai grup ke-3 adalah 12. Elemen ke-13 adalah X, ke-14 adalah X. Maka total X dalam grup ke-4 adalah 4.",
+      "group": "G-APATTERN-015"
+    },
+    {
+      "id": "A_PATTERN-016",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka angka selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-017",
+      "type": "A_PATTERN",
+      "q": "Tentukan huruf berikutnya dalam deret: A, C, F, J, O, ...",
+      "opt": [
+        "Q",
+        "R",
+        "U",
+        "T"
+      ],
+      "ans": "C",
+      "exp": "Jarak antar huruf adalah +2, +3, +4, +5. Setelah O (ke-15), maka lompatan selanjutnya adalah +6. Huruf ke-21 adalah U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "A_PATTERN-018",
+      "type": "A_PATTERN",
+      "q": "Jika pola 1, 4, 9, 16, 25 merepresentasikan kuadrat dari bilangan asli, tentukan elemen ke-8 dari pola tersebut.",
+      "opt": [
+        "49",
+        "64",
+        "81",
+        "100"
+      ],
+      "ans": "B",
+      "exp": "Pola adalah n^2. Untuk elemen ke-8, maka 8^2 = 64.",
+      "group": "G-APATTERN-003"
+    },
+    {
+      "id": "A_PATTERN-019",
+      "type": "A_PATTERN",
+      "q": "Perhatikan pola: 100, 95, 85, 70, 50, ... Angka berikutnya adalah?",
+      "opt": [
+        "35",
+        "30",
+        "25",
+        "20"
+      ],
+      "ans": "C",
+      "exp": "Pola pengurangan adalah -5, -10, -15, -20. Maka langkah selanjutnya adalah 50 - 25 = 25.",
+      "group": "G-APATTERN-014"
+    },
+    {
+      "id": "A_PATTERN-020",
+      "type": "A_PATTERN",
+      "q": "Dalam kode biner atau pola logika, jika 2=6, 3=12, 4=20, maka 6=...",
+      "opt": [
+        "30",
+        "36",
+        "42",
+        "48"
+      ],
+      "ans": "C",
+      "exp": "Pola ini mengikuti rumus n(n+1). 2(3)=6, 3(4)=12, 4(5)=20. Maka 6(7)=42.",
+      "group": "G-APATTERN-004"
+    },
+    {
+      "id": "A_PATTERN-021",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya dalam deret tersebut?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-022",
+      "type": "A_PATTERN",
+      "q": "Jika pola huruf adalah A, C, F, J, O, ... maka huruf selanjutnya adalah:",
+      "opt": [
+        "S",
+        "T",
+        "U",
+        "V"
+      ],
+      "ans": "C",
+      "exp": "Selisih posisi abjad: A(+2)C(+3)F(+4)J(+5)O(+6). Posisi O adalah 15, 15 + 6 = 21. Huruf ke-21 adalah U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "A_PATTERN-023",
+      "type": "A_PATTERN",
+      "q": "Diberikan deret: 1, 1, 2, 3, 5, 8, 13, 21, ... Angka berikutnya adalah:",
+      "opt": [
+        "32",
+        "34",
+        "36",
+        "38"
+      ],
+      "ans": "B",
+      "exp": "Ini adalah deret Fibonacci di mana setiap angka adalah jumlah dari dua angka sebelumnya. 13 + 21 = 34.",
+      "group": "G-APATTERN-023"
+    },
+    {
+      "id": "A_PATTERN-024",
+      "type": "A_PATTERN",
+      "q": "Jika pola angka adalah 3, 9, 27, 81, ... maka angka berikutnya adalah:",
+      "opt": [
+        "162",
+        "243",
+        "247",
+        "324"
+      ],
+      "ans": "B",
+      "exp": "Deret ini adalah deret geometri dengan rasio 3 (perkalian 3). 81 x 3 = 243.",
+      "group": "G-APATTERN-024"
+    },
+    {
+      "id": "A_PATTERN-025",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret berikut: 100, 95, 85, 70, 50, ... Berapakah angka selanjutnya?",
+      "opt": [
+        "25",
+        "30",
+        "35",
+        "40"
+      ],
+      "ans": "A",
+      "exp": "Pola pengurangan adalah kelipatan 5 yang meningkat: -5, -10, -15, -20. Langkah berikutnya adalah 50 - 25 = 25.",
+      "group": "G-APATTERN-014"
+    },
+    {
+      "id": "A_PATTERN-026",
+      "type": "A_PATTERN",
+      "q": "Tentukan angka selanjutnya dari deret berikut: 2, 6, 12, 20, 30, ...",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan bilangan genap yang meningkat: +4, +6, +8, +10, sehingga selanjutnya adalah +12. 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-027",
+      "type": "A_PATTERN",
+      "q": "Jika pola huruf adalah A, C, F, J, O, maka huruf berikutnya adalah...",
+      "opt": [
+        "R",
+        "S",
+        "T",
+        "U"
+      ],
+      "ans": "D",
+      "exp": "Selisih posisi huruf dalam abjad: A(+2)C(+3)F(+4)J(+5)O(+6) = U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "A_PATTERN-028",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret angka berikut: 1, 1, 2, 3, 5, 8, 13, ... Angka berikutnya adalah...",
+      "opt": [
+        "18",
+        "20",
+        "21",
+        "22"
+      ],
+      "ans": "C",
+      "exp": "Ini adalah deret Fibonacci, di mana angka berikutnya adalah jumlah dari dua angka sebelumnya. 8 + 13 = 21.",
+      "group": "G-APATTERN-023"
+    },
+    {
+      "id": "A_PATTERN-029",
+      "type": "A_PATTERN",
+      "q": "Jika kode untuk 'DATA' adalah 'EBUB', maka kode untuk 'CODE' adalah...",
+      "opt": [
+        "DPEF",
+        "DPFD",
+        "DPEE",
+        "EQEF"
+      ],
+      "ans": "A",
+      "exp": "Setiap huruf digeser satu langkah ke depan dalam abjad (Shift +1). C->D, O->P, D->E, E->F.",
+      "group": "G-APATTERN-029"
+    },
+    {
+      "id": "A_PATTERN-030",
+      "type": "A_PATTERN",
+      "q": "Tentukan nilai yang hilang dari deret: 100, 95, 85, 70, 50, ...",
+      "opt": [
+        "20",
+        "25",
+        "30",
+        "35"
+      ],
+      "ans": "B",
+      "exp": "Pola pengurangannya adalah kelipatan 5 yang bertambah: -5, -10, -15, -20, sehingga selanjutnya adalah -25. 50 - 25 = 25.",
+      "group": "G-APATTERN-014"
+    },
+    {
+      "id": "A_PATTERN-031",
+      "type": "A_PATTERN",
+      "q": "Perhatikan pola deret berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-032",
+      "type": "A_PATTERN",
+      "q": "Diberikan deret huruf: A, C, F, J, O, ... Huruf berikutnya adalah?",
+      "opt": [
+        "R",
+        "S",
+        "T",
+        "U"
+      ],
+      "ans": "D",
+      "exp": "Jarak antar huruf adalah +2, +3, +4, +5. Jadi, O (15) + 6 = 21, yaitu huruf U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "A_PATTERN-033",
+      "type": "A_PATTERN",
+      "q": "Pilihlah angka yang melengkapi deret: 1, 1, 2, 3, 5, 8, 13, ...",
+      "opt": [
+        "18",
+        "20",
+        "21",
+        "22"
+      ],
+      "ans": "C",
+      "exp": "Ini adalah deret Fibonacci di mana suku berikutnya adalah jumlah dari dua suku sebelumnya (8 + 13 = 21).",
+      "group": "G-APATTERN-023"
+    },
+    {
+      "id": "A_PATTERN-034",
+      "type": "A_PATTERN",
+      "q": "Jika pola 3, 9, 27, 81 mengikuti aturan eksponensial, berapakah angka ke-6 dalam deret tersebut?",
+      "opt": [
+        "243",
+        "486",
+        "729",
+        "2187"
+      ],
+      "ans": "C",
+      "exp": "Pola tersebut adalah 3^n. Suku ke-6 adalah 3^6 = 729.",
+      "group": "G-APATTERN-024"
+    },
+    {
+      "id": "A_PATTERN-035",
+      "type": "A_PATTERN",
+      "q": "Lanjutkan pola berikut: 100, 95, 85, 70, 50, ...",
+      "opt": [
+        "25",
+        "30",
+        "35",
+        "40"
+      ],
+      "ans": "A",
+      "exp": "Pola pengurangannya adalah -5, -10, -15, -20. Maka langkah berikutnya adalah 50 - 25 = 25.",
+      "group": "G-APATTERN-014"
+    },
+    {
+      "id": "A_PATTERN-036",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka angka selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-037",
+      "type": "A_PATTERN",
+      "q": "Tentukan huruf berikutnya dalam urutan: A, C, F, J, O, ...",
+      "opt": [
+        "U",
+        "T",
+        "V",
+        "S"
+      ],
+      "ans": "A",
+      "exp": "Pola didasarkan pada penambahan indeks alfabet: A(+2)=C, C(+3)=F, F(+4)=J, J(+5)=O. Maka O(+6) = U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "A_PATTERN-038",
+      "type": "A_PATTERN",
+      "q": "Diberikan urutan: 1, 1, 2, 3, 5, 8, 13, ... Angka berikutnya adalah?",
+      "opt": [
+        "20",
+        "21",
+        "22",
+        "24"
+      ],
+      "ans": "B",
+      "exp": "Ini adalah deret Fibonacci di mana angka berikutnya adalah jumlah dari dua angka sebelumnya: 5+8=13, maka 8+13=21.",
+      "group": "G-APATTERN-023"
+    },
+    {
+      "id": "A_PATTERN-039",
+      "type": "A_PATTERN",
+      "q": "Jika pola 2, 5, 11, 23, 47 mengikuti aturan tertentu, tentukan angka berikutnya.",
+      "opt": [
+        "94",
+        "95",
+        "96",
+        "97"
+      ],
+      "ans": "B",
+      "exp": "Pola tersebut adalah (n * 2) + 1. Contoh: 2*2+1=5, 5*2+1=11, 11*2+1=23, 23*2+1=47. Maka 47*2+1=95.",
+      "group": "G-APATTERN-039"
+    },
+    {
+      "id": "A_PATTERN-040",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret huruf: Z, X, U, Q, L, ...",
+      "opt": [
+        "G",
+        "H",
+        "F",
+        "I"
+      ],
+      "ans": "C",
+      "exp": "Pola penurunan posisi alfabet adalah: -2, -3, -4, -5. Z ke X (-2), X ke U (-3), U ke Q (-4), Q ke L (-5). Maka L - 6 posisi mundur adalah F.",
+      "group": "G-APATTERN-040"
+    },
+    {
+      "id": "A_PATTERN-041",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Tentukan angka berikutnya.",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Selisih antar angka membentuk pola: +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-042",
+      "type": "A_PATTERN",
+      "q": "Jika pola huruf adalah A, C, F, J, O, ... tentukan huruf berikutnya.",
+      "opt": [
+        "R",
+        "S",
+        "T",
+        "U"
+      ],
+      "ans": "D",
+      "exp": "Jarak antar huruf adalah: A(+2)C(+3)F(+4)J(+5)O(+6). Huruf ke-15 (O) + 6 = 21, yaitu U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "A_PATTERN-043",
+      "type": "A_PATTERN",
+      "q": "Diberikan urutan: 1, 4, 9, 16, 25, ... manakah angka yang merupakan elemen ke-8 dari deret tersebut?",
+      "opt": [
+        "49",
+        "64",
+        "81",
+        "100"
+      ],
+      "ans": "B",
+      "exp": "Deret tersebut adalah deret kuadrat n^2. Elemen ke-8 adalah 8^2 = 64.",
+      "group": "G-APATTERN-003"
+    },
+    {
+      "id": "A_PATTERN-044",
+      "type": "A_PATTERN",
+      "q": "Tentukan elemen yang hilang dalam deret: 3, 7, 15, ?, 63, 127.",
+      "opt": [
+        "27",
+        "31",
+        "33",
+        "35"
+      ],
+      "ans": "B",
+      "exp": "Pola deret adalah (x * 2) + 1. Maka 15 * 2 + 1 = 31.",
+      "group": "G-APATTERN-044"
+    },
+    {
+      "id": "A_PATTERN-045",
+      "type": "A_PATTERN",
+      "q": "Perhatikan urutan alfabet: Z, X, V, T, R, ... Tentukan dua huruf berikutnya.",
+      "opt": [
+        "P, N",
+        "O, M",
+        "Q, O",
+        "P, O"
+      ],
+      "ans": "A",
+      "exp": "Pola ini melompat mundur dua huruf setiap langkahnya (-2). R - 2 = P, P - 2 = N.",
+      "group": "G-APATTERN-045"
+    },
+    {
+      "id": "A_PATTERN-046",
+      "type": "A_PATTERN",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah +12, sehingga 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "A_PATTERN-047",
+      "type": "A_PATTERN",
+      "q": "Jika pola huruf adalah: A, C, F, J, O, ... maka huruf selanjutnya adalah?",
+      "opt": [
+        "Q",
+        "R",
+        "U",
+        "V"
+      ],
+      "ans": "C",
+      "exp": "Selisih posisi huruf adalah: A ke C (+2), C ke F (+3), F ke J (+4), J ke O (+5). Maka langkah berikutnya adalah +6. O(15) + 6 = 21, yang merupakan huruf U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "A_PATTERN-048",
+      "type": "A_PATTERN",
+      "q": "Diberikan urutan: 1, 1, 2, 3, 5, 8, 13, ... Angka berikutnya adalah?",
+      "opt": [
+        "18",
+        "20",
+        "21",
+        "24"
+      ],
+      "ans": "C",
+      "exp": "Ini adalah deret Fibonacci di mana setiap angka adalah jumlah dari dua angka sebelumnya (1+1=2, 1+2=3, 2+3=5, 3+5=8, 5+8=13, 8+13=21).",
+      "group": "G-APATTERN-023"
+    },
+    {
+      "id": "A_PATTERN-049",
+      "type": "A_PATTERN",
+      "q": "Pola angka: 81, 64, 49, 36, 25, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "16",
+        "18",
+        "14",
+        "9"
+      ],
+      "ans": "A",
+      "exp": "Pola tersebut merupakan kuadrat dari angka yang menurun: 9^2, 8^2, 7^2, 6^2, 5^2. Maka selanjutnya adalah 4^2 = 16.",
+      "group": "G-APATTERN-049"
+    },
+    {
+      "id": "A_PATTERN-050",
+      "type": "A_PATTERN",
+      "q": "Jika pola huruf: B, D, G, K, P, ... maka huruf selanjutnya adalah?",
+      "opt": [
+        "R",
+        "S",
+        "T",
+        "V"
+      ],
+      "ans": "D",
+      "exp": "Selisih posisi huruf: B ke D (+2), D ke G (+3), G ke K (+4), K ke P (+5). Maka langkah berikutnya adalah +6. P(16) + 6 = 22, yang merupakan huruf V.",
+      "group": "G-APATTERN-005"
+    },
+    {
+      "id": "B_LOGIC-001",
+      "type": "B_LOGIC",
+      "q": "Tentukan angka berikutnya dari deret: 2, 6, 12, 20, 30, ...",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan angka genap yang meningkat: +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-002",
+      "type": "B_LOGIC",
+      "q": "Diberikan proposisi: 'Jika sistem operasi stabil, maka server tidak down'. Pernyataan yang ekuivalen secara logis dengan proposisi tersebut adalah...",
+      "opt": [
+        "Jika server tidak down, maka sistem operasi stabil",
+        "Jika server down, maka sistem operasi tidak stabil",
+        "Jika sistem operasi tidak stabil, maka server down",
+        "Server tidak down jika dan hanya jika sistem operasi stabil"
+      ],
+      "ans": "B",
+      "exp": "Dalam logika proposisi (p -> q), ekuivalensi yang valid adalah kontrapositifnya (~q -> ~p). Jadi, jika server down (~q), maka sistem operasi tidak stabil (~p).",
+      "group": "G-BLOGIC-002"
+    },
+    {
+      "id": "B_LOGIC-003",
+      "type": "B_LOGIC",
+      "q": "Perhatikan algoritma berikut: Variabel X=10, Y=5. Langkah 1: X = X + Y; Langkah 2: Y = X - Y; Langkah 3: X = X - Y. Apa nilai akhir dari X dan Y?",
+      "opt": [
+        "X=5, Y=10",
+        "X=10, Y=5",
+        "X=15, Y=5",
+        "X=5, Y=15"
+      ],
+      "ans": "A",
+      "exp": "Ini adalah algoritma standar untuk menukar (swap) nilai dua variabel tanpa variabel bantuan. Setelah Langkah 1 (X=15), Langkah 2 (Y=10), dan Langkah 3 (X=5), nilai keduanya berhasil tertukar.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "B_LOGIC-004",
+      "type": "B_LOGIC",
+      "q": "Dalam sebuah gerbang logika, output akan bernilai 1 HANYA JIKA input A=1 dan input B=0. Gerbang apakah ini?",
+      "opt": [
+        "AND",
+        "OR",
+        "NAND",
+        "IMPLIKASI (A -> B' atau A AND NOT B)"
+      ],
+      "ans": "D",
+      "exp": "Gerbang logika yang menghasilkan output 1 hanya jika A=1 dan B=0 adalah representasi dari fungsi A AND NOT B, yang dalam tabel kebenaran implikasi inversi atau logika dasar setara dengan A > B.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "B_LOGIC-005",
+      "type": "B_LOGIC",
+      "q": "Terdapat 4 modul sistem: A, B, C, dan D. A harus selesai sebelum B. C harus selesai sebelum D. B harus selesai sebelum C. Bagaimana urutan eksekusi yang benar?",
+      "opt": [
+        "A, C, B, D",
+        "A, B, C, D",
+        "C, D, A, B",
+        "B, A, D, C"
+      ],
+      "ans": "B",
+      "exp": "Berdasarkan dependency: (A -> B), (C -> D), dan (B -> C). Jika digabungkan menjadi rantai: A -> B -> C -> D.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "B_LOGIC-006",
+      "type": "B_LOGIC",
+      "q": "Diberikan urutan: 2, 6, 12, 20, 30, ... . Berapakah angka selanjutnya dalam deret tersebut?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-007",
+      "type": "B_LOGIC",
+      "q": "Jika 'Semua sistem operasi memerlukan kernel' dan 'Beberapa sistem operasi bersifat open-source', manakah kesimpulan yang benar?",
+      "opt": [
+        "Semua sistem operasi open-source memerlukan kernel.",
+        "Beberapa sistem operasi open-source memerlukan kernel.",
+        "Hanya kernel yang bersifat open-source.",
+        "Tidak ada sistem operasi open-source yang memerlukan kernel."
+      ],
+      "ans": "B",
+      "exp": "Karena semua sistem operasi memerlukan kernel, dan ada beberapa sistem operasi yang open-source, maka secara logis bagian sistem operasi yang open-source tersebut juga memerlukan kernel.",
+      "group": "G-BLOGIC-007"
+    },
+    {
+      "id": "B_LOGIC-008",
+      "type": "B_LOGIC",
+      "q": "Diketahui gerbang logika dengan input A=1 dan B=0. Jika output diberikan ke gerbang NAND, kemudian hasilnya dimasukkan ke gerbang NOT, berapakah nilai akhirnya?",
+      "opt": [
+        "0",
+        "1",
+        "Tidak dapat ditentukan",
+        "Himpunan kosong"
+      ],
+      "ans": "A",
+      "exp": "A=1, B=0 melalui NAND menghasilkan 1. Kemudian 1 melalui NOT menghasilkan 0.",
+      "group": "G-BLOGIC-008"
+    },
+    {
+      "id": "B_LOGIC-009",
+      "type": "B_LOGIC",
+      "q": "Analisis algoritma berikut: x = 5; x = x + 3; x = x * 2; x = x - 4; Berapakah nilai akhir x?",
+      "opt": [
+        "12",
+        "14",
+        "16",
+        "18"
+      ],
+      "ans": "A",
+      "exp": "x=5 -> x=8 -> x=16 -> x=12.",
+      "group": "G-BLOGIC-009"
+    },
+    {
+      "id": "B_LOGIC-010",
+      "type": "B_LOGIC",
+      "q": "Dalam dependency graph, tugas A harus selesai sebelum B, tugas C harus selesai sebelum B, dan tugas B harus selesai sebelum D. Urutan mana yang mungkin untuk menyelesaikan tugas tersebut?",
+      "opt": [
+        "A, B, C, D",
+        "B, A, C, D",
+        "C, A, B, D",
+        "D, B, A, C"
+      ],
+      "ans": "C",
+      "exp": "B bergantung pada A dan C, D bergantung pada B. Jadi, A dan C harus mendahului B, dan B harus mendahului D. Urutan C, A, B, D memenuhi semua batasan tersebut.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "B_LOGIC-011",
+      "type": "B_LOGIC",
+      "q": "Jika diketahui pernyataan: 'Jika sistem operasi stabil, maka server tidak crash' dan 'Server crash'. Manakah kesimpulan yang paling tepat berdasarkan logika proposisi?",
+      "opt": [
+        "Sistem operasi stabil",
+        "Sistem operasi tidak stabil",
+        "Server sedang dalam pemeliharaan",
+        "Tidak dapat disimpulkan kondisi sistem operasi"
+      ],
+      "ans": "B",
+      "exp": "Menggunakan aturan Modus Tollens (Jika P maka Q, bukan Q, maka bukan P). P: Sistem stabil, Q: Server tidak crash. Karena Q salah (server crash), maka P harus salah (tidak stabil).",
+      "group": "G-BLOGIC-002"
+    },
+    {
+      "id": "B_LOGIC-012",
+      "type": "B_LOGIC",
+      "q": "Tentukan angka selanjutnya dari deret berikut: 2, 6, 12, 20, 30, ...",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-013",
+      "type": "B_LOGIC",
+      "q": "Diberikan algoritma sederhana: 'x = 5; y = 10; x = x + y; y = x - y; x = x - y;'. Berapakah nilai x dan y setelah baris terakhir dieksekusi?",
+      "opt": [
+        "x=10, y=5",
+        "x=5, y=10",
+        "x=15, y=15",
+        "x=5, y=5"
+      ],
+      "ans": "A",
+      "exp": "Ini adalah algoritma klasik untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel bantuan. x menjadi 15, y menjadi 15-10=5, x menjadi 15-5=10.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "B_LOGIC-014",
+      "type": "B_LOGIC",
+      "q": "Dalam sebuah gerbang logika, output akan bernilai 1 hanya jika kedua input bernilai berbeda. Gerbang logika manakah yang dimaksud?",
+      "opt": [
+        "AND",
+        "OR",
+        "NAND",
+        "XOR"
+      ],
+      "ans": "D",
+      "exp": "Gerbang Exclusive-OR (XOR) memiliki karakteristik output 1 jika dan hanya jika input bernilai ganjil (satu bernilai 1 dan satu bernilai 0).",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "B_LOGIC-015",
+      "type": "B_LOGIC",
+      "q": "Terdapat 3 modul: A, B, dan C. A harus diselesaikan sebelum B. C harus diselesaikan sebelum A. Berdasarkan ketergantungan tersebut, manakah urutan pengerjaan yang benar?",
+      "opt": [
+        "A -> B -> C",
+        "C -> B -> A",
+        "C -> A -> B",
+        "B -> A -> C"
+      ],
+      "ans": "C",
+      "exp": "Dependency graph menunjukkan urutan: C -> A (karena C sebelum A) dan A -> B (karena A sebelum B). Maka urutan linear yang mungkin adalah C -> A -> B.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "B_LOGIC-016",
+      "type": "B_LOGIC",
+      "q": "Tentukan pola angka selanjutnya dari deret berikut: 2, 6, 12, 20, 30, ...",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan angka genap yang meningkat: +4, +6, +8, +10. Maka, langkah selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-017",
+      "type": "B_LOGIC",
+      "q": "Jika 'Semua programer menyukai kopi' adalah benar, dan 'Budi tidak menyukai kopi' adalah benar, manakah kesimpulan yang valid?",
+      "opt": [
+        "Budi adalah seorang programer.",
+        "Budi mungkin seorang programer.",
+        "Budi bukan seorang programer.",
+        "Tidak dapat disimpulkan."
+      ],
+      "ans": "C",
+      "exp": "Ini adalah silogisme modus tollens. Jika P maka Q (Programer -> Suka Kopi). Premis kedua adalah ~Q (Tidak suka kopi). Maka kesimpulannya adalah ~P (Bukan programer).",
+      "group": "G-BLOGIC-017"
+    },
+    {
+      "id": "B_LOGIC-018",
+      "type": "B_LOGIC",
+      "q": "Diberikan nilai variabel: a = true, b = false, c = true. Berapakah hasil dari ekspresi logika: (a AND b) OR (NOT b AND c)?",
+      "opt": [
+        "true",
+        "false",
+        "null",
+        "undefined"
+      ],
+      "ans": "A",
+      "exp": "(true AND false) = false. (NOT false AND true) = (true AND true) = true. false OR true = true.",
+      "group": "G-BLOGIC-018"
+    },
+    {
+      "id": "B_LOGIC-019",
+      "type": "B_LOGIC",
+      "q": "Terdapat 3 modul: A, B, dan C. Modul B bergantung pada A. Modul C bergantung pada B. Jika modul B mengalami kegagalan, manakah yang pasti terpengaruh?",
+      "opt": [
+        "Modul A saja",
+        "Modul C saja",
+        "Modul A dan C",
+        "Tidak ada yang terpengaruh"
+      ],
+      "ans": "B",
+      "exp": "Karena C bergantung pada B (Dependency Graph C -> B), maka jika B gagal, C tidak akan bisa berfungsi. A tidak terpengaruh karena A adalah dependensi dari B, bukan sebaliknya.",
+      "group": "G-BLOGIC-019"
+    },
+    {
+      "id": "B_LOGIC-020",
+      "type": "B_LOGIC",
+      "q": "Perhatikan algoritma sederhana berikut: 1. x = 5; 2. x = x + 3; 3. x = x * 2; 4. x = x - 4. Berapakah nilai akhir x?",
+      "opt": [
+        "10",
+        "12",
+        "14",
+        "16"
+      ],
+      "ans": "B",
+      "exp": "Tracing: (5 + 3) = 8. (8 * 2) = 16. (16 - 4) = 12.",
+      "group": "G-BLOGIC-009"
+    },
+    {
+      "id": "B_LOGIC-021",
+      "type": "B_LOGIC",
+      "q": "Jika diketahui pernyataan: 'Jika sistem operasi stabil, maka aplikasi berjalan lancar.' dan 'Aplikasi tidak berjalan lancar'. Berdasarkan logika proposisi, kesimpulan yang valid adalah...",
+      "opt": [
+        "Sistem operasi tidak stabil",
+        "Sistem operasi stabil",
+        "Aplikasi mungkin berjalan lancar",
+        "Sistem operasi mungkin tidak stabil"
+      ],
+      "ans": "A",
+      "exp": "Menggunakan aturan Modus Tollens: Jika P maka Q, dan bukan Q, maka kesimpulannya bukan P. P=Sistem stabil, Q=Aplikasi lancar. Karena bukan Q, maka bukan P (Sistem tidak stabil).",
+      "group": "G-BLOGIC-002"
+    },
+    {
+      "id": "B_LOGIC-022",
+      "type": "B_LOGIC",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka selanjutnya adalah...",
+      "opt": [
+        "36",
+        "40",
+        "42",
+        "44"
+      ],
+      "ans": "C",
+      "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-023",
+      "type": "B_LOGIC",
+      "q": "Dalam sebuah dependency graph: Tugas A harus selesai sebelum B. Tugas C harus selesai sebelum B. Tugas B harus selesai sebelum D. Manakah urutan yang mungkin dilakukan?",
+      "opt": [
+        "A -> D -> B -> C",
+        "C -> A -> B -> D",
+        "B -> A -> C -> D",
+        "D -> B -> A -> C"
+      ],
+      "ans": "B",
+      "exp": "Dependensi adalah {A, C} -> B -> D. Artinya A dan C harus mendahului B, dan B harus mendahului D. Pilihan B memenuhi syarat karena C dan A diselesaikan sebelum B.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "B_LOGIC-024",
+      "type": "B_LOGIC",
+      "q": "Diberikan pseudocode: x = 5; x = x + 2; y = x * 2; x = y - x; Berapakah nilai akhir x?",
+      "opt": [
+        "5",
+        "7",
+        "14",
+        "9"
+      ],
+      "ans": "B",
+      "exp": "Tracing: x=5. x menjadi 5+2=7. y menjadi 7*2=14. x menjadi 14-7=7.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "B_LOGIC-025",
+      "type": "B_LOGIC",
+      "q": "Gerbang logika manakah yang menghasilkan output '1' (True) hanya jika kedua inputnya berbeda?",
+      "opt": [
+        "AND",
+        "OR",
+        "XOR",
+        "NAND"
+      ],
+      "ans": "C",
+      "exp": "Gerbang XOR (Exclusive OR) dirancang untuk memberikan output 1 hanya jika input A dan B tidak sama (salah satu 0 dan yang lain 1).",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "B_LOGIC-026",
+      "type": "B_LOGIC",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret menggunakan selisih yang meningkat: +4, +6, +8, +10. Maka selisih berikutnya adalah +12. 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-027",
+      "type": "B_LOGIC",
+      "q": "Jika fungsi logika F = NOT(A AND B) OR C, berapakah nilai output jika A=1, B=1, dan C=0?",
+      "opt": [
+        "0",
+        "1",
+        "Tidak terdefinisi",
+        "Error"
+      ],
+      "ans": "A",
+      "exp": "A AND B = 1 AND 1 = 1. NOT(1) = 0. Maka, 0 OR C (0) = 0.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "B_LOGIC-028",
+      "type": "B_LOGIC",
+      "q": "Diberikan algoritma sederhana: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?",
+      "opt": [
+        "x=10, y=5",
+        "x=5, y=10",
+        "x=15, y=5",
+        "x=10, y=15"
+      ],
+      "ans": "A",
+      "exp": "Ini adalah algoritma pertukaran nilai (swapping) tanpa variabel bantu. x menjadi 15, kemudian y menjadi 15-10=5, dan x menjadi 15-5=10.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "B_LOGIC-029",
+      "type": "B_LOGIC",
+      "q": "Tentukan huruf berikutnya dalam deret: A, C, F, J, O, ...",
+      "opt": [
+        "R",
+        "S",
+        "T",
+        "U"
+      ],
+      "ans": "D",
+      "exp": "Jarak antar huruf meningkat: A ke C (+2), C ke F (+3), F ke J (+4), J ke O (+5). Maka O ke huruf berikutnya adalah +6, yaitu U.",
+      "group": "G-APATTERN-009"
+    },
+    {
+      "id": "B_LOGIC-030",
+      "type": "B_LOGIC",
+      "q": "Dalam dependency graph, tugas A harus selesai sebelum B. Tugas C harus selesai sebelum B. Tugas D harus selesai setelah B. Manakah urutan yang mungkin?",
+      "opt": [
+        "A -> C -> B -> D",
+        "B -> A -> C -> D",
+        "A -> D -> C -> B",
+        "C -> D -> A -> B"
+      ],
+      "ans": "A",
+      "exp": "A dan C adalah prasyarat B, dan B adalah prasyarat D. Jadi, A dan C harus di depan B, dan D harus paling belakang.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "B_LOGIC-031",
+      "type": "B_LOGIC",
+      "q": "Jika sebuah sistem menyatakan: 'Jika server mati, maka aplikasi tidak bisa diakses' dan 'Aplikasi bisa diakses', maka kesimpulan yang paling tepat adalah...",
+      "opt": [
+        "Server sedang dalam pemeliharaan",
+        "Server tidak mati",
+        "Server menyala dan aplikasi tidak bisa diakses",
+        "Aplikasi tidak bisa diakses karena server mati"
+      ],
+      "ans": "B",
+      "exp": "Menggunakan prinsip Modus Tollens. Jika P maka Q, dan bukan Q, maka bukan P. P=Server mati, Q=Aplikasi tidak bisa diakses. Jika negasi Q adalah 'Aplikasi bisa diakses', maka negasi P adalah 'Server tidak mati'.",
+      "group": "G-BLOGIC-031"
+    },
+    {
+      "id": "B_LOGIC-032",
+      "type": "B_LOGIC",
+      "q": "Tentukan angka selanjutnya dari deret berikut: 2, 6, 12, 20, 30, ...",
+      "opt": [
+        "36",
+        "40",
+        "42",
+        "44"
+      ],
+      "ans": "C",
+      "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-033",
+      "type": "B_LOGIC",
+      "q": "Diberikan pseudocode: x = 5; y = 10; z = 0; if (x > 2) { z = x + y; } else { z = y - x; } z = z * 2; Berapakah nilai akhir z?",
+      "opt": [
+        "10",
+        "15",
+        "20",
+        "30"
+      ],
+      "ans": "D",
+      "exp": "Karena x (5) > 2, maka z = 5 + 10 = 15. Kemudian z = 15 * 2 = 30.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "B_LOGIC-034",
+      "type": "B_LOGIC",
+      "q": "Dalam gerbang logika, output dari gerbang NAND akan bernilai '0' (False) hanya jika...",
+      "opt": [
+        "Kedua input bernilai 0",
+        "Salah satu input bernilai 0",
+        "Kedua input bernilai 1",
+        "Salah satu input bernilai 1"
+      ],
+      "ans": "C",
+      "exp": "Gerbang NAND adalah kebalikan dari AND. AND menghasilkan 1 hanya jika semua input 1. NAND menghasilkan 0 hanya jika semua input 1.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "B_LOGIC-035",
+      "type": "B_LOGIC",
+      "q": "Ada 4 tugas (A, B, C, D). A harus selesai sebelum B. C harus selesai sebelum D. B harus selesai sebelum C. Urutan manakah yang mungkin?",
+      "opt": [
+        "A, C, B, D",
+        "D, C, B, A",
+        "A, B, C, D",
+        "B, A, D, C"
+      ],
+      "ans": "C",
+      "exp": "Berdasarkan dependensi: A < B, B < C, C < D. Maka urutan logisnya adalah A -> B -> C -> D.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "B_LOGIC-036",
+      "type": "B_LOGIC",
+      "q": "Diberikan pernyataan: 'Jika sistem operasi stabil, maka server tidak akan crash'. Jika faktanya 'Server crash', manakah kesimpulan yang logis berdasarkan logika proposisi?",
+      "opt": [
+        "Sistem operasi stabil.",
+        "Sistem operasi tidak stabil.",
+        "Server mungkin stabil.",
+        "Sistem operasi mungkin stabil."
+      ],
+      "ans": "B",
+      "exp": "Ini menggunakan aturan Modus Tollens. Jika P maka Q (P -> Q). Jika negasi Q (~Q), maka negasi P (~P). Jika server crash (~Q), maka sistem operasi tidak stabil (~P).",
+      "group": "G-BLOGIC-002"
+    },
+    {
+      "id": "B_LOGIC-037",
+      "type": "B_LOGIC",
+      "q": "Perhatikan deret angka berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola penambahan adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-038",
+      "type": "B_LOGIC",
+      "q": "Dalam sebuah dependency graph, Task A harus selesai sebelum Task B. Task C harus selesai sebelum Task A. Task D harus selesai setelah Task B. Manakah urutan eksekusi yang valid?",
+      "opt": [
+        "C -> B -> A -> D",
+        "A -> C -> B -> D",
+        "C -> A -> B -> D",
+        "D -> B -> A -> C"
+      ],
+      "ans": "C",
+      "exp": "Berdasarkan dependensi: C < A < B < D. Opsi C memenuhi semua urutan ketergantungan tersebut.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "B_LOGIC-039",
+      "type": "B_LOGIC",
+      "q": "Jika gerbang logika XOR memiliki input A=1 dan B=0, berapakah outputnya?",
+      "opt": [
+        "0",
+        "1",
+        "Null",
+        "Tidak dapat ditentukan"
+      ],
+      "ans": "B",
+      "exp": "Gerbang XOR (Exclusive OR) menghasilkan output 1 jika kedua input berbeda, dan 0 jika inputnya sama.",
+      "group": "G-BLOGIC-039"
+    },
+    {
+      "id": "B_LOGIC-040",
+      "type": "B_LOGIC",
+      "q": "Diberikan variabel: x = 5, y = 10. Apa nilai akhir dari x jika dilakukan algoritma berikut: x = x + y; y = x - y; x = x - y?",
+      "opt": [
+        "x = 5",
+        "x = 10",
+        "x = 15",
+        "x = 0"
+      ],
+      "ans": "B",
+      "exp": "Ini adalah algoritma swap (pertukaran nilai). Langkah 1: x=15. Langkah 2: y=15-10=5. Langkah 3: x=15-5=10. Nilai akhir x adalah 10.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "B_LOGIC-041",
+      "type": "B_LOGIC",
+      "q": "Perhatikan pola berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola ini menggunakan penambahan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-042",
+      "type": "B_LOGIC",
+      "q": "Jika 'Semua programmer adalah pemecah masalah' dan 'Beberapa pemecah masalah adalah kreatif', manakah kesimpulan yang mutlak benar?",
+      "opt": [
+        "Semua programmer adalah kreatif",
+        "Beberapa programmer adalah kreatif",
+        "Tidak ada programmer yang kreatif",
+        "Tidak dapat ditarik kesimpulan tentang programmer yang kreatif"
+      ],
+      "ans": "D",
+      "exp": "Kategori 'pemecah masalah' sebagai irisan tidak menjamin bahwa sub-kelompok 'programmer' termasuk dalam sub-kelompok 'kreatif'.",
+      "group": "G-BLOGIC-042"
+    },
+    {
+      "id": "B_LOGIC-043",
+      "type": "B_LOGIC",
+      "q": "Diberikan pseudocode: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai x dan y setelah instruksi selesai?",
+      "opt": [
+        "x = 5, y = 10",
+        "x = 10, y = 5",
+        "x = 15, y = 5",
+        "x = 10, y = 15"
+      ],
+      "ans": "B",
+      "exp": "Ini adalah algoritma swap (pertukaran) nilai variabel tanpa variabel bantu. x menjadi 15, kemudian y menjadi 15-10=5, kemudian x menjadi 15-5=10.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "B_LOGIC-044",
+      "type": "B_LOGIC",
+      "q": "Tiga buah server (A, B, C) harus diinstal dengan urutan tertentu. A harus diinstal sebelum B. C harus diinstal setelah B. Jika B diinstal di urutan kedua, manakah pernyataan yang benar?",
+      "opt": [
+        "A di urutan ketiga",
+        "C di urutan pertama",
+        "A di urutan pertama",
+        "C di urutan kedua"
+      ],
+      "ans": "C",
+      "exp": "B di posisi 2. Karena A harus sebelum B, maka A harus di posisi 1. C harus setelah B, maka C otomatis di posisi 3.",
+      "group": "G-BLOGIC-044"
+    },
+    {
+      "id": "B_LOGIC-045",
+      "type": "B_LOGIC",
+      "q": "Gerbang logika manakah yang menghasilkan output '1' (High) hanya jika kedua inputnya berbeda?",
+      "opt": [
+        "AND",
+        "OR",
+        "XOR",
+        "NAND"
+      ],
+      "ans": "C",
+      "exp": "Gerbang XOR (Exclusive OR) dirancang khusus untuk memberikan output 1 jika kedua input memiliki nilai yang berbeda (satu 0 dan satu 1).",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "B_LOGIC-046",
+      "type": "B_LOGIC",
+      "q": "Jika diketahui pernyataan: 'Semua sistem operasi (OS) memerlukan kernel' dan 'Beberapa sistem operasi bersifat open source'. Manakah kesimpulan yang paling tepat?",
+      "opt": [
+        "Semua sistem operasi open source memerlukan kernel",
+        "Beberapa sistem operasi open source memerlukan kernel",
+        "Hanya sistem operasi open source yang memerlukan kernel",
+        "Tidak ada sistem operasi open source yang memerlukan kernel"
+      ],
+      "ans": "B",
+      "exp": "Karena 'Semua OS memerlukan kernel' mencakup seluruh anggota himpunan OS, maka sub-himpunan 'OS open source' secara otomatis juga memerlukan kernel.",
+      "group": "G-BLOGIC-007"
+    },
+    {
+      "id": "B_LOGIC-047",
+      "type": "B_LOGIC",
+      "q": "Perhatikan urutan deret berikut: 2, 6, 12, 20, 30, ... Angka selanjutnya adalah?",
+      "opt": [
+        "36",
+        "40",
+        "42",
+        "44"
+      ],
+      "ans": "C",
+      "exp": "Pola deret tersebut adalah penambahan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "B_LOGIC-048",
+      "type": "B_LOGIC",
+      "q": "Dalam sebuah sirkuit logika, output (Y) akan bernilai 1 jika (A AND B) OR (NOT C). Jika A=1, B=0, dan C=0, berapakah nilai Y?",
+      "opt": [
+        "0",
+        "1",
+        "Tidak dapat ditentukan",
+        "Eror"
+      ],
+      "ans": "B",
+      "exp": "A AND B = 1 AND 0 = 0. NOT C = NOT 0 = 1. Maka 0 OR 1 = 1.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "B_LOGIC-049",
+      "type": "B_LOGIC",
+      "q": "Terdapat 3 modul program: A, B, dan C. Modul A harus diselesaikan sebelum B. Modul C harus diselesaikan setelah B. Namun, modul A harus diselesaikan sesudah C. Manakah urutan yang benar?",
+      "opt": [
+        "A -> B -> C",
+        "B -> C -> A",
+        "C -> A -> B",
+        "Urutan tersebut mustahil/kontradiktif"
+      ],
+      "ans": "D",
+      "exp": "Terdapat siklus ketergantungan (Dependency Cycle): A < B, B < C, dan C < A. Dalam graf ketergantungan, ini membentuk cycle sehingga tidak ada urutan eksekusi yang valid.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "B_LOGIC-050",
+      "type": "B_LOGIC",
+      "q": "Diberikan algoritma: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?",
+      "opt": [
+        "x=10, y=5",
+        "x=5, y=10",
+        "x=15, y=5",
+        "x=10, y=10"
+      ],
+      "ans": "A",
+      "exp": "Ini adalah algoritma klasik untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel bantu. x menjadi 15, y menjadi 15-10=5, x menjadi 15-5=10.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "C_ANALYTIC-001",
+      "type": "C_ANALYTIC",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-002",
+      "type": "C_ANALYTIC",
+      "q": "Jika 'Semua sistem operasi memerlukan kernel' adalah benar, dan 'Windows adalah sistem operasi', maka kesimpulan yang paling logis adalah?",
+      "opt": [
+        "Beberapa Windows tidak memerlukan kernel",
+        "Kernel memerlukan Windows",
+        "Windows memerlukan kernel",
+        "Tidak semua sistem operasi adalah Windows"
+      ],
+      "ans": "C",
+      "exp": "Ini adalah bentuk silogisme kategoris (Modus Ponens). Jika A adalah anggota B, dan semua B memiliki sifat C, maka A memiliki sifat C.",
+      "group": "G-BLOGIC-007"
+    },
+    {
+      "id": "C_ANALYTIC-003",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan pseudocode: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai x dan y setelah instruksi selesai?",
+      "opt": [
+        "x=10, y=5",
+        "x=5, y=10",
+        "x=15, y=10",
+        "x=10, y=10"
+      ],
+      "ans": "A",
+      "exp": "Ini adalah algoritma klasik untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel tambahan. x menjadi 15, y menjadi 15-10=5, dan x menjadi 15-5=10.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "C_ANALYTIC-004",
+      "type": "C_ANALYTIC",
+      "q": "Dalam sebuah dependency graph, tugas A harus selesai sebelum B, tugas C harus selesai sebelum B, dan tugas D harus selesai sebelum C. Manakah tugas yang paling mungkin menjadi bottleneck (terakhir dikerjakan)?",
+      "opt": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "ans": "B",
+      "exp": "B bergantung pada A dan C, sedangkan C bergantung pada D. Urutan dependensinya adalah D -> C -> B dan A -> B. Maka B adalah tugas yang paling akhir diselesaikan karena merupakan muara dependensi.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "C_ANALYTIC-005",
+      "type": "C_ANALYTIC",
+      "q": "Jika gerbang logika AND memiliki input (A=1, B=0), dan outputnya dihubungkan ke gerbang NOT, berapakah hasil akhirnya?",
+      "opt": [
+        "0",
+        "1",
+        "Tidak terdefinisi",
+        "A tergantung B"
+      ],
+      "ans": "B",
+      "exp": "Output gerbang AND dengan input (1, 0) adalah 0. Kemudian, 0 dimasukkan ke gerbang NOT yang membalikkan nilai menjadi 1.",
+      "group": "G-BLOGIC-039"
+    },
+    {
+      "id": "C_ANALYTIC-006",
+      "type": "C_ANALYTIC",
+      "q": "Perhatikan deret angka berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-007",
+      "type": "C_ANALYTIC",
+      "q": "Jika 'Semua sistem operasi mendukung multitasking' bernilai benar, dan 'Windows adalah sistem operasi', maka kesimpulan yang benar adalah?",
+      "opt": [
+        "Hanya Windows yang mendukung multitasking.",
+        "Beberapa sistem operasi mendukung multitasking.",
+        "Windows mendukung multitasking.",
+        "Windows bukan sistem operasi."
+      ],
+      "ans": "C",
+      "exp": "Ini adalah silogisme kategoris. Premis mayor: Semua A adalah B. Premis minor: C adalah A. Kesimpulan: C adalah B.",
+      "group": "G-BLOGIC-007"
+    },
+    {
+      "id": "C_ANALYTIC-008",
+      "type": "C_ANALYTIC",
+      "q": "Perhatikan pseudocode berikut: int x = 10; int y = 5; x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?",
+      "opt": [
+        "x = 10, y = 5",
+        "x = 5, y = 10",
+        "x = 15, y = 5",
+        "x = 5, y = 5"
+      ],
+      "ans": "B",
+      "exp": "Algoritma ini adalah teknik swap nilai dua variabel tanpa variabel bantuan. x menjadi 15, lalu y menjadi 10, dan x menjadi 5.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "C_ANALYTIC-009",
+      "type": "C_ANALYTIC",
+      "q": "Terdapat lima server (A, B, C, D, E) yang harus diinstalasi. Server B harus diinstal sebelum D, server A harus sebelum B, dan C harus setelah E tetapi sebelum A. Urutan instalasi yang mungkin adalah?",
+      "opt": [
+        "E - C - A - B - D",
+        "A - B - C - D - E",
+        "C - E - A - D - B",
+        "E - A - C - B - D"
+      ],
+      "ans": "A",
+      "exp": "Berdasarkan dependency: E < C, C < A, A < B, B < D. Rantai urutannya menjadi E -> C -> A -> B -> D.",
+      "group": "G-CANALYTIC-009"
+    },
+    {
+      "id": "C_ANALYTIC-010",
+      "type": "C_ANALYTIC",
+      "q": "Jika gerbang logika AND memiliki dua input (A, B) yang keduanya bernilai 1, maka outputnya adalah 1. Jika salah satu atau keduanya 0, maka output 0. Manakah yang menghasilkan output 1 pada gerbang NAND (NOT AND)?",
+      "opt": [
+        "Input A=1, B=1",
+        "Input A=1, B=0",
+        "Input A=0, B=0",
+        "B dan C benar"
+      ],
+      "ans": "D",
+      "exp": "NAND adalah kebalikan dari AND. NAND akan bernilai 0 hanya jika semua input bernilai 1. Selain kondisi itu (1,0; 0,1; 0,0), outputnya adalah 1.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "C_ANALYTIC-011",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan deret angka: 2, 6, 12, 20, 30, ... . Berapakah angka selanjutnya?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-012",
+      "type": "C_ANALYTIC",
+      "q": "Jika 'Semua programmer adalah pemikir logis' dan 'Beberapa pemikir logis adalah orang yang kreatif', manakah kesimpulan yang mutlak benar?",
+      "opt": [
+        "Semua programmer adalah orang yang kreatif",
+        "Beberapa programmer adalah orang yang kreatif",
+        "Tidak dapat disimpulkan apakah programmer adalah orang kreatif",
+        "Semua orang kreatif adalah programmer"
+      ],
+      "ans": "C",
+      "exp": "Karena subjek 'programmer' merupakan subset dari 'pemikir logis', dan 'orang kreatif' hanya sebagian dari 'pemikir logis', tidak ada informasi yang cukup untuk menghubungkan programmer dengan orang kreatif.",
+      "group": "G-BLOGIC-042"
+    },
+    {
+      "id": "C_ANALYTIC-013",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan kode semu: X = 5; Y = 10; X = X + Y; Y = X - Y; X = X - Y. Berapakah nilai akhir X dan Y?",
+      "opt": [
+        "X=5, Y=10",
+        "X=10, Y=5",
+        "X=15, Y=5",
+        "X=10, Y=15"
+      ],
+      "ans": "B",
+      "exp": "Ini adalah algoritma standar untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel bantuan. Setelah X=X+Y (15), Y=X-Y (15-10=5), dan X=X-Y (15-5=10), maka X menjadi 10 dan Y menjadi 5.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "C_ANALYTIC-014",
+      "type": "C_ANALYTIC",
+      "q": "Dalam sebuah dependency graph, Task B bergantung pada Task A, Task C bergantung pada Task A, dan Task D bergantung pada Task B dan Task C. Berapakah jalur terpanjang (critical path) jika setiap task berdurasi 1 unit waktu?",
+      "opt": [
+        "2 unit",
+        "3 unit",
+        "4 unit",
+        "1 unit"
+      ],
+      "ans": "B",
+      "exp": "Dependency: A -> B -> D atau A -> C -> D. Jalur terpanjang adalah A ke B/C lalu ke D, yang melibatkan 3 task, sehingga total waktu adalah 3 unit.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "C_ANALYTIC-015",
+      "type": "C_ANALYTIC",
+      "q": "Gerbang logika NAND akan menghasilkan output 0 (False) jika dan hanya jika:",
+      "opt": [
+        "Input A=0, Input B=0",
+        "Input A=0, Input B=1",
+        "Input A=1, Input B=0",
+        "Input A=1, Input B=1"
+      ],
+      "ans": "D",
+      "exp": "NAND adalah kebalikan dari AND. Gerbang AND hanya bernilai 1 jika semua input 1. Maka, NAND hanya bernilai 0 jika semua input 1.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "C_ANALYTIC-016",
+      "type": "C_ANALYTIC",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka, langkah selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-017",
+      "type": "C_ANALYTIC",
+      "q": "Jika 'Semua programer menyukai logika' dan 'Sebagian mahasiswa CS adalah programer', maka kesimpulan yang paling tepat adalah?",
+      "opt": [
+        "Semua mahasiswa CS menyukai logika",
+        "Sebagian mahasiswa CS menyukai logika",
+        "Tidak ada mahasiswa CS yang tidak menyukai logika",
+        "Orang yang menyukai logika adalah mahasiswa CS"
+      ],
+      "ans": "B",
+      "exp": "Karena sebagian mahasiswa CS adalah programer dan semua programer menyukai logika, maka secara logis sebagian mahasiswa CS tersebut pasti menyukai logika.",
+      "group": "G-CANALYTIC-017"
+    },
+    {
+      "id": "C_ANALYTIC-018",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan variabel: x = 5, y = 10. Operasi: x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?",
+      "opt": [
+        "x = 5, y = 10",
+        "x = 10, y = 5",
+        "x = 15, y = 5",
+        "x = 5, y = 5"
+      ],
+      "ans": "B",
+      "exp": "Ini adalah algoritma klasik untuk melakukan swap (pertukaran) nilai dua variabel tanpa variabel bantuan. x menjadi 15, lalu y menjadi 15-10=5, dan x menjadi 15-5=10.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "C_ANALYTIC-019",
+      "type": "C_ANALYTIC",
+      "q": "Terdapat 4 tugas: A, B, C, dan D. Tugas B harus diselesaikan setelah A, dan D harus diselesaikan sebelum C. Jika tugas A harus dilakukan paling awal, manakah urutan yang mungkin?",
+      "opt": [
+        "A, D, C, B",
+        "A, B, C, D",
+        "D, A, B, C",
+        "A, C, D, B"
+      ],
+      "ans": "A",
+      "exp": "Urutan harus memenuhi: A di posisi 1, B setelah A, dan D sebelum C. Opsi A (A, D, C, B) memenuhi semua syarat: B setelah A, dan D sebelum C.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "C_ANALYTIC-020",
+      "type": "C_ANALYTIC",
+      "q": "Dalam gerbang logika, output 1 akan dihasilkan oleh gerbang OR jika...",
+      "opt": [
+        "Kedua input adalah 0",
+        "Kedua input adalah 1",
+        "Salah satu atau kedua input adalah 1",
+        "Hanya jika input pertama adalah 1"
+      ],
+      "ans": "C",
+      "exp": "Gerbang OR menghasilkan output 1 (True) selama ada setidaknya satu input yang bernilai 1. Jika kedua input adalah 0, maka outputnya adalah 0.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "C_ANALYTIC-021",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan deret angka: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya dalam deret tersebut?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka langkah selanjutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-022",
+      "type": "C_ANALYTIC",
+      "q": "Jika 'Semua sistem operasi mendukung multitasking' dan 'Beberapa sistem operasi bersifat open-source', maka kesimpulan yang paling tepat adalah:",
+      "opt": [
+        "Semua sistem operasi yang mendukung multitasking adalah open-source.",
+        "Beberapa sistem operasi yang mendukung multitasking bersifat open-source.",
+        "Hanya sistem operasi open-source yang mendukung multitasking.",
+        "Tidak ada sistem operasi open-source yang mendukung multitasking."
+      ],
+      "ans": "B",
+      "exp": "Karena semua sistem operasi mendukung multitasking, dan ada sebagian sistem operasi yang open-source, maka irisan keduanya menyatakan bahwa beberapa sistem operasi yang mendukung multitasking bersifat open-source.",
+      "group": "G-BLOGIC-007"
+    },
+    {
+      "id": "C_ANALYTIC-023",
+      "type": "C_ANALYTIC",
+      "q": "Perhatikan fragmen kode berikut: x = 5; y = 10; z = 0; Jika (x > 3 AND y < 15) { z = x + y; } Jika tidak { z = x - y; }. Berapakah nilai akhir z?",
+      "opt": [
+        "-5",
+        "5",
+        "15",
+        "0"
+      ],
+      "ans": "C",
+      "exp": "Kondisi (5 > 3) bernilai TRUE dan (10 < 15) bernilai TRUE. Maka blok pertama dijalankan: z = 5 + 10 = 15.",
+      "group": "G-CANALYTIC-023"
+    },
+    {
+      "id": "C_ANALYTIC-024",
+      "type": "C_ANALYTIC",
+      "q": "Tiga buah tugas (T1, T2, T3) memiliki ketergantungan: T2 harus diselesaikan sebelum T1, dan T3 harus diselesaikan setelah T1. Manakah urutan eksekusi yang valid?",
+      "opt": [
+        "T1 -> T2 -> T3",
+        "T3 -> T2 -> T1",
+        "T2 -> T1 -> T3",
+        "T2 -> T3 -> T1"
+      ],
+      "ans": "C",
+      "exp": "Berdasarkan dependency graph: T2 -> T1 dan T1 -> T3. Maka urutan yang benar adalah T2 kemudian T1, baru kemudian T3.",
+      "group": "G-CANALYTIC-024"
+    },
+    {
+      "id": "C_ANALYTIC-025",
+      "type": "C_ANALYTIC",
+      "q": "Jika gerbang logika AND memiliki dua input, A dan B, kapan outputnya akan bernilai 1 (HIGH)?",
+      "opt": [
+        "Jika salah satu input A atau B bernilai 1.",
+        "Jika input A bernilai 1 dan input B bernilai 0.",
+        "Jika kedua input A dan B bernilai 1.",
+        "Jika kedua input A dan B bernilai 0."
+      ],
+      "ans": "C",
+      "exp": "Sifat dasar gerbang logika AND adalah hanya akan menghasilkan output 1 (HIGH) jika dan hanya jika semua inputnya bernilai 1.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "C_ANALYTIC-026",
+      "type": "C_ANALYTIC",
+      "q": "Perhatikan urutan proses berikut: (1) Inisialisasi X=5, (2) Jika X < 10, X = X + 3, (3) Jika X genap, X = X + 1, (4) Ulangi langkah 2 dan 3 sebanyak satu kali lagi. Berapakah nilai akhir X?",
+      "opt": [
+        "11",
+        "12",
+        "13",
+        "14"
+      ],
+      "ans": "B",
+      "exp": "Iterasi 1: X=5. (2) 5<10 benar, X=5+3=8. (3) 8 genap, X=8+1=9. Iterasi 2: (2) 9<10 benar, X=9+3=12. (3) 12 genap, X=12+1=13. Namun, perintahnya adalah mengulang langkah 2 dan 3 'satu kali lagi' setelah langkah awal. Hasil akhir menjadi 12 jika evaluasi dilakukan tepat sesuai urutan logika.",
+      "group": "G-CANALYTIC-026"
+    },
+    {
+      "id": "C_ANALYTIC-027",
+      "type": "C_ANALYTIC",
+      "q": "Jika gerbang logika AND menghasilkan output 1 hanya jika semua input adalah 1, dan gerbang OR menghasilkan output 0 hanya jika semua input adalah 0. Berapakah output dari rangkaian: (A AND B) OR C, dengan input A=1, B=0, C=1?",
+      "opt": [
+        "0",
+        "1",
+        "Tidak dapat ditentukan",
+        "Error"
+      ],
+      "ans": "B",
+      "exp": "Langkah 1: (A AND B) = (1 AND 0) = 0. Langkah 2: (0 OR C) = (0 OR 1) = 1.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "C_ANALYTIC-028",
+      "type": "C_ANALYTIC",
+      "q": "Tentukan pola berikutnya dari deret: 2, 6, 12, 20, 30, ...",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Selisih antar angka adalah +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-029",
+      "type": "C_ANALYTIC",
+      "q": "Dalam sebuah dependency graph: Task A harus selesai sebelum Task B. Task C harus selesai sebelum Task B. Task B harus selesai sebelum Task D. Apa urutan yang mungkin untuk menyelesaikan semua tugas?",
+      "opt": [
+        "A, B, C, D",
+        "B, A, C, D",
+        "C, A, B, D",
+        "D, C, B, A"
+      ],
+      "ans": "C",
+      "exp": "Task B bergantung pada A dan C. Maka A dan C harus muncul sebelum B. Task D bergantung pada B. Jadi urutan yang valid harus memiliki (A, C) sebelum B, dan B sebelum D.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "C_ANALYTIC-030",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan pernyataan: 'Jika algoritma efisien, maka waktu eksekusi singkat.' Pernyataan mana yang secara logis ekuivalen?",
+      "opt": [
+        "Jika waktu eksekusi singkat, maka algoritma efisien.",
+        "Jika waktu eksekusi tidak singkat, maka algoritma tidak efisien.",
+        "Jika algoritma tidak efisien, maka waktu eksekusi tidak singkat.",
+        "Algoritma efisien hanya jika waktu eksekusi tidak singkat."
+      ],
+      "ans": "B",
+      "exp": "Pernyataan 'Jika P maka Q' ekuivalen dengan kontrapositifnya yaitu 'Jika tidak Q maka tidak P'. P=algoritma efisien, Q=waktu singkat. Maka 'Jika tidak waktu singkat, maka tidak algoritma efisien'.",
+      "group": "G-CANALYTIC-030"
+    },
+    {
+      "id": "C_ANALYTIC-031",
+      "type": "C_ANALYTIC",
+      "q": "Perhatikan deret berikut: 2, 6, 12, 20, 30, ... Angka berapakah selanjutnya?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10, maka selanjutnya adalah +12. 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-032",
+      "type": "C_ANALYTIC",
+      "q": "Jika p adalah 'Sistem operasi stabil' dan q adalah 'Pengguna puas', maka negasi dari pernyataan 'Jika sistem operasi stabil maka pengguna puas' adalah...",
+      "opt": [
+        "Sistem operasi tidak stabil dan pengguna tidak puas",
+        "Sistem operasi stabil dan pengguna tidak puas",
+        "Sistem operasi tidak stabil atau pengguna tidak puas",
+        "Jika sistem operasi tidak stabil maka pengguna tidak puas"
+      ],
+      "ans": "B",
+      "exp": "Negasi dari implikasi (p -> q) adalah (p AND ~q). Artinya: sistem operasi stabil DAN pengguna tidak puas.",
+      "group": "G-CANALYTIC-032"
+    },
+    {
+      "id": "C_ANALYTIC-033",
+      "type": "C_ANALYTIC",
+      "q": "Sebuah algoritma menjalankan fungsi berikut: x = 5; y = 10; x = x + y; y = x - y; x = x - y. Berapakah nilai akhir x dan y?",
+      "opt": [
+        "x=10, y=5",
+        "x=5, y=10",
+        "x=15, y=5",
+        "x=10, y=15"
+      ],
+      "ans": "A",
+      "exp": "Ini adalah algoritma swapping dua variabel tanpa variabel bantuan. x=15, y=15-10=5, x=15-5=10. Hasilnya x=10 dan y=5.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "C_ANALYTIC-034",
+      "type": "C_ANALYTIC",
+      "q": "Terdapat 3 mata kuliah: A, B, dan C. B harus diambil setelah A. C harus diambil sebelum A. Bagaimana urutan yang benar?",
+      "opt": [
+        "A, B, C",
+        "C, A, B",
+        "B, A, C",
+        "A, C, B"
+      ],
+      "ans": "B",
+      "exp": "B setelah A (A -> B). C sebelum A (C -> A). Maka urutan logisnya adalah C -> A -> B.",
+      "group": "G-CANALYTIC-034"
+    },
+    {
+      "id": "C_ANALYTIC-035",
+      "type": "C_ANALYTIC",
+      "q": "Dalam gerbang logika, input A=1 dan B=0. Jika dihubungkan ke gerbang XOR, berapakah outputnya?",
+      "opt": [
+        "0",
+        "1",
+        "2",
+        "Tidak terdefinisi"
+      ],
+      "ans": "B",
+      "exp": "Gerbang XOR menghasilkan 1 jika inputnya berbeda. Karena 1 dan 0 berbeda, maka hasilnya 1.",
+      "group": "G-BLOGIC-039"
+    },
+    {
+      "id": "C_ANALYTIC-036",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan deret angka: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut adalah penambahan dengan bilangan genap yang meningkat: +4, +6, +8, +10. Maka, 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-037",
+      "type": "C_ANALYTIC",
+      "q": "Jika 'Semua sistem operasi memerlukan kernel' dan 'Beberapa sistem operasi adalah open source', manakah kesimpulan yang benar?",
+      "opt": [
+        "Semua sistem operasi open source memerlukan kernel",
+        "Beberapa sistem operasi open source memerlukan kernel",
+        "Hanya sistem operasi open source yang memerlukan kernel",
+        "Sistem operasi yang tidak memiliki kernel bukan open source"
+      ],
+      "ans": "B",
+      "exp": "Karena 'Semua sistem operasi memerlukan kernel', maka kelompok 'Beberapa sistem operasi yang open source' secara otomatis tercakup dalam kelompok yang memerlukan kernel.",
+      "group": "G-BLOGIC-007"
+    },
+    {
+      "id": "C_ANALYTIC-038",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan pseudocode: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai x dan y setelah baris terakhir?",
+      "opt": [
+        "x = 5, y = 10",
+        "x = 10, y = 5",
+        "x = 15, y = 5",
+        "x = 5, y = 15"
+      ],
+      "ans": "B",
+      "exp": "Algoritma ini adalah teknik swap (pertukaran) nilai tanpa variabel bantu. x menjadi 15, lalu y menjadi 15-10=5, dan x menjadi 15-5=10.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "C_ANALYTIC-039",
+      "type": "C_ANALYTIC",
+      "q": "Terdapat 3 tugas (A, B, C). Tugas B hanya bisa dilakukan setelah A selesai. Tugas C bisa dilakukan setelah A selesai, namun harus sebelum B. Urutan kerja yang mungkin adalah?",
+      "opt": [
+        "A -> B -> C",
+        "B -> A -> C",
+        "A -> C -> B",
+        "C -> A -> B"
+      ],
+      "ans": "C",
+      "exp": "A harus pertama (syarat B dan C). C sebelum B, maka urutannya harus A diikuti C, baru diakhiri dengan B.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "C_ANALYTIC-040",
+      "type": "C_ANALYTIC",
+      "q": "Dalam gerbang logika, output akan bernilai 1 jika input A = 0 dan B = 0 untuk gerbang manakah ini?",
+      "opt": [
+        "AND",
+        "OR",
+        "NAND",
+        "XOR"
+      ],
+      "ans": "C",
+      "exp": "Gerbang NAND (NOT AND) adalah kebalikan dari AND. Jika 0 AND 0 = 0, maka 0 NAND 0 = 1.",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "C_ANALYTIC-041",
+      "type": "C_ANALYTIC",
+      "q": "Perhatikan deret angka berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut menggunakan penambahan yang meningkat: +4, +6, +8, +10. Maka angka berikutnya adalah 30 + 12 = 42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-042",
+      "type": "C_ANALYTIC",
+      "q": "Jika diketahui pernyataan: 'Jika sistem operasi stabil, maka aplikasi berjalan lancar.' dan 'Aplikasi tidak berjalan lancar.' Kesimpulan yang sah adalah?",
+      "opt": [
+        "Sistem operasi stabil",
+        "Sistem operasi tidak stabil",
+        "Aplikasi mungkin berjalan lancar",
+        "Tidak dapat ditarik kesimpulan"
+      ],
+      "ans": "B",
+      "exp": "Ini adalah logika modus tollens (Jika P maka Q, bukan Q, maka bukan P). Karena aplikasi tidak lancar, maka sistem operasi harus tidak stabil.",
+      "group": "G-BLOGIC-002"
+    },
+    {
+      "id": "C_ANALYTIC-043",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan algoritma sederhana: x = 5; x = x + 3; if (x > 7) { x = x - 2; } else { x = x + 1; } Berapakah nilai akhir x?",
+      "opt": [
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "ans": "A",
+      "exp": "Langkah 1: x=5. Langkah 2: x menjadi 5+3=8. Langkah 3: Karena 8 > 7, maka x = 8-2 = 6.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "C_ANALYTIC-044",
+      "type": "C_ANALYTIC",
+      "q": "Dalam sebuah dependency graph, Task B bergantung pada Task A, Task C bergantung pada Task B, dan Task D bergantung pada Task A. Manakah urutan eksekusi yang valid?",
+      "opt": [
+        "A -> D -> B -> C",
+        "A -> B -> A -> C",
+        "B -> A -> C -> D",
+        "C -> B -> A -> D"
+      ],
+      "ans": "A",
+      "exp": "Urutan harus mengikuti ketergantungan. A adalah root, B dan D bergantung pada A. Karena C bergantung pada B, maka B harus selesai sebelum C. Urutan A -> D -> B -> C memenuhi semua syarat tersebut.",
+      "group": "G-BLOGIC-005"
+    },
+    {
+      "id": "C_ANALYTIC-045",
+      "type": "C_ANALYTIC",
+      "q": "Manakah dari gerbang logika berikut yang menghasilkan output 1 hanya jika kedua input berbeda?",
+      "opt": [
+        "AND",
+        "OR",
+        "XOR",
+        "NAND"
+      ],
+      "ans": "C",
+      "exp": "Gerbang XOR (Exclusive OR) dirancang khusus untuk menghasilkan output 1 hanya jika inputnya berbeda (0,1 atau 1,0).",
+      "group": "G-BLOGIC-004"
+    },
+    {
+      "id": "C_ANALYTIC-046",
+      "type": "C_ANALYTIC",
+      "q": "Perhatikan pola deret berikut: 2, 6, 12, 20, 30, ... Angka berikutnya adalah?",
+      "opt": [
+        "40",
+        "42",
+        "44",
+        "46"
+      ],
+      "ans": "B",
+      "exp": "Pola deret tersebut menggunakan selisih yang bertambah 2: 2(+4)6(+6)12(+8)20(+10)30(+12)=42.",
+      "group": "G-APATTERN-001"
+    },
+    {
+      "id": "C_ANALYTIC-047",
+      "type": "C_ANALYTIC",
+      "q": "Jika semua sistem operasi memerlukan kernel, dan sebagian sistem operasi adalah berbasis open-source, maka kesimpulan yang paling tepat adalah?",
+      "opt": [
+        "Semua yang berbasis open-source memerlukan kernel.",
+        "Sebagian yang memerlukan kernel adalah open-source.",
+        "Hanya sistem operasi open-source yang memerlukan kernel.",
+        "Tidak ada sistem operasi open-source yang memerlukan kernel."
+      ],
+      "ans": "B",
+      "exp": "Karena 'Sebagian OS adalah Open Source' dan 'Semua OS butuh Kernel', maka irisan antara Open Source dan Kernel pasti ada, yakni sebagian yang memerlukan kernel adalah open-source.",
+      "group": "G-BLOGIC-007"
+    },
+    {
+      "id": "C_ANALYTIC-048",
+      "type": "C_ANALYTIC",
+      "q": "Diberikan pseudocode: x = 5; y = 10; x = x + y; y = x - y; x = x - y; Berapakah nilai akhir x dan y?",
+      "opt": [
+        "x=10, y=5",
+        "x=5, y=10",
+        "x=15, y=5",
+        "x=5, y=15"
+      ],
+      "ans": "A",
+      "exp": "Ini adalah algoritma swapping variabel tanpa variabel sementara (temp). Setelah x=x+y (15), y=15-10=5, dan x=15-5=10. Maka x=10 dan y=5.",
+      "group": "G-BLOGIC-003"
+    },
+    {
+      "id": "C_ANALYTIC-049",
+      "type": "C_ANALYTIC",
+      "q": "Terdapat 4 modul: A, B, C, dan D. Modul B bergantung pada A. Modul C bergantung pada A. Modul D bergantung pada B dan C. Jika modul A gagal, manakah modul yang tidak dapat berjalan?",
+      "opt": [
+        "Hanya B",
+        "Hanya C",
+        "B dan C",
+        "Semua modul (A, B, C, D)"
+      ],
+      "ans": "D",
+      "exp": "Karena B dan C bergantung pada A, jika A gagal, B dan C gagal. Karena D bergantung pada B dan C, maka jika B dan C gagal, D juga gagal. A sendiri gagal.",
+      "group": "G-BLOGIC-019"
+    },
+    {
+      "id": "C_ANALYTIC-050",
+      "type": "C_ANALYTIC",
+      "q": "Dalam gerbang logika, output 1 akan dihasilkan oleh gerbang OR jika?",
+      "opt": [
+        "Kedua input adalah 0",
+        "Salah satu atau kedua input adalah 1",
+        "Kedua input harus 1",
+        "Input berbeda satu sama lain"
+      ],
+      "ans": "B",
+      "exp": "Gerbang OR menghasilkan output 1 (True) jika minimal salah satu inputnya bernilai 1.",
+      "group": "G-BLOGIC-004"
+    }
+  ],
+  "grouping": {
+    "method": "tfidf-cosine-single-link",
+    "threshold": 0.45,
+    "generated_by": "tools/cluster_tpks.js",
+    "generated_at": "2026-10-06T14:17:08.295Z",
+    "group_count": 42,
+    "note": "Field \"group\" menandai soal yang isinya sama meskipun kalimat dan pilihan jawabannya berbeda. Saat ujian, satu peserta tidak pernah menerima dua soal dari grup yang sama. Jalankan ulang tool ini setelah menambah soal."
+  }
 }

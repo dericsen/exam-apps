@@ -228,14 +228,57 @@ function lanIps() {
     ok('bank TPKS terbaca', tpksBank.questions.length + ' entri soal');
     ok('bank CP terbaca', cpBank.problems.length + ' soal');
 
-    // Cukup tidak soal uniknya untuk komposisi yang diminta?
-    const built = bank.buildTpksQuestions(tpksSec, 'doctor-check');
-    if (built.warnings.length) {
-      built.warnings.forEach((w) =>
-        fail('bank TPKS kurang', w, 'Tambah soal, atau turunkan angka "composition" di config.json.')
+    const stats = bank.tpksGroupStats(tpksSec);
+    if (!stats.has_group_field) {
+      warn(
+        'bank TPKS belum dikelompokkan',
+        'field "group" tidak ada',
+        'Jalankan: node tools/cluster_tpks.js --write  -- tanpa ini, soal yang ' +
+          'isinya sama tapi kalimatnya beda bisa muncul berkali-kali pada satu peserta.'
       );
     } else {
-      ok('paket TPKS bisa dibentuk', built.questions.length + ' soal unik terpilih');
+      ok(
+        'kelompok soal TPKS',
+        `${stats.total_groups} kelompok unik dari ${stats.total_questions} soal`
+      );
+    }
+
+    // Uji kapasitas sungguhan: jalankan pemilih soal berkali-kali. Membandingkan
+    // jumlah per tipe tidak cukup, karena satu kelompok bisa dibutuhkan oleh
+    // beberapa tipe sekaligus.
+    let shortfall = 0;
+    let repeated = 0;
+    let firstWarning = '';
+    const TRIALS = 60;
+    for (let i = 0; i < TRIALS; i++) {
+      const built = bank.buildTpksQuestions(tpksSec, 'doctor-' + i);
+      if (built.warnings.length) {
+        shortfall++;
+        if (!firstWarning) firstWarning = built.warnings[0];
+      }
+      const seen = new Set();
+      for (const q of built.questions) {
+        if (seen.has(q.group)) repeated++;
+        seen.add(q.group);
+      }
+    }
+    if (shortfall) {
+      fail(
+        'komposisi soal TPKS tidak selalu bisa dipenuhi',
+        `gagal ${shortfall}/${TRIALS} percobaan`,
+        firstWarning || 'Turunkan "composition" di config.json, atau tambah soal baru.'
+      );
+    } else {
+      ok('paket TPKS bisa dibentuk', `${TRIALS}/${TRIALS} percobaan, ${tpksCount} soal`);
+    }
+    if (repeated) {
+      fail(
+        'masih ada soal yang berulang dalam satu paket',
+        repeated + ' kejadian',
+        'Jalankan: node tools/cluster_tpks.js --write'
+      );
+    } else {
+      ok('tidak ada soal berulang dalam satu paket');
     }
 
     const picked = bank.pickCpProblems(cpSec, 'doctor-check');

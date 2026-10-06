@@ -16,7 +16,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { canonicalKey } = require('../lib/util');
+const { groupIdOf } = require('../lib/bank');
 
 const bank = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'data', 'tpks.json'), 'utf8')
@@ -81,21 +81,40 @@ for (const q of bank.questions) {
 // ---------------------------------------------------------------------------
 // 2. Duplikat antar soal
 // ---------------------------------------------------------------------------
+// Kelompok berasal dari field "group" hasil tools/cluster_tpks.js: soal yang
+// isinya sama meskipun kalimat dan pilihan jawabannya berbeda.
 const groups = new Map();
 for (const q of bank.questions) {
-  const key = canonicalKey(q);
+  const key = groupIdOf(q);
   if (!groups.has(key)) groups.set(key, []);
   groups.get(key).push(q);
 }
 const dupGroups = [...groups.values()].filter((g) => g.length > 1);
 
+if (!bank.questions.some((q) => q.group)) {
+  warnings.push(
+    'Bank belum punya field "group". Deteksi duplikat jatuh ke perbandingan teks ' +
+      'mentah yang jauh lebih lemah. Jalankan: node tools/cluster_tpks.js --write'
+  );
+}
+
 // Duplikat yang kuncinya berbeda = jelas ada yang salah.
-for (const g of dupGroups) {
-  const live = g.filter((q) => !excluded.has(q.id));
-  const keys = new Set(live.map((q) => q.ans));
-  if (keys.size > 1) {
+// Soal yang teks DAN pilihannya benar-benar identik tapi kuncinya berbeda:
+// itu pasti salah satu salah. Soal segrup yang hanya "sekonsep" tidak dicek
+// begini karena jawabannya memang boleh berbeda.
+const exactKey = (q) =>
+  (q.q + '|' + q.opt.join('|')).toLowerCase().replace(/\s+/g, ' ').trim();
+const exact = new Map();
+for (const q of bank.questions) {
+  if (excluded.has(q.id)) continue;
+  const k = exactKey(q);
+  if (!exact.has(k)) exact.set(k, []);
+  exact.get(k).push(q);
+}
+for (const g of exact.values()) {
+  if (g.length > 1 && new Set(g.map((q) => q.ans)).size > 1) {
     errors.push(
-      `Soal identik tapi kuncinya beda: ${live.map((q) => `${q.id}=${q.ans}`).join(', ')}.`
+      `Soal identik persis tapi kuncinya beda: ${g.map((q) => `${q.id}=${q.ans}`).join(', ')}.`
     );
   }
 }
@@ -106,16 +125,19 @@ for (const g of dupGroups) {
 const perType = {};
 for (const q of bank.questions) perType[q.type] = (perType[q.type] || 0) + 1;
 
-// Hitung soal unik yang BENAR-BENAR bisa keluar: kelompok yang seluruh
-// anggotanya di-blacklist tidak dihitung.
+// Hitung kelompok yang BENAR-BENAR bisa keluar. Satu kelompok sering punya
+// anggota di beberapa tipe sekaligus, dan kelompok seperti itu tersedia untuk
+// SEMUA tipe tersebut -- jadi ia harus dihitung di tiap tipe, bukan hanya di
+// tipe anggota pertamanya.
 const uniquePerType = {};
 let usableUnique = 0;
 for (const g of groups.values()) {
   const live = g.filter((q) => !excluded.has(q.id));
   if (!live.length) continue;
   usableUnique++;
-  const t = live[0].type;
-  uniquePerType[t] = (uniquePerType[t] || 0) + 1;
+  for (const t of new Set(live.map((q) => q.type))) {
+    uniquePerType[t] = (uniquePerType[t] || 0) + 1;
+  }
 }
 
 console.log('='.repeat(72));
@@ -125,17 +147,25 @@ console.log(`Total entri soal : ${bank.questions.length}`);
 console.log(`Soal unik        : ${groups.size}`);
 console.log(`Siap dipakai     : ${usableUnique}  (setelah ${excluded.size} soal dikeluarkan)`);
 console.log('');
-console.log('Per tipe (entri -> unik siap pakai):');
+console.log('Per tipe (entri soal -> kelompok yang tersedia untuk tipe itu):');
 for (const t of Object.keys(perType)) {
   console.log(`  ${t.padEnd(12)} ${String(perType[t]).padStart(3)} -> ${uniquePerType[t]}`);
 }
+console.log('  (jumlahnya bisa melebihi total kelompok karena kelompok lintas-tipe');
+console.log('   dihitung di setiap tipe yang dimilikinya)');
 
 console.log('');
-console.log(`Kelompok duplikat: ${dupGroups.length}`);
-const worst = dupGroups.sort((a, b) => b.length - a.length).slice(0, 5);
+console.log(`Kelompok berisi lebih dari satu soal: ${dupGroups.length}`);
+console.log('(soal segrup = isinya sama walau kalimatnya beda; peserta hanya menerima satu)');
+const worst = dupGroups.sort((a, b) => b.length - a.length).slice(0, 8);
 for (const g of worst) {
-  console.log(`  ${String(g.length).padStart(2)}x  "${g[0].q.slice(0, 58)}..."`);
-  console.log(`       ${g.map((q) => q.id).join(', ')}`);
+  const byType = {};
+  g.forEach((q) => (byType[q.type] = (byType[q.type] || 0) + 1));
+  console.log(
+    `  ${String(g.length).padStart(2)}x  "${g[0].q.slice(0, 56)}..."  [${Object.entries(byType)
+      .map(([t, n]) => `${t.replace(/_.*/, '')}=${n}`)
+      .join(' ')}]`
+  );
 }
 
 console.log('');
@@ -162,17 +192,63 @@ console.log('mengambil satu wakil per kelompok duplikat, jadi peserta tidak');
 console.log('pernah menerima soal yang sama dua kali.');
 console.log('');
 
-// Kapasitas: apakah soal unik cukup untuk komposisi yang diminta config?
+// ---------------------------------------------------------------------------
+// Kapasitas: apakah komposisi yang diminta config benar-benar bisa dipenuhi?
+//
+// Membandingkan jumlah per tipe saja TIDAK cukup. Satu kelompok bisa punya
+// anggota di beberapa tipe sekaligus, sehingga tiap tipe bisa tampak cukup
+// padahal gabungannya tidak. Karena itu kapasitas diuji dengan menjalankan
+// pemilih soal yang sebenarnya (bipartite matching) pada banyak seed.
+// ---------------------------------------------------------------------------
 console.log('Kapasitas vs config.json:');
-let shortage = false;
 for (const [type, want] of Object.entries(mcqSection.composition || {})) {
   const have = uniquePerType[type] || 0;
-  const ok = have >= want;
-  if (!ok) shortage = true;
-  console.log(`  ${type.padEnd(12)} diminta ${want}, tersedia unik ${have}  ${ok ? 'OK' : '<-- KURANG'}`);
-}
-if (shortage) {
-  console.log('\n  Tambah soal unik, atau turunkan angka composition di config.json.');
+  console.log(
+    `  ${type.padEnd(12)} diminta ${want}, kelompok tersedia ${have}  ${
+      have >= want ? 'OK' : '<-- KURANG'
+    }`
+  );
 }
 
+const bankLib = require('../lib/bank');
+bankLib.load();
+let capacityFail = 0;
+let dupFail = 0;
+let sampleWarning = '';
+const TRIALS = 200;
+for (let i = 0; i < TRIALS; i++) {
+  const { questions, warnings } = bankLib.buildTpksQuestions(mcqSection, 'validate-' + i);
+  const want = Object.values(mcqSection.composition || {}).reduce((a, b) => a + b, 0) ||
+    mcqSection.question_count || 0;
+  if (questions.length < want) {
+    capacityFail++;
+    if (!sampleWarning && warnings.length) sampleWarning = warnings[0];
+  }
+  const seen = new Set();
+  for (const q of questions) {
+    if (seen.has(q.group)) dupFail++;
+    seen.add(q.group);
+  }
+}
+
+console.log('');
+if (capacityFail) {
+  errors.push(
+    `Komposisi tidak selalu bisa dipenuhi: gagal pada ${capacityFail}/${TRIALS} percobaan. ` +
+      (sampleWarning || '')
+  );
+  console.log(`  GAGAL  komposisi tidak terpenuhi pada ${capacityFail}/${TRIALS} percobaan`);
+  console.log('         Turunkan "composition" di config.json, atau tambah soal baru.');
+} else {
+  console.log(`  OK     komposisi terpenuhi pada ${TRIALS}/${TRIALS} percobaan`);
+}
+if (dupFail) {
+  errors.push(`Masih ada soal segrup yang muncul dua kali: ${dupFail} kejadian.`);
+  console.log(`  GAGAL  soal segrup terulang dalam satu paket: ${dupFail} kejadian`);
+} else {
+  console.log(`  OK     tidak ada soal segrup yang terulang dalam satu paket`);
+}
+
+console.log('');
+console.log(`Ringkasan: ${errors.length} error, ${warnings.length} peringatan.`);
 process.exit(errors.length ? 1 : 0);

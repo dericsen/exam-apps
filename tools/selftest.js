@@ -252,16 +252,51 @@ async function main() {
     const qs = st.parts.tpks.questions;
     check('30 soal terkirim', qs.length === 30, String(qs.length));
 
+    // Field "group" dipakai server untuk dedup tapi TIDAK boleh ikut terkirim:
+    // ia membocorkan soal mana yang setara, sehingga peserta bisa menebak.
     const allowed = ['no', 'qid', 'type', 'q', 'opts'];
     const leaked = qs.filter((q) => Object.keys(q).some((k) => !allowed.includes(k)));
     check('kunci jawaban & pembahasan TIDAK dikirim', leaked.length === 0,
       JSON.stringify(leaked[0] || {}));
     check('respons tidak memuat field "exp"', !JSON.stringify(st).includes('"exp"'));
 
-    const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-    const keys = qs.map((q) => norm(q.q) + '|' + q.opts.map(norm).sort().join('|'));
-    check('tidak ada soal duplikat dalam satu paket', new Set(keys).size === keys.length,
-      `${keys.length - new Set(keys).size} duplikat`);
+    // Duplikat diperiksa pakai field "group" di bank soal, bukan kemiripan
+    // teks. Bank menulis ulang soal yang sama dengan kalimat DAN pilihan
+    // berbeda, jadi perbandingan teks mentah sama sekali tidak menangkapnya
+    // -- itu penyebab bug soal muncul 4-5 kali dalam satu paket.
+    const rawBank = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tpks.json'), 'utf8'));
+    const groupOfQid = new Map(rawBank.questions.map((q) => [q.id, q.group || q.id]));
+    check('bank soal punya field "group"', rawBank.questions.every((q) => !!q.group));
+
+    const groups = qs.map((q) => groupOfQid.get(q.qid));
+    const dupCount = groups.length - new Set(groups).size;
+    check('tidak ada dua soal dari kelompok yang sama', dupCount === 0, `${dupCount} duplikat`);
+
+    // Periksa lintas banyak peserta, bukan hanya satu paket.
+    let worstRepeat = 1;
+    let badPackets = 0;
+    let badComposition = 0;
+    for (let i = 0; i < 12; i++) {
+      const s = await enroll('Dedup ' + i, 'dup' + i, '-');
+      const packet = (await stateOf(s)).parts.tpks.questions;
+      const counts = {};
+      const types = {};
+      for (const q of packet) {
+        const g = groupOfQid.get(q.qid);
+        counts[g] = (counts[g] || 0) + 1;
+        types[q.type] = (types[q.type] || 0) + 1;
+      }
+      const m = Math.max(...Object.values(counts));
+      worstRepeat = Math.max(worstRepeat, m);
+      if (m > 1) badPackets++;
+      if (types.A_PATTERN !== 10 || types.B_LOGIC !== 10 || types.C_ANALYTIC !== 10) {
+        badComposition++;
+      }
+    }
+    check('12 peserta lain juga bebas soal berulang', badPackets === 0,
+      `${badPackets} paket bermasalah, pengulangan maks ${worstRepeat}x`);
+    check('komposisi 10/10/10 tetap terpenuhi untuk semua peserta', badComposition === 0,
+      `${badComposition} paket salah komposisi`);
 
     const byType = {};
     qs.forEach((q) => (byType[q.type] = (byType[q.type] || 0) + 1));

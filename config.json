@@ -1,0 +1,71 @@
+{
+  "port": 3000,
+  "host": "0.0.0.0",
+
+  "exam_title": "Seleksi Tim Riset & Proyek Ilmu Komputer 2026",
+  "exam_subtitle": "Tes Potensi Komputasi & Sains (TPKS) + Competitive Programming",
+
+  "admin_key": "GANTI-KUNCI-INI-SEBELUM-UJIAN",
+
+  "registration": {
+    "mode": "open",
+    "require_access_code": true,
+    "access_code": "CS2026",
+    "fields": ["nama", "nim", "kelas"],
+    "allow_relogin": true
+  },
+
+  "sections": [
+    {
+      "id": "tpks",
+      "name": "TPKS",
+      "full_name": "Tes Potensi Komputasi & Sains",
+      "type": "mcq",
+      "duration_min": 45,
+      "composition": { "A_PATTERN": 10, "B_LOGIC": 10, "C_ANALYTIC": 10 },
+      "shuffle_questions": true,
+      "shuffle_options": true,
+      "allow_back": true,
+      "weight": 0.4,
+      "_exclude_note": "Soal cacat yang tidak boleh keluar. Jalankan `node tools/validate_bank.js` untuk melihat alasannya.",
+      "exclude_question_ids": ["A_PATTERN-002", "A_PATTERN-007"]
+    },
+    {
+      "id": "cp",
+      "name": "Competitive Programming",
+      "full_name": "Competitive Programming (Level Mudah)",
+      "type": "code",
+      "duration_min": 90,
+      "problem_ids": ["E-001", "E-004", "E-008", "E-011", "E-012"],
+      "languages": ["python", "cpp", "javascript"],
+      "max_submissions_per_problem": 25,
+      "show_hidden_test_detail": false,
+      "weight": 0.6
+    }
+  ],
+
+  "lockdown": {
+    "require_fullscreen": true,
+    "max_violations": 5,
+    "auto_submit_on_max_violations": true,
+    "block_context_menu": true,
+    "block_copy_paste_mcq": true,
+    "block_paste_code": true,
+    "block_devtools_keys": true,
+    "warn_on_blur": true,
+    "grace_seconds_per_violation": 15
+  },
+
+  "judge": {
+    "enabled": true,
+    "max_concurrent": 2,
+    "compile_timeout_ms": 10000,
+    "max_output_bytes": 2000000,
+    "memory_limit_mb": 256
+  },
+
+  "result": {
+    "show_score_to_participant": false,
+    "show_correct_answers": false
+  }
+}

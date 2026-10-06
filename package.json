@@ -1,0 +1,26 @@
+{
+  "name": "exam-apps",
+  "version": "1.0.0",
+  "description": "Aplikasi ujian LAN dengan lockdown: TPKS (pilihan ganda) + Competitive Programming (auto-judge). Zero dependency.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "verify": "node tools/verify_cp.js",
+    "validate": "node tools/validate_bank.js",
+    "test": "node tools/selftest.js",
+    "gen-cp": "python3 tools/gen_cp.py"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "exam",
+    "ujian",
+    "lockdown",
+    "competitive-programming",
+    "online-judge",
+    "lan"
+  ],
+  "license": "MIT",
+  "private": true
+}

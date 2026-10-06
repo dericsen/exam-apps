@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk Ujian</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="center" style="margin-bottom:2rem">
+    <h1 id="title">Memuat…</h1>
+    <p class="dim" id="subtitle"></p>
+  </div>
+
+  <div class="card" id="infoCard">
+    <h3>Susunan Ujian</h3>
+    <div id="sectionList"></div>
+  </div>
+
+  <div class="card">
+    <h3>Peraturan Ujian</h3>
+    <ul class="rules dim">
+      <li>Ujian berjalan dalam <strong>mode layar penuh</strong>. Kamu wajib tetap berada di layar ujian.</li>
+      <li>Keluar dari layar penuh, berpindah tab, atau membuka aplikasi lain akan
+          <strong>tercatat otomatis</strong> sebagai pelanggaran dan terlihat oleh pengawas.</li>
+      <li>Setelah mencapai <strong id="maxViol">—</strong> pelanggaran, jawabanmu
+          <strong>dikumpulkan otomatis</strong> dan ujian berakhir.</li>
+      <li>Klik kanan, copy-paste, dan developer tools dinonaktifkan.</li>
+      <li>Waktu dihitung di server. Reload halaman atau WiFi terputus
+          <strong>tidak menghentikan timer</strong>, tapi jawabanmu tetap tersimpan.</li>
+      <li>Setiap bagian dikerjakan <strong>berurutan</strong>. Bagian yang sudah dikumpulkan tidak bisa dibuka lagi.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Identitas Peserta</h3>
+    <div id="loginError" class="alert err hidden"></div>
+    <form id="loginForm" autocomplete="off">
+      <div class="field">
+        <label for="nama">Nama Lengkap</label>
+        <input type="text" id="nama" name="nama" required maxlength="80" placeholder="Nama sesuai KTM">
+      </div>
+      <div class="field">
+        <label for="nim">NIM</label>
+        <input type="text" id="nim" name="nim" required maxlength="40" placeholder="Nomor Induk Mahasiswa">
+        <p class="faint" style="margin:.3rem 0 0">NIM dipakai sebagai identitas sesi. Salah tulis NIM = sesi berbeda.</p>
+      </div>
+      <div class="field">
+        <label for="kelas">Kelas / Angkatan</label>
+        <input type="text" id="kelas" name="kelas" maxlength="40" placeholder="Contoh: TI-4A">
+      </div>
+      <div class="field hidden" id="codeField">
+        <label for="access_code">Kode Akses</label>
+        <input type="text" id="access_code" name="access_code" maxlength="60" placeholder="Diberikan pengawas">
+      </div>
+      <button type="submit" class="block" id="submitBtn">Masuk ke Ujian</button>
+    </form>
+  </div>
+
+  <p class="center faint">
+    Halaman pengawas: <a href="admin.html">admin.html</a>
+  </p>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+(async function () {
+  'use strict';
+  const err = document.getElementById('loginError');
+
+  function showError(msg) {
+    err.textContent = msg;
+    err.classList.remove('hidden');
+  }
+
+  let meta;
+  try {
+    meta = await API.get('/api/meta');
+  } catch (e) {
+    document.getElementById('title').textContent = 'Server ujian tidak terjangkau';
+    showError(e.message);
+    return;
+  }
+
+  document.title = meta.exam_title;
+  document.getElementById('title').textContent = meta.exam_title;
+  document.getElementById('subtitle').textContent = meta.exam_subtitle || '';
+  document.getElementById('maxViol').textContent = meta.lockdown.max_violations;
+
+  document.getElementById('sectionList').innerHTML = meta.sections
+    .map(
+      (s, i) => `
+      <div class="row between" style="padding:.5rem 0;border-bottom:1px solid var(--border-soft)">
+        <div>
+          <strong>${i + 1}. ${esc(s.full_name || s.name)}</strong>
+          <div class="faint">${
+            s.type === 'mcq'
+              ? s.question_count + ' soal pilihan ganda'
+              : s.question_count + ' soal pemrograman'
+          } &middot; bobot ${Math.round((s.weight || 0) * 100)}%</div>
+        </div>
+        <span class="badge blue nowrap">${s.duration_min} menit</span>
+      </div>`
+    )
+    .join('');
+
+  if (meta.registration.require_access_code) {
+    document.getElementById('codeField').classList.remove('hidden');
+    document.getElementById('access_code').required = true;
+  }
+
+  // Sudah punya sesi aktif? Tawarkan lanjut langsung.
+  if (API.getSid()) {
+    try {
+      const { state } = await API.get('/api/state');
+      if (state.status !== 'finished' && state.status !== 'disqualified') {
+        const box = document.createElement('div');
+        box.className = 'alert info';
+        box.innerHTML = `Sesi untuk <strong>${esc(state.participant.nama)}</strong> masih berjalan.
+          <button class="sm" style="margin-left:.5rem" id="resumeBtn">Lanjutkan Ujian</button>`;
+        document.getElementById('loginForm').before(box);
+        document.getElementById('resumeBtn').onclick = () => (location.href = 'exam.html');
+      }
+    } catch (_) {
+      API.clearSid();
+    }
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    err.classList.add('hidden');
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Memproses…';
+    try {
+      const payload = {
+        nama: document.getElementById('nama').value.trim(),
+        nim: document.getElementById('nim').value.trim(),
+        kelas: document.getElementById('kelas').value.trim(),
+        access_code: document.getElementById('access_code').value.trim(),
+      };
+      const res = await API.post('/api/register', payload);
+      API.setSid(res.sid);
+      location.href = 'exam.html';
+    } catch (e) {
+      showError(e.message);
+      btn.disabled = false;
+      btn.textContent = 'Masuk ke Ujian';
+    }
+  });
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])
+    );
+  }
+})();
+</script>
+</body>
+</html>

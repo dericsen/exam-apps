@@ -1,0 +1,12 @@
+# Data ujian: jawaban peserta, kode kiriman, dan log audit.
+# JANGAN di-commit -- ini berisi data pribadi peserta.
+data/runtime/
+
+# Artefak judge
+*.tmp
+*.corrupt-*
+
+node_modules/
+.DS_Store
+Thumbs.db
+*.log

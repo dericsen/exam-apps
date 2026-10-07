@@ -336,8 +336,47 @@ node tools/validate_bank.js
 
 ### Competitive Programming — `data/cp-problems.json`
 
-15 soal **level mudah**, statement Bahasa Indonesia, 7 test case per soal
-(2 contoh terbuka + 5 tersembunyi) = 105 test case.
+15 soal **level mudah**, statement Bahasa Indonesia. Per soal: **2 contoh kasus**
+yang ditampilkan (tidak dinilai) + **10 test case tersembunyi** yang dinilai.
+Total 150 test penilaian + 30 contoh.
+
+#### Contoh kasus tidak dinilai — dan itu disengaja
+
+Kalau contoh kasus yang terpampang di soal juga ikut dinilai, peserta bisa
+mendapat nilai tanpa menulis algoritma apa pun:
+
+```python
+s = input()
+if s == "kiro": print("orik")
+elif s == "pemrograman": print("namargormep")
+```
+
+Kode di atas lolos kedua contoh. Dengan partial credit, itu **29/100 gratis**.
+
+Karena itu data contoh dan data penilaian **dipisah total**:
+
+| | Ditampilkan di soal | Dijalankan oleh "Uji contoh" | Dinilai |
+|---|---|---|---|
+| Contoh kasus (2) | ya | ya | **tidak** |
+| Test tersembunyi (10) | tidak | tidak | **ya** |
+
+Nilainya pun sengaja berbeda, dan `tools/gen_cp.py` **menolak menulis bank soal**
+kalau ada satu saja test penilaian yang memakai input sama dengan contoh.
+`tools/verify_cp.js` membuktikannya dengan benar-benar menjalankan solusi
+hardcode terhadap setiap soal dan memastikan hasilnya nol:
+
+```
+Anti-hardcode (jawaban contoh di-hardcode harus dapat 0):
+  PASS  E-001  hardcode contoh -> 0/10 test dinilai lulus (nilai 0, benar)
+  ...
+  Semua soal aman: contoh kasus tidak memberi nilai apa pun.
+```
+
+Saat submit, peserta hanya melihat **nomor test dan verdict-nya** (`test 3 WA`).
+Input, output yang diharapkan, maupun output programnya sendiri tidak pernah
+dikirim — kalau tidak, peserta bisa memanen test tersembunyi lewat submit
+berulang. Diperiksa otomatis oleh `selftest.js` secara struktural, bukan sekadar
+pencarian teks.
 
 | ID | Judul | Topik | Tier |
 |---|---|---|---|
@@ -426,9 +465,13 @@ soal mana yang didapat tiap peserta — penting karena soalnya berbeda-beda.
 
 **TPKS** — `benar / 30 × 100`. Tidak ada nilai minus.
 
-**CP** — per soal `test case lulus / 7 × 100` (**partial credit**). Dari beberapa
-submit, yang dipakai adalah **submit terbaik**, bukan yang terakhir, jadi peserta
-tidak dirugikan karena mencoba optimasi di akhir.
+**CP** — per soal `test tersembunyi yang lulus / 10 × 100` (**partial credit**,
+satu test = 10 poin). **Contoh kasus di soal tidak ikut dinilai**, jadi jawaban yang
+di-hardcode dari contoh mendapat nol — lihat
+[Contoh kasus tidak dinilai](#contoh-kasus-tidak-dinilai--dan-itu-disengaja).
+
+Dari beberapa submit, yang dipakai adalah **submit terbaik**, bukan yang terakhir,
+jadi peserta tidak dirugikan karena mencoba optimasi di akhir.
 
 **Bahasa yang tersedia** diatur di `config.json` (bawaan: Python, C, Java; judge juga
 mendukung C++ dan JavaScript). Java dan Python mendapat **kelonggaran batas waktu**

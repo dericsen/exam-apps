@@ -520,7 +520,13 @@
       <section><h4>Format output</h4><div class="body">${fmt(p.output_format)}</div></section>
       <section><h4>Batasan</h4><div class="body mono small">${fmt(p.constraints)}</div></section>
       ${p.notes ? `<section><h4>Catatan</h4><div class="body dim">${fmt(p.notes)}</div></section>` : ''}
-      <section><h4>Contoh kasus</h4>
+      <section><h4>Contoh kasus &mdash; tidak dinilai</h4>
+        <p class="small dim" style="margin:0 0 .4rem">
+          Contoh di bawah hanya untuk memahami format input/output. Nilaimu
+          ditentukan oleh <b>${p.total_tests} test case tersembunyi</b> dengan data
+          yang berbeda, jadi menuliskan jawaban contoh secara langsung tidak akan
+          mendapat nilai.
+        </p>
         ${p.samples
           .map(
             (s, i) => `<div style="margin-bottom:.5rem">
@@ -719,7 +725,7 @@
           `(dasar ${p.time_limit_ms / 1000}s &times;${mult})</span>`;
     return (
       `${esc(p.id)} &middot; ${esc(p.topic)} &middot; ${limit} &middot; ` +
-      `${p.total_tests} test case &middot; ` +
+      `${p.total_tests} test dinilai (tersembunyi) &middot; ` +
       `${pr.attempts || 0}/${cp().max_submissions_per_problem} submit terpakai` +
       (pr.solved ? ' &middot; <b>selesai</b>' : '')
     );
@@ -747,7 +753,8 @@
            ${passed} dari ${total} test case lulus. Nilai soal ini
            ${total ? Math.round((passed / total) * 100) : 0}/100.</div>`
       : `<div class="msg ${allOk ? 'ok' : 'warn'}">${passed}/${total} contoh kasus lulus.
-           ${allOk ? 'Jangan lupa tekan Submit &amp; nilai.' : ''}</div>`;
+           Ini <b>belum</b> nilaimu &mdash; contoh tidak dinilai.
+           ${allOk ? 'Tekan <b>Submit &amp; nilai</b> untuk diuji dengan test tersembunyi.' : ''}</div>`;
 
     const rows = (result.results || [])
       .map((r) => {

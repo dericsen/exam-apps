@@ -21,7 +21,14 @@ PROBLEMS = []
 
 
 def problem(**meta):
-    """Decorator: fungsi yang dihias adalah reference solution (stdin -> stdout)."""
+    """Decorator: fungsi yang dihias adalah reference solution (stdin -> stdout).
+
+    `inputs` dipakai begini:
+      - dua entri PERTAMA menjadi contoh kasus yang ditampilkan di soal.
+        Contoh ini TIDAK dinilai.
+      - sisanya menjadi test case tersembunyi yang dinilai, digabung dengan
+        HIDDEN_EXTRA di bawah.
+    """
 
     def wrap(solve):
         meta["solve"] = solve
@@ -584,6 +591,78 @@ def _e015(data):
 
 
 # --------------------------------------------------------------------------
+# Test case tersembunyi tambahan.
+#
+# Alasan keberadaannya: contoh kasus di soal TIDAK boleh dinilai, karena
+# peserta bisa sekadar menuliskan jawabannya langsung:
+#
+#     s = input()
+#     if s == "kiro": print("orik")
+#
+# Tanpa pemisahan, kode seperti itu lolos 2 dari 7 test dan mendapat 29/100
+# tanpa algoritma apa pun. Karena itu seluruh penilaian memakai test case
+# tersembunyi, dan nilainya sengaja dibuat berbeda dari contoh.
+#
+# Jumlah test tersembunyi juga diperbanyak menjadi ~10 per soal supaya
+# partial credit lebih halus (satu test = 10 poin, bukan 20) dan supaya
+# menebak-nebak jadi tidak mungkin.
+# --------------------------------------------------------------------------
+HIDDEN_EXTRA = {
+    "E-001": ["1 -1", "-5 3", "999999999 1", "-999999999 -1", "500000000 500000000"],
+    "E-002": ["1", "2", "-1", "-2", "123456789012345678"],
+    "E-003": [
+        "1\n-1000000000",
+        "2\n-1 -2",
+        "5\n-5 -4 -3 -2 -1",
+        "3\n1000000000 999999999 999999998",
+        case(50, -100, 100),
+    ],
+    "E-004": [
+        "1\n100",
+        "2\n1 2",
+        "3\n0 0 1",
+        "7\n99 100 98 97 96 95 94",
+        case(999, 0, 100),
+    ],
+    "E-005": ["aaaaa", "e", "zzz zzz", "aeiouaeiou", "i u a e o y w x"],
+    "E-006": [
+        "zz",
+        "qwertyuiop",
+        "ab",
+        "".join(random.choice("xyz") for _ in range(777)),
+        "".join(random.choice("abcdefghij") for _ in range(12345)),
+    ],
+    "E-007": ["2", "12", "18", "7", "13"],
+    "E-008": ["aba", "abba", "abcba", "xy", "a" * 99999],
+    "E-009": ["2", "30", "999", "45", "7"],
+    "E-010": [
+        "1 7\n8",
+        "3 1000000000\n1000000000 1 2",
+        "2 0\n0 0",
+        "4 -1\n1 2 3 4",
+        f"500 7\n" + " ".join(str(v) for v in rand_list(500, 1, 20)),
+    ],
+    "E-011": [
+        "2\n2 1",
+        "5\n1 2 3 4 5",
+        "5\n5 4 3 2 1",
+        "3\n-1000000000 0 1000000000",
+        case(777, -1000, 1000),
+    ],
+    "E-012": ["4", "1000", "99991", "50", "7919"],
+    "E-013": ["3", "45", "70", "88", "30"],
+    "E-014": [
+        "2\n0 1",
+        "3\n-1 -2 -3",
+        "5\n1000000000 1000000000 1000000000 1000000000 1000000000",
+        case(50, -5, 5),
+        case(333, -(10**9), 10**9),
+    ],
+    "E-015": ["satu dua", "  awal", "akhir  ", "a", "x y"],
+}
+
+
+# --------------------------------------------------------------------------
 # Build JSON
 # --------------------------------------------------------------------------
 REFERENCE_SOLUTIONS = {
@@ -696,26 +775,54 @@ def main():
     out = {
         "problem_set_id": "CP-EASY-2026",
         "problem_set_name": "CS Selection 2026 - Competitive Programming (Level Mudah)",
-        "version": "1.0",
+        "version": "2.0",
         "generated_by": "tools/gen_cp.py",
-        "scoring": "Nilai per soal = 100 * (test case lulus / total test case). Partial credit aktif.",
+        "scoring": (
+            "Nilai per soal = 100 * (test case TERSEMBUNYI yang lulus / total test "
+            "tersembunyi). Partial credit aktif. Contoh kasus yang ditampilkan di soal "
+            "TIDAK ikut dinilai dan nilainya berbeda dari test tersembunyi, supaya "
+            "jawaban yang di-hardcode tidak mendapat nilai apa pun."
+        ),
         "starter_code": STARTER_CODE,
         "problems": [],
     }
 
+    problems_errors = []
+
+    def normalize(s):
+        return s.strip().replace("\r\n", "\n")
+
     for p in PROBLEMS:
         solve = p["solve"]
-        tests = []
-        for idx, raw in enumerate(p["inputs"]):
-            inp = raw if raw.endswith("\n") else raw + "\n"
-            expected = solve(inp)
-            tests.append(
-                {
-                    "no": idx + 1,
-                    "input": inp,
-                    "output": expected + "\n",
-                    "is_sample": idx < 2,
-                }
+        raw_samples = p["inputs"][:2]
+        raw_hidden = list(p["inputs"][2:]) + list(HIDDEN_EXTRA.get(p["id"], []))
+
+        def build(raws, start_no):
+            items = []
+            for idx, raw in enumerate(raws):
+                inp = raw if raw.endswith("\n") else raw + "\n"
+                items.append(
+                    {"no": start_no + idx, "input": inp, "output": solve(inp) + "\n"}
+                )
+            return items
+
+        samples = build(raw_samples, 1)
+        hidden = build(raw_hidden, 1)
+
+        # --- Pemeriksaan keras: contoh dan test tersembunyi harus BEDA.
+        sample_keys = {normalize(s["input"]) for s in samples}
+        clash = [h["no"] for h in hidden if normalize(h["input"]) in sample_keys]
+        if clash:
+            problems_errors.append(
+                f"{p['id']}: test tersembunyi #{clash} memakai input yang sama dengan "
+                f"contoh di soal. Jawaban hardcode akan mendapat nilai."
+            )
+        if len(samples) < 2:
+            problems_errors.append(f"{p['id']}: contoh kasus kurang dari 2.")
+        if len(hidden) < 8:
+            problems_errors.append(
+                f"{p['id']}: hanya {len(hidden)} test tersembunyi, minimal 8 agar "
+                f"partial credit cukup halus."
             )
 
         out["problems"].append(
@@ -732,7 +839,10 @@ def main():
                 "output_format": p["output_format"],
                 "constraints": p["constraints"],
                 "notes": p["notes"],
-                "test_cases": tests,
+                # Ditampilkan ke peserta, tidak dinilai.
+                "samples": samples,
+                # Tersembunyi, inilah yang dinilai.
+                "test_cases": hidden,
                 "reference_solution": {
                     "language": "python",
                     "code": REFERENCE_SOLUTIONS[p["id"]],
@@ -740,18 +850,28 @@ def main():
             }
         )
 
+    if problems_errors:
+        print("GAGAL -- bank soal tidak ditulis:")
+        for e in problems_errors:
+            print("  " + e)
+        raise SystemExit(1)
+
     here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(here, "data", "cp-problems.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
 
-    total_tests = sum(len(p["test_cases"]) for p in out["problems"])
-    print(f"OK  {len(out['problems'])} soal, {total_tests} test case -> {path}")
+    total_hidden = sum(len(p["test_cases"]) for p in out["problems"])
+    total_samples = sum(len(p["samples"]) for p in out["problems"])
+    print(
+        f"OK  {len(out['problems'])} soal, {total_hidden} test tersembunyi (dinilai), "
+        f"{total_samples} contoh (tidak dinilai) -> {path}"
+    )
     for p in out["problems"]:
-        samples = sum(1 for t in p["test_cases"] if t["is_sample"])
         print(
             f"  {p['id']}  {p['title']:<28} "
-            f"{len(p['test_cases'])} tc ({samples} sample)  [{p['topic']}]"
+            f"{len(p['test_cases'])} test dinilai + {len(p['samples'])} contoh  "
+            f"[{p['topic']}]"
         )
 
 

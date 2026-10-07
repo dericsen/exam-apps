@@ -476,10 +476,12 @@ router.on('POST', '/api/cp/run', async (ctx) => {
     return sendJson(ctx.res, 200, { mode: 'custom', result });
   }
 
+  // Hanya contoh kasus yang dijalankan di sini, dan contoh itu memang sudah
+  // tampil di soal -- jadi membuka input/output-nya tidak membocorkan apa pun.
   const result = await judge.evaluate({
     language: v.language,
     code: v.code,
-    tests: v.problem.test_cases.filter((t) => t.is_sample),
+    tests: v.problem.samples,
     timeLimitMs: v.problem.time_limit_ms,
     revealIO: true,
   });
@@ -509,6 +511,8 @@ router.on('POST', '/api/cp/submit', async (ctx) => {
     });
   }
 
+  // Dinilai HANYA dengan test tersembunyi. Contoh kasus tidak ikut, supaya
+  // kode yang sekadar menuliskan jawaban contoh mendapat nilai nol.
   const result = await judge.evaluate({
     language: v.language,
     code: v.code,
@@ -537,12 +541,17 @@ router.on('POST', '/api/cp/submit', async (ctx) => {
     total: result.total,
   });
 
-  // Peserta melihat ringkasan + detail test case contoh saja.
+  // Peserta hanya melihat nomor test dan verdict-nya. Input, output yang
+  // diharapkan, maupun output programnya sendiri TIDAK dikirim -- kalau tidak,
+  // peserta bisa memanen test tersembunyi lewat submit berulang.
   const visible = CP_SECTION.show_hidden_test_detail
     ? result.results
-    : result.results.map((r) =>
-        r.is_sample ? r : { no: r.no, verdict: r.verdict, label: r.label, time_ms: r.time_ms }
-      );
+    : result.results.map((r) => ({
+        no: r.no,
+        verdict: r.verdict,
+        label: r.label,
+        time_ms: r.time_ms,
+      }));
 
   sendJson(ctx.res, 200, {
     submission: {

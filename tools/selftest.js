@@ -321,12 +321,50 @@ async function main() {
     check('soal 1 dari tier mudah', TIER1.includes(ids[0]), ids[0]);
     check('soal 2 dari tier menengah', TIER2.includes(ids[1]), ids[1]);
     check('dua soal berbeda', ids[0] !== ids[1]);
-    check('hanya contoh kasus dibagikan', st.parts.cp.problems[0].samples.length === 2);
-    check('test case tersembunyi tidak dikirim',
-      !JSON.stringify(st.parts.cp.problems).includes('is_sample') &&
-        st.parts.cp.problems[0].total_tests === 7,
+    check('hanya 2 contoh kasus dibagikan', st.parts.cp.problems[0].samples.length === 2);
+    check('10 test tersembunyi yang dinilai', st.parts.cp.problems[0].total_tests === 10,
       String(st.parts.cp.problems[0].total_tests));
     check('reference solution tidak dikirim', !JSON.stringify(st).includes('reference_solution'));
+
+    // Isi test tersembunyi tidak boleh ikut terkirim dalam bentuk apa pun.
+    const rawCp = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'cp-problems.json'), 'utf8'));
+
+    // 1) Pemeriksaan struktural: objek soal yang dikirim tidak boleh punya
+    //    field test_cases, dan key-nya harus persis yang diizinkan.
+    const allowedProblemKeys = [
+      'no', 'id', 'title', 'difficulty', 'topic', 'time_limit_ms', 'memory_limit_mb',
+      'points', 'statement', 'input_format', 'output_format', 'constraints', 'notes',
+      'total_tests', 'samples',
+    ];
+    const badKeys = st.parts.cp.problems.flatMap((p) =>
+      Object.keys(p).filter((k) => !allowedProblemKeys.includes(k))
+    );
+    check('objek soal tidak memuat field test_cases', badKeys.length === 0, badKeys.join(', '));
+
+    // 2) Pemeriksaan isi: input tersembunyi yang KHAS (lebih dari satu token,
+    //    atau sangat panjang) tidak boleh muncul di payload. Input satu token
+    //    seperti "100000" dilewati karena angka itu memang muncul sah di teks
+    //    batasan soal -- memeriksanya hanya menghasilkan alarm palsu.
+    const payload = JSON.stringify(st.parts.cp.problems);
+    const leaked = [];
+    for (const prob of rawCp.problems) {
+      for (const t of prob.test_cases) {
+        const inp = t.input.trim();
+        const distinctive = (inp.split(/\s+/).length >= 2 && inp.length >= 8) || inp.length >= 40;
+        if (!distinctive) continue;
+        if (payload.includes(inp)) leaked.push(`${prob.id}#${t.no}`);
+      }
+    }
+    check('isi test tersembunyi TIDAK bocor ke peserta', leaked.length === 0,
+      leaked.slice(0, 5).join(', '));
+
+    // Contoh kasus harus benar-benar beda datanya dari test yang dinilai.
+    let overlap = 0;
+    for (const prob of rawCp.problems) {
+      const s = new Set(prob.samples.map((x) => x.input.trim()));
+      overlap += prob.test_cases.filter((t) => s.has(t.input.trim())).length;
+    }
+    check('contoh kasus tidak dipakai sebagai test penilaian', overlap === 0, `${overlap} tumpang tindih`);
 
     // Keacakan antar peserta: daftarkan 20 peserta, periksa tier & variasi.
     const combos = new Set();
@@ -409,10 +447,37 @@ async function main() {
 
     const sub1 = await POST('/api/cp/submit', { problem_id: p1, language: 'python', code: REF[p1] }, sid);
     check('submit solusi benar = AC', sub1.data.submission.verdict === 'AC', sub1.data.submission.verdict);
-    check('semua 7 test case lulus',
-      sub1.data.submission.passed === 7 && sub1.data.submission.total === 7);
-    check('detail test case tersembunyi tidak bocor',
-      sub1.data.submission.results.filter((x) => !x.is_sample && x.expected != null).length === 0);
+    check('semua 10 test tersembunyi lulus',
+      sub1.data.submission.passed === 10 && sub1.data.submission.total === 10,
+      `${sub1.data.submission.passed}/${sub1.data.submission.total}`);
+    // Hasil submit hanya boleh memuat nomor test, verdict, dan waktu.
+    const allowedKeys = ['no', 'verdict', 'label', 'time_ms'];
+    const leakyFields = sub1.data.submission.results.filter((r) =>
+      Object.keys(r).some((k) => !allowedKeys.includes(k))
+    );
+    check('hasil submit tidak memuat input/output test tersembunyi',
+      leakyFields.length === 0, JSON.stringify(leakyFields[0] || {}));
+
+    // Serangan yang dimaksud: hardcode jawaban contoh yang terpampang di soal.
+    const problem1 = (await stateOf(sid)).parts.cp.problems.find((x) => x.id === p1);
+    const hardcode =
+      'import sys\ndata = sys.stdin.read().rstrip("\\n")\n' +
+      problem1.samples
+        .map(
+          (s) =>
+            `if data == ${JSON.stringify(s.input.replace(/\n$/, ''))}: ` +
+            `print(${JSON.stringify(s.output.replace(/\n$/, ''))})`
+        )
+        .join('\nel') +
+      '\nelse: print("")\n';
+
+    const hcRun = await POST('/api/cp/run', { problem_id: p1, language: 'python', code: hardcode }, sid);
+    check('hardcode LULUS semua contoh (memang begitu)',
+      hcRun.data.result.passed === 2, `${hcRun.data.result.passed}/2`);
+    const hcSub = await POST('/api/cp/submit', { problem_id: p1, language: 'python', code: hardcode }, sid);
+    check('tapi hardcode dapat NOL pada test yang dinilai',
+      hcSub.data.submission.passed === 0,
+      `${hcSub.data.submission.passed}/${hcSub.data.submission.total} lulus`);
 
     // Solusi yang pasti salah: cetak token pertama dari input apa pun.
     const broken = 'import sys\nd = sys.stdin.read().split()\nprint(d[0])';

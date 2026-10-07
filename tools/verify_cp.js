@@ -28,10 +28,11 @@ const bank = JSON.parse(fs.readFileSync(bankPath, 'utf8'));
 
   for (const p of bank.problems) {
     const ref = p.reference_solution;
+    // Reference solution harus lolos test tersembunyi DAN contoh kasus.
     const res = await judge.evaluate({
       language: ref.language,
       code: ref.code,
-      tests: p.test_cases,
+      tests: [...p.test_cases, ...p.samples],
       timeLimitMs: p.time_limit_ms,
       revealIO: true,
     });
@@ -60,6 +61,60 @@ const bank = JSON.parse(fs.readFileSync(bankPath, 'utf8'));
   console.log('');
   console.log(`Reference solution: ${bank.problems.length - fail}/${bank.problems.length} soal AC`);
   console.log(`Total test case dieksekusi: ${totalTests}`);
+
+  // --- Anti-hardcode -----------------------------------------------------
+  // Memastikan contoh kasus benar-benar terpisah dari test yang dinilai.
+  // Kalau pemisahan ini bocor, peserta bisa mendapat nilai hanya dengan
+  // menuliskan jawaban contoh yang terpampang di soal.
+  console.log('');
+  console.log('Anti-hardcode (jawaban contoh di-hardcode harus dapat 0):');
+  let hardcodeLeak = 0;
+  for (const p of bank.problems) {
+    // Data contoh tidak boleh muncul di test yang dinilai.
+    const norm = (s) => String(s).trim();
+    const sampleInputs = new Set(p.samples.map((s) => norm(s.input)));
+    const overlap = p.test_cases.filter((t) => sampleInputs.has(norm(t.input)));
+    if (overlap.length) {
+      hardcodeLeak++;
+      fail++;
+      console.log(
+        `  FAIL  ${p.id}  ${overlap.length} test dinilai memakai input yang sama dengan contoh`
+      );
+      continue;
+    }
+
+    // Jalankan solusi hardcode: hanya mengenali input contoh.
+    const branches = p.samples
+      .map(
+        (s) =>
+          `if data == ${JSON.stringify(s.input.replace(/\n$/, ''))}: ` +
+          `print(${JSON.stringify(s.output.replace(/\n$/, ''))})`
+      )
+      .join('\nel');
+    const code =
+      'import sys\ndata = sys.stdin.read().rstrip("\\n")\n' + branches + '\nelse: print("")\n';
+
+    const res = await judge.evaluate({
+      language: 'python',
+      code,
+      tests: p.test_cases,
+      timeLimitMs: p.time_limit_ms,
+      revealIO: false,
+    });
+    const ok = res.passed === 0;
+    if (!ok) {
+      hardcodeLeak++;
+      fail++;
+    }
+    console.log(
+      `  ${ok ? 'PASS' : 'FAIL'}  ${p.id.padEnd(6)} hardcode contoh -> ` +
+        `${res.passed}/${res.total} test dinilai lulus` +
+        (ok ? ' (nilai 0, benar)' : '  <-- MASIH DAPAT NILAI!')
+    );
+  }
+  if (!hardcodeLeak) {
+    console.log('  Semua soal aman: contoh kasus tidak memberi nilai apa pun.');
+  }
 
   // --- Uji negatif: judge harus bisa menolak jawaban salah --------------
   console.log('');

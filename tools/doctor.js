@@ -329,10 +329,40 @@ function lanIps() {
       ok('paket CP bisa dibentuk', picked.problemIds.join(', '));
     }
 
-    // Test case lengkap?
-    const empty = cpBank.problems.filter((p) => !p.test_cases || p.test_cases.length < 2);
-    if (empty.length) fail('soal CP tanpa test case cukup', empty.map((p) => p.id).join(', '));
-    else ok('semua soal CP punya test case');
+    // Test case lengkap, dan contoh benar-benar terpisah dari yang dinilai.
+    const thinTests = cpBank.problems.filter((p) => !p.test_cases || p.test_cases.length < 8);
+    const noSamples = cpBank.problems.filter((p) => !p.samples || p.samples.length < 1);
+    let overlap = 0;
+    for (const p of cpBank.problems) {
+      const s = new Set((p.samples || []).map((x) => x.input.trim()));
+      overlap += (p.test_cases || []).filter((t) => s.has(t.input.trim())).length;
+    }
+
+    if (thinTests.length) {
+      fail(
+        'soal CP dengan test penilaian terlalu sedikit',
+        thinTests.map((p) => p.id).join(', '),
+        'Minimal 8 agar partial credit cukup halus. Jalankan: python3 tools/gen_cp.py'
+      );
+    } else {
+      ok(
+        'test penilaian per soal',
+        `${cpBank.problems[0].test_cases.length} test tersembunyi`
+      );
+    }
+    if (noSamples.length) {
+      fail('soal CP tanpa contoh kasus', noSamples.map((p) => p.id).join(', '));
+    }
+    if (overlap) {
+      fail(
+        'contoh kasus dipakai sebagai test penilaian',
+        overlap + ' tumpang tindih',
+        'Peserta bisa mendapat nilai hanya dengan menuliskan jawaban contoh. ' +
+          'Jalankan ulang: python3 tools/gen_cp.py'
+      );
+    } else {
+      ok('contoh kasus terpisah dari test penilaian', 'hardcode tidak dapat nilai');
+    }
   } catch (err) {
     fail('bank soal gagal dimuat', err.message);
   }

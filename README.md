@@ -541,7 +541,7 @@ node tools/validate_bank.js
 # Kelompokkan ulang soal TPKS yang isinya sama (wajib setelah menambah soal)
 node tools/cluster_tpks.js --write
 
-# Uji end-to-end seluruh alur ujian (127 pemeriksaan, port & data terpisah)
+# Uji end-to-end seluruh alur ujian (141 pemeriksaan, port & data terpisah)
 node tools/selftest.js
 
 # Regenerasi bank soal CP setelah mengubah/menambah soal
@@ -603,7 +603,7 @@ exam-apps/
 │  └─ util.js                # PRNG per peserta, perbandingan output, sanitasi
 ├─ data/
 │  ├─ tpks.json              # 150 soal pilihan ganda
-│  ├─ cp-problems.json       # 15 soal CP + 105 test case + reference solution
+│  ├─ cp-problems.json       # 15 soal CP + 150 test penilaian + 30 contoh + reference solution
 │  └─ runtime/               # Dibuat otomatis: attempts.json, events.log (jangan di-commit)
 ├─ public/
 │  ├─ index.html             # Login peserta
@@ -621,7 +621,7 @@ exam-apps/
 │  ├─ gen_cp.py              # Generator bank CP (expected output dihitung, bukan ditulis)
 │  ├─ verify_cp.js           # Verifikasi bank CP + uji negatif judge
 │  ├─ validate_bank.js       # Laporan kualitas bank TPKS + uji kapasitas
-│  └─ selftest.js            # 130 pemeriksaan end-to-end
+│  └─ selftest.js            # 141 pemeriksaan end-to-end
 ├─ start.bat                 # Launcher Windows (preflight + server)
 ├─ start.sh                  # Launcher macOS/Linux
 └─ DEPLOY.md                 # Panduan deploy langkah demi langkah
